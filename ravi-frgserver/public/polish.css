@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Polish layer. Same structure and palette as the original Faraja interface;
+   this file only refines surfaces, feedback and motion, and it loads last so
+   removing it returns the app exactly to how it was.
+   ========================================================================== */
+:root{
+ --brand:#244b3b;--brand-deep:#18372b;--brand-soft:#edf5f0;--brand-tint:#e3eee7;
+ --ink:#17221d;--muted:#6b756f;--line:#dbe5df;--surface:#fff;
+ --accent:var(--brand);
+ --ease-out:cubic-bezier(.2,.8,.2,1);--ease-spring:cubic-bezier(.34,1.4,.64,1);
+ --t-fast:.14s;--t-mid:.26s;--t-slow:.42s;
+ --radius:14px;--radius-lg:20px;
+ --shadow-1:0 1px 2px rgba(23,43,32,.05),0 4px 14px rgba(23,43,32,.05);
+ --shadow-2:0 2px 6px rgba(23,43,32,.06),0 14px 34px rgba(23,43,32,.08);
+}
+
+/* --- Screen transitions --------------------------------------------------
+   The page is rebuilt on every change, so the old entrance animation replayed
+   on every tap. Motion now runs only when motion.js marks a NEW screen, and it
+   comes from the side the reporter is moving toward (RTL: forward is left). */
+.content,.legacy-ui .content{animation:none}
+.content.screen-enter{animation:screen-in var(--t-slow) var(--ease-out) both}
+.content.screen-enter[data-nav="back"]{animation-name:screen-back}
+@keyframes screen-in{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@keyframes screen-back{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+
+/* --- Buttons: a surface that answers the finger -------------------------- */
+.primary,.secondary,.plain,.guide-chip,.sample-chip,.quick-options button,.composer-tabs button,.record-btn,.legacy-main-card{
+ transition:transform var(--t-fast) var(--ease-out),background-color var(--t-mid),border-color var(--t-mid),box-shadow var(--t-mid),color var(--t-mid);
+}
+.primary{background:linear-gradient(180deg,#2d5a47,var(--brand));border-color:var(--brand);border-radius:12px;box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 6px 16px rgba(36,75,59,.18)}
+.primary:hover:not(:disabled){background:linear-gradient(180deg,#285341,var(--brand-deep));transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 10px 22px rgba(36,75,59,.22)}
+.secondary{border-radius:12px;border-color:var(--line)}
+.secondary:hover:not(:disabled){background:var(--brand-soft);border-color:#c6d9cd}
+.primary:active:not(:disabled),.secondary:active:not(:disabled),.plain:active:not(:disabled),.guide-chip:active,.quick-options button:active,.legacy-main-card:active{transform:scale(.97)}
+.primary:disabled{box-shadow:none}
+
+/* --- Cards --------------------------------------------------------------- */
+.panel,.composer{border-color:var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-1)}
+.composer:focus-within{box-shadow:0 0 0 4px var(--brand-tint),var(--shadow-2);border-color:#bcd3c5}
+
+/* --- Composer tabs: a pill that slides between the two modes ------------- */
+.composer-tabs{gap:6px}
+.composer-tabs button{border-radius:10px;padding:8px 14px}
+.composer-tabs button.active{background:var(--brand-soft);color:var(--brand);box-shadow:0 0 0 1px #d4e5da inset}
+
+/* --- Stepper ------------------------------------------------------------- */
+.step .step-number{transition:background-color var(--t-mid),color var(--t-mid),box-shadow var(--t-mid)}
+.step.current .step-number{background:var(--brand);box-shadow:0 0 0 4px var(--brand-tint)}
+.screen-enter .step.current .step-number{animation:step-pop var(--t-slow) var(--ease-spring) both}
+.step-connector{background:linear-gradient(90deg,var(--line),var(--line))}
+.step.done+.step-connector,.step-connector:has(+.step.done),.step-connector:has(+.step.current){background:#9fc0ad}
+@keyframes step-pop{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+/* --- Guided interview ---------------------------------------------------- */
+.guide-progress{height:4px;border-radius:99px;background:var(--brand-soft);overflow:hidden;margin:-4px 0 14px}
+.guide-progress span{display:block;height:100%;width:var(--to);border-radius:inherit;background:linear-gradient(90deg,#4f8a6d,var(--brand));animation:grow var(--t-slow) var(--ease-out) both}
+@keyframes grow{from{width:var(--from)}to{width:var(--to)}}
+
+.guide-chip{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:14px;min-height:44px}
+.guide-chip:hover{border-color:#a9c7b6;background:#f7fbf8}
+.guide-chip.selected{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 6px 16px rgba(36,75,59,.2)}
+.guide-chip-check{width:18px;height:18px;flex:0 0 18px;border-radius:50%;border:1.5px solid #b9cdc1;position:relative;transition:border-color var(--t-mid),background-color var(--t-mid)}
+.guide-chip.selected .guide-chip-check{border-color:#fff;background:rgba(255,255,255,.18)}
+.guide-chip.selected .guide-chip-check::after{content:"";position:absolute;inset:3px 5px 5px 4px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);animation:check-draw var(--t-mid) var(--ease-spring) both}
+@keyframes check-draw{from{opacity:0;transform:rotate(45deg) scale(.4)}to{opacity:1;transform:rotate(45deg) scale(1)}}
+/* Options arrive one after another on a new question, not on every tap. */
+.screen-enter .guide-chip{animation:chip-in var(--t-mid) var(--ease-out) both;animation-delay:calc(var(--i,0) * 32ms + 60ms)}
+@keyframes chip-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.screen-enter .question-title,.screen-enter .question-desc{animation:chip-in var(--t-mid) var(--ease-out) both}
+
+.guide-free textarea,.field{transition:border-color var(--t-mid),box-shadow var(--t-mid),background-color var(--t-mid);border-radius:12px}
+.guide-free textarea:focus,.field:focus{border-color:#8fb5a0;box-shadow:0 0 0 4px var(--brand-tint);background:#fff;outline:none}
+.guide-preview summary{cursor:pointer;color:var(--muted)}
+.guide-preview[open] p{animation:chip-in var(--t-mid) var(--ease-out) both}
+
+/* --- Quick options in the questionnaire ---------------------------------- */
+.quick-options button{border-radius:12px;min-height:40px}
+.quick-options button.selected{background:var(--brand);border-color:var(--brand);color:#fff}
+
+/* --- Emergency panel: arrives once, then holds still --------------------- */
+.triage{animation:triage-in var(--t-slow) var(--ease-out) both}
+.triage.emergency{box-shadow:0 0 0 0 rgba(224,106,90,.35);animation:triage-in var(--t-slow) var(--ease-out) both,triage-ping 1.8s var(--ease-out) .5s 2}
+.triage-numbers a,.triage-numbers button{transition:transform var(--t-fast) var(--ease-out),box-shadow var(--t-mid)}
+.triage-numbers a:active,.triage-numbers button:active{transform:scale(.95)}
+@keyframes triage-in{from{opacity:0;transform:translateY(-6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes triage-ping{0%{box-shadow:0 0 0 0 rgba(224,106,90,.35)}100%{box-shadow:0 0 0 14px rgba(224,106,90,0)}}
+
+/* --- Recording ----------------------------------------------------------- */
+.record-btn{position:relative}
+.record-btn.recording{animation:none}
+.record-btn.recording::before,.record-btn.recording::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(184,99,66,.35);animation:ring 1.8s var(--ease-out) infinite}
+.record-btn.recording::after{animation-delay:.9s}
+@keyframes ring{from{transform:scale(1);opacity:1}to{transform:scale(1.7);opacity:0}}
+
+/* --- Toast: rises in, settles -------------------------------------------- */
+#toast{border-radius:14px;transition:opacity var(--t-mid),transform var(--t-slow) var(--ease-spring);background:var(--brand-deep)}
+
+/* --- Success ------------------------------------------------------------- */
+.success-ring{animation:step-pop .6s var(--ease-spring) both}
+
+/* --- Busy bar ------------------------------------------------------------ */
+.busy-bar::after{background:linear-gradient(90deg,transparent,#6fa287,transparent)}
+
+/* --- Touch targets ------------------------------------------------------- */
+@media (max-width:480px){
+ .primary,.secondary{min-height:46px}
+ .plain{min-height:40px}
+ .composer-tabs button{min-height:40px}
+}
+
+/* --- Motion is optional -------------------------------------------------- */
+@media (prefers-reduced-motion:reduce){
+ .content.screen-enter,.screen-enter .guide-chip,.screen-enter .question-title,.screen-enter .question-desc,
+ .guide-progress span,.triage,.triage.emergency,.success-ring,.guide-chip.selected .guide-chip-check::after{animation:none!important}
+ .guide-progress span{width:var(--to)}
+ .record-btn.recording::before,.record-btn.recording::after{display:none}
+}
+
+/* --- A microphone inside each free-text answer --------------------------- */
+.triage-fallback[hidden]{display:none}
+.voice-panel small{font-size:12px;color:#536a5a;line-height:1.7;text-align:center;max-width:32rem}
+.voice-panel .plain{font-size:12px}
+.location-note{display:block;line-height:1.7;opacity:.8;margin:.25rem 0 .7rem}
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+.dropzone:focus-within,.camera-picker:focus-within{outline:3px solid #93b979;outline-offset:4px}
+.dropzone .drop-hint{font-size:10px;color:#8c9e7b}
+.camera-picker{cursor:pointer;margin-top:12px}
+.field-voice{position:relative}
+.field-voice textarea{padding-inline-end:52px}
+.field-voice.has-audio-picker textarea{padding-inline-end:96px}
+.field-voice-upload{position:absolute;inset-inline-end:52px;bottom:8px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);border:1px solid #d4e5da}
+.field-voice-upload svg{width:18px;height:18px}
+.field-voice-btn{position:absolute;inset-inline-end:8px;bottom:8px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);border:1px solid #d4e5da;transition:transform var(--t-fast) var(--ease-out),background-color var(--t-mid),color var(--t-mid)}
+.field-voice-btn svg{width:18px;height:18px}
+.field-voice-btn:hover{background:var(--brand-tint)}
+.field-voice-btn:active{transform:scale(.92)}
+.field-voice-btn.listening{background:#b86342;border-color:#b86342;color:#fff}
+.field-voice-btn.listening::after{content:"";position:absolute;inset:-4px;border-radius:15px;border:2px solid rgba(184,99,66,.4);animation:ring 1.6s var(--ease-out) infinite}
+.field-voice-btn:disabled{opacity:.6}
+@media (prefers-reduced-motion:reduce){.field-voice-btn.listening::after{animation:none}}
+
+/* --- «گزارش تکمیلی می‌دهید؟» ------------------------------------------- */
+.detail-choice{text-align:center;padding-block:2rem}
+.detail-choice .question-title{margin-bottom:1.4rem}
+.detail-choice-actions{display:flex;gap:.7rem;justify-content:center}
+.detail-choice-actions button{min-width:8rem;min-height:48px;font-size:1rem}
+@media (max-width:480px){.detail-choice-actions button{flex:1}}
+
+/* AI interview */
+.ai-interview .focused-question{position:relative}
+.ai-thinking{display:flex;align-items:center;gap:.8rem;min-height:120px;justify-content:center;color:#5d7466;font-size:14px}
+.ai-dots{display:inline-flex;gap:5px}
+.ai-dots i{width:8px;height:8px;border-radius:50%;background:var(--brand,#244b3b);opacity:.3;animation:ai-dot 1.1s infinite ease-in-out}
+.ai-dots i:nth-child(2){animation-delay:.15s}.ai-dots i:nth-child(3){animation-delay:.3s}
+@keyframes ai-dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}
+.ai-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 .9rem}
+.ai-interview .answer-field{min-height:84px}
+.ai-actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+.ai-actions .primary{flex:1 1 60%}
+.ai-footer{display:flex;justify-content:space-between;gap:.5rem;margin-top:1rem;flex-wrap:wrap}
+.ai-history,.ai-facts{margin-top:1rem;border-top:1px solid var(--line,#e3e8e4);padding-top:.7rem;font-size:13px}
+.ai-history summary,.ai-facts summary{cursor:pointer;color:#4d6557;display:flex;align-items:center;gap:.4rem}
+.ai-history ol,.ai-facts ul{margin:.6rem 0 0;padding-inline-start:1.2rem;display:grid;gap:.5rem}
+.ai-history li b,.ai-facts li b{display:block;font-weight:600;color:#33483c}
+.ai-history li span,.ai-facts li span{color:#56675c}
+.ai-urgent{margin-bottom:.8rem}
+@media (prefers-reduced-motion: reduce){.ai-dots i{animation:none;opacity:.7}}
+#storage-alert:not([hidden]){position:sticky;top:0;z-index:1000;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.6rem;padding:.65rem 1rem;background:#fff1d8;color:#643c07;border-bottom:1px solid #dfb869;font-size:.85rem;line-height:1.7}
+#storage-alert button{border:1px solid #8a5a1f;background:white;color:#643c07;border-radius:8px;padding:.35rem .65rem;cursor:pointer}
+
+/* The three navigation decisions remain on one row even in a phone WebView. */
+.legacy-ui .three-step-actions{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,.78fr) minmax(0,1.5fr);gap:6px;margin-top:22px;align-items:stretch}
+.legacy-ui .three-step-actions button{width:100%;min-width:0;min-height:48px;padding:7px 5px;justify-content:center;text-align:center;white-space:normal;overflow-wrap:anywhere;line-height:1.45;font-size:12px}
+.legacy-ui .three-step-actions button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.news-domain-hint{display:block;margin:14px 18px 0;color:#31493e;font-size:13px;line-height:1.7}
+.news-domain-hint[hidden]{display:none}

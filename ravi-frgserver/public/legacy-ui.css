@@ -1,0 +1,234 @@
+/* Original Faraja interface palette, centered shells and compact form controls. */
+body.legacy-ui{--green:#244b3b;--green-dark:#18372b;--green-soft:#edf5f0;--bg:#f6f8f7;--text:#17221d;--muted:#6b756f;--border:#dbe5df;--shadow:0 8px 30px rgba(23,43,32,.05);background:var(--bg);color:var(--text);font-size:15px}
+.legacy-ui .workspace{margin:0;min-height:100dvh}
+.legacy-ui .main{overflow:visible}
+.legacy-ui .main:before{display:none}
+.legacy-ui .content{width:min(760px,92%);max-width:760px;padding:8px 0 42px;margin:auto}
+.legacy-ui button:focus-visible,.legacy-ui a:focus-visible,.legacy-ui input:focus-visible,.legacy-ui textarea:focus-visible,.legacy-ui select:focus-visible,.legacy-ui summary:focus-visible{outline:3px solid #9bb9a9;outline-offset:3px}
+.legacy-home{width:min(700px,92%);margin:auto;padding:32px 0 42px;display:flex;flex-direction:column;align-items:center;animation:arrive .25s ease-out}
+.legacy-home-brand{text-align:center;margin:5px 0 0}
+.legacy-home-logo{width:140px;height:140px;object-fit:contain;display:block;margin:auto}
+.legacy-home .organization-name{font-size:12px;font-weight:400;color:var(--muted);margin:9px 0 0}
+.legacy-motto{font-size:14px;font-weight:600;text-align:center;margin:20px 0}
+.legacy-quote{width:100%;padding:19px 18px;margin:0 0 16px;border:1px solid #e4ebe7;border-radius:18px;background:linear-gradient(145deg,#fff,#f4f9f6);box-shadow:var(--shadow);text-align:center}
+.legacy-quote p{margin:0;font-size:14px;font-weight:700;line-height:1.9;color:var(--green-dark)}
+.legacy-welcome{width:100%;padding:22px 20px;border:1px solid #e4ebe7;border-radius:18px;background:#fff;box-shadow:var(--shadow)}
+.legacy-welcome h1{margin:0 0 12px;font-size:23px;color:#31493e}
+.legacy-welcome p{margin:0;font-size:15px;line-height:2.15;color:#606b65}
+.legacy-signature{margin-top:18px;text-align:center;font-size:13px;line-height:2;font-weight:700;color:var(--muted)}
+.legacy-home-buttons{width:100%;margin-top:17px;display:grid;gap:12px}
+.legacy-main-card{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:54px;padding:12px 18px;border-radius:11px;background:var(--green);color:#fff;box-shadow:0 6px 14px rgba(36,75,59,.13);transition:background .18s,transform .18s}
+.legacy-main-card strong{font-size:15px}
+.legacy-main-card:hover{background:var(--green-dark);transform:translateY(-1px)}
+.legacy-secondary-card{background:var(--green-soft);border:1px solid #cfe0d6;color:var(--green);box-shadow:none}
+.legacy-secondary-card:hover{background:#dfece4}
+.legacy-ui .plain{font-size:12px;color:var(--green);min-height:36px}
+.legacy-toolbar{width:min(760px,92%);margin:26px auto 12px;display:flex;align-items:center;gap:12px;position:relative;z-index:5}
+.legacy-back{margin-right:auto;display:flex;align-items:center;justify-content:center;gap:8px;min-width:132px;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:10px;background:#fff;color:#31493e;box-shadow:0 4px 12px rgba(36,75,59,.06);font-size:13px;font-weight:700}
+.legacy-back:hover{background:#2c5142;color:#fff}
+.legacy-ui .progress{width:100%;max-width:none;margin:4px auto 22px;gap:7px;padding:0;justify-content:center;align-items:center}
+.legacy-ui .step{display:flex;flex:0 0 auto;gap:5px;border-radius:10px;background:#eef3ef;padding:6px 8px;font-size:11px;color:var(--muted);white-space:nowrap}
+.legacy-ui .step.current{background:var(--green);color:#fff}
+.legacy-ui .step.done{background:#e5f0e9;color:var(--green)}
+.legacy-ui .step .step-number{width:auto;height:auto;min-width:14px;background:none;border:0;color:inherit;font-size:11px;box-shadow:none}
+.legacy-ui .step-number svg{width:13px;height:13px}
+.legacy-ui .step-connector{flex:0 1 24px;min-width:6px;width:24px;background:#d9e3dd}
+.legacy-ui .hero{text-align:right;margin:0;padding:8px 0 20px}
+.legacy-ui .hero h2,.legacy-ui .flow-header h2{font-size:26px;color:var(--green-dark);margin:0 0 8px;line-height:1.6}
+.legacy-ui .hero p,.legacy-ui .flow-header p{font-size:14px;color:var(--muted);line-height:1.9;margin:0}
+.legacy-ui .composer,.legacy-ui .panel{border:1px solid #e1e9e4;border-radius:18px;background:#fff;box-shadow:var(--shadow)}
+.legacy-ui .composer-tabs{padding:13px 16px;border-bottom:1px solid #e5ece8}
+.legacy-ui .composer-tabs button{min-height:44px;font-size:13px;color:var(--muted)}
+.legacy-ui .composer-tabs button.active{color:var(--green);border-color:var(--green)}
+.legacy-ui .composer textarea{font-size:15px;line-height:2;min-height:160px;padding:20px}
+.legacy-ui .composer-bottom{margin:0;padding:14px 18px;border-top:1px solid #e5ece8;gap:14px}
+.legacy-ui .primary{background:var(--green);color:#fff;min-height:52px;border-radius:11px;padding:12px 20px;font-size:14px;box-shadow:0 6px 14px rgba(36,75,59,.13)}
+.legacy-ui .primary:hover:not(:disabled){background:var(--green-dark)}
+.legacy-ui .secondary{min-height:44px;border:1px solid var(--border);border-radius:10px;background:#fff;color:#31493e;font-size:13px}
+.legacy-ui .flow-header{padding:8px 0 18px;text-align:right;margin:0}
+.legacy-ui .flow-header .mini-brand{display:none}
+.legacy-ui .question-panel{padding:24px}
+.legacy-ui .question-title{font-size:21px;line-height:1.7;color:var(--green-dark)}
+.legacy-ui .question-desc{font-size:14px;color:var(--muted)}
+.legacy-ui .field,.legacy-ui .detail-cell input,.legacy-ui .detail-cell select,.legacy-ui .detail-cell textarea{border-color:#d9e3dd;border-radius:11px;background:#fff;font-size:15px;min-height:48px}
+.legacy-ui .detail-cell label{font-size:13px;font-weight:700;color:#31493e}
+.legacy-ui .flow-actions{margin-top:22px;gap:12px}
+.legacy-ui .flow-actions .primary{flex:1;justify-content:center}
+.legacy-ui .quick-options button,.legacy-ui .choice-card{border:1px solid #d9e3dd;background:#fff;border-radius:10px;min-height:48px;color:#31493e;font-size:14px}
+.legacy-ui .quick-options button:hover,.legacy-ui .choice-card:hover{background:var(--green-soft);border-color:#cfe0d6}
+.legacy-ui .quick-options button.selected{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 6px 14px rgba(36,75,59,.13)}
+.legacy-ui .flow-progress{background:#f8fbf9;border-color:#dfe9e3;border-radius:13px}
+.legacy-ui .flow-progress-track span{background:var(--green)}
+.legacy-ui .flow-context{border-color:var(--border);border-radius:13px;background:transparent}
+.legacy-ui .samples{gap:8px;margin-top:16px;flex-wrap:wrap}
+.legacy-ui .sample-chip{border:1px solid var(--border);background:#fff;border-radius:10px;min-height:40px;font-size:12px}
+.legacy-ui .trust-line{font-size:12px;margin-top:18px;color:var(--muted)}
+.legacy-ui .footer{width:min(760px,92%);margin:auto;border-top:1px solid var(--border);padding:20px 0 24px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;font-size:11px;color:var(--muted)}
+.legacy-ui .footer button{font-size:11px;color:var(--muted);min-height:32px}
+.legacy-ui .modal{border:1px solid var(--border);border-radius:18px}
+@media(max-width:600px){
+ .legacy-toolbar{gap:9px;margin-top:18px}.legacy-back{min-width:120px;font-size:12px}
+ .legacy-ui .progress{gap:4px}.legacy-ui .step{font-size:10px;padding:6px;flex-direction:row;gap:3px}.legacy-ui .step-connector{flex-basis:8px;width:8px;min-width:2px}.legacy-ui .step .step-number{display:none}
+ .legacy-ui .question-panel{padding:20px 16px}.legacy-ui .question-title{font-size:19px}.legacy-ui .hero h2,.legacy-ui .flow-header h2{font-size:23px}
+ .legacy-ui .composer-tabs{padding:10px 12px}.legacy-ui .composer-tabs .hint{display:none}.legacy-ui .composer-bottom{flex-wrap:wrap;padding:12px}.legacy-ui .composer-bottom .primary{width:100%;justify-content:center}
+ .legacy-ui .detail-grid{grid-template-columns:1fr}.legacy-ui .flow-actions .secondary{padding:10px 14px}.legacy-ui .primary{font-size:13px}
+}
+@media(max-width:430px){.legacy-home{padding:25px 0 34px}.legacy-home-logo{width:130px;height:130px}.legacy-welcome p{font-size:14px}.legacy-motto{font-size:13px}.legacy-welcome h1{font-size:21px}}
+@media(prefers-reduced-motion:reduce){.legacy-home,.legacy-ui .content{animation:none}.legacy-ui button{transition:none}}
+
+.legacy-ui .step.current .step-number,.legacy-ui .step.done .step-number{background:none;color:inherit;box-shadow:none}
+
+/* Searchable pickers restored from the supplied original interface. */
+.searchable-select-field{
+  position:relative;
+  z-index:0;
+  min-width:0;
+}
+.searchable-select-field.is-picker-open{z-index:25}
+.searchable-select-trigger{
+  display:flex;
+  width:100%;
+  min-height:48px;
+  padding:8px 11px;
+  border:1px solid #cfddd5;
+  border-radius:10px;
+  background:#fff;
+  color:var(--green-dark);
+  font-family:inherit;
+  font-size:13px;
+  font-weight:700;
+  text-align:right;
+  transition:border-color .18s ease,background-color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.searchable-select-trigger:hover,
+.searchable-select-field.is-picker-open .searchable-select-trigger{
+  border-color:#9dbbaa;
+  background:var(--green-soft);
+}
+.searchable-select-trigger:focus-visible{
+  outline:0;
+  border-color:#89ab97;
+  box-shadow:0 0 0 3px rgba(36,75,59,.1);
+}
+.searchable-select-trigger:active{transform:translateY(1px)}
+.searchable-select-trigger:disabled{
+  cursor:not-allowed;
+  border-color:#e2e9e5;
+  background:#f7f9f8;
+  color:#98a39d;
+}
+.searchable-select-trigger-copy{
+  flex:1 1 auto;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.searchable-select-chevron{
+  width:16px;
+  height:16px;
+  flex:0 0 auto;
+  color:#6e8076;
+  transition:transform .18s ease;
+}
+.searchable-select-field.is-picker-open .searchable-select-chevron{transform:rotate(180deg)}
+.searchable-select-menu{
+  position:absolute;
+  top:calc(100% + 7px);
+  right:0;
+  left:0;
+  display:none;
+  padding:10px;
+  border:1px solid #ccdbd2;
+  border-radius:13px;
+  background:#fff;
+  box-shadow:0 14px 30px rgba(24,55,43,.14);
+}
+.searchable-select-field.is-picker-open .searchable-select-menu{display:block}
+.searchable-select-search-wrap{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-height:38px;
+  padding:0 10px;
+  border:1px solid #dce7e1;
+  border-radius:9px;
+  background:#f8fbf9;
+}
+.searchable-select-search-icon{
+  width:17px;
+  height:17px;
+  flex:0 0 auto;
+  color:#597065;
+}
+.searchable-select-search{
+  width:100%;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--text);
+  font-family:inherit;
+  font-size:12px;
+}
+.searchable-select-options{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:6px;
+  max-height:252px;
+  margin-top:9px;
+  padding-left:2px;
+  overflow-y:auto;
+}
+.searchable-select-option{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  width:100%;
+  min-height:42px;
+  padding:7px 9px;
+  border:1px solid #e0e9e4;
+  border-radius:9px;
+  background:#fff;
+  color:#293b31;
+  font-family:inherit;
+  text-align:right;
+  transition:border-color .16s ease,background-color .16s ease,transform .16s ease;
+}
+.searchable-select-option:hover,
+.searchable-select-option.selected{
+  border-color:#b6cdbf;
+  background:#f5faf7;
+}
+.searchable-select-option:hover{transform:translateY(-1px)}
+.searchable-select-option[hidden]{display:none}
+.searchable-select-option-copy{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  min-width:0;
+  gap:1px;
+}
+.searchable-select-option-name{
+  overflow:hidden;
+  font-size:12px;
+  font-weight:800;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.searchable-select-option-detail{
+  color:#84928a;
+  font-size:10px;
+}
+.legacy-ui .searchable-select-trigger{align-items:center;gap:8px}
+.legacy-ui select.legacy-native-select{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;clip-path:inset(50%);opacity:0;pointer-events:none}
+.legacy-ui .searchable-select-field input.searchable-select-search{min-height:36px;padding:0;border:0;border-radius:0;background:transparent;font-size:12px}
+.legacy-ui .searchable-select-empty{margin:12px 0 4px;font-size:12px;color:var(--muted)}
+.legacy-ui .searchable-select-option:focus-visible{background:#f5faf7;border-color:#89ab97}
+.legacy-ui .searchable-select-menu [hidden]{display:none}
+@media(max-width:600px){.searchable-select-options{max-height:228px}.modal .actions{flex-wrap:wrap}.modal .actions .primary{flex:1}}
+
+.legacy-ui .structured-entry:has(.searchable-select-field){overflow:visible}
+.legacy-ui .structured-entry>.searchable-select-field{flex:0 1 140px;min-width:85px}
+
+.legacy-ui .searchable-select-trigger:focus-visible{outline:0}

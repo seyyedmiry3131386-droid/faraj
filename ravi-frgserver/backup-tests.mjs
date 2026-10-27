@@ -1,0 +1,47 @@
+// Exercises an online SQLite snapshot and restore with synthetic data only.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,writeFile,readFile,cp,rm} from 'node:fs/promises';
+import {createCipheriv,createDecipheriv,createHash,randomBytes,randomUUID} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
+import {CentralStore} from './central-store.mjs';
+import {fromBase32,totpAt} from './central-crypto.mjs';
+
+test('online backup restores encrypted report, attachments and accounts without resurrecting sessions',async t=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),'ravi-backup-test-'));
+ const source=path.join(root,'live'),backup=path.join(root,'backup'),restore=path.join(root,'restore');
+ const key=randomBytes(32),store=new CentralStore(source,key);
+ let restored;t.after(async()=>{restored?.close();store.close();await rm(root,{recursive:true,force:true})});
+ const now=Date.now(),seed=await store.addStaff('test.staff','a long backup test password','admin');
+ const session=await store.authenticate('test.staff','a long backup test password',totpAt(fromBase32(seed),Math.floor(now/30000)),{now});assert.ok(session);
+ const id='RV-'+randomBytes(16).toString('hex').toUpperCase(),temporary=await mkdtemp(path.join(store.incoming,'upload-'));
+ const content=Buffer.from('confidential backup test evidence'),iv=randomBytes(12),cipher=createCipheriv('aes-256-gcm',key,iv);
+ cipher.setAAD(Buffer.from(`attachment:${id}:0`));const encrypted=Buffer.concat([cipher.update(content),cipher.final()]);
+ await writeFile(path.join(temporary,'0.bin'),encrypted,{mode:0o600});
+ const files=[{name:'مدرک.pdf',size:content.length,iv,tag:cipher.getAuthTag(),digest:createHash('sha256').update(content).digest('hex')}];
+ const result=store.commit({id,owner:'synthetic-owner',key:randomUUID(),fingerprint:'synthetic-fingerprint',report:{title:'گزارش آزمایشی',text:'متن محرمانهٔ آزمایشی'},files,tempDir:temporary,verifiedBaleId:'12345'});
+ assert.equal(result.id,id);
+ const run=target=>spawnSync(process.execPath,['backup-cli.mjs',target],{cwd:process.cwd(),env:{...process.env,CENTRAL_DATA_DIR:source},encoding:'utf8'});
+ const created=run(backup);assert.equal(created.status,0,created.stderr);
+ assert.equal(store.db.prepare('SELECT count(*) AS n FROM sessions').get().n,1,'live session must not be altered');
+ assert.equal(run(backup).status,1,'must not overwrite an existing backup');
+ assert.equal(run(path.join(source,'bad')).status,2,'must not back up inside live data');
+ const rawDb=await readFile(path.join(backup,'reports.sqlite3'));
+ const rawFile=await readFile(path.join(backup,'objects',id,'0.bin'));
+ assert.equal(rawDb.includes(Buffer.from('متن محرمانهٔ آزمایشی')),false);assert.equal(rawFile.includes(content),false);
+ await cp(backup,restore,{recursive:true});
+ assert.throws(()=>new CentralStore(restore,randomBytes(32)),/does not match/);
+ restored=new CentralStore(restore,key);
+ assert.equal(restored.db.prepare('PRAGMA integrity_check').get().integrity_check,'ok');
+ assert.equal(restored.db.prepare('SELECT count(*) AS n FROM sessions').get().n,0,'restored sessions must be invalidated');
+ assert.equal(restored.session(session.token,{now}),null);
+ assert.equal(restored.getReport(id).report.text,'متن محرمانهٔ آزمایشی');
+ assert.equal(restored.getReport(id).report.verifiedBaleId,'12345');
+ const file=restored.getAttachment(id,0),decipher=createDecipheriv('aes-256-gcm',key,file.iv);
+ decipher.setAAD(Buffer.from(`attachment:${id}:0`));decipher.setAuthTag(file.tag);
+ assert.deepEqual(Buffer.concat([decipher.update(await readFile(file.path)),decipher.final()]),content);
+ assert.equal(file.name,'مدرک.pdf');
+ assert.ok(await restored.authenticate('test.staff','a long backup test password',totpAt(fromBase32(seed),Math.floor((now+30000)/30000)),{now:now+30000}));
+});

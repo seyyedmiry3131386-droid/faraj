@@ -1,0 +1,3803 @@
+{
+  "version": "2026-09-colloquial-v9",
+  "flow": {
+    "version": 4,
+    "reviewExtractedAnswersBeforeQuestions": true,
+    "maxReviewFactsPerStep": 3,
+    "maxFieldsPerStep": 3,
+    "plateWidgetIsOneTask": true,
+    "classificationQuestions": false
+  },
+  "extraction": {
+    "version": 4,
+    "grounding": "verbatim evidence and value spans",
+    "fieldsOptional": true,
+    "unknownIsNegative": false,
+    "relations": "reporter-confirmed only",
+    "trainingStatus": "untrained"
+  },
+  "categories": {
+    "person": {
+      "title": "افراد",
+      "sections": [
+        "person",
+        "contact"
+      ],
+      "description": "نقش و مشخصات مشاهده‌شدهٔ افراد مرتبط؛ راه ارتباطی استفاده‌شده در همین رخداد"
+    },
+    "place": {
+      "title": "اماکن",
+      "sections": [
+        "place"
+      ],
+      "description": "مکان، نشانی، نوع محل، مسیر و نحوهٔ اطلاع"
+    },
+    "event": {
+      "title": "رویداد",
+      "sections": [
+        "time",
+        "event_details",
+        "source"
+      ],
+      "description": "چه اتفاقی افتاد، چه زمانی، ترتیب رخدادها، نتیجه و منبع اطلاع"
+    },
+    "object": {
+      "title": "اشیاء",
+      "sections": [
+        "object",
+        "vehicle"
+      ],
+      "description": "اموال، مدارک، وسایل دیجیتال و وسایل نقلیهٔ مرتبط"
+    }
+  },
+  "topics": [
+    "pdf_a02",
+    "pdf_a03",
+    "pdf_a04",
+    "pdf_a05",
+    "pdf_a09",
+    "pdf_a10",
+    "pdf_a13",
+    "pdf_a14",
+    "pdf_a15",
+    "pdf_a16",
+    "pdf_a17",
+    "pdf_b08",
+    "pdf_b11",
+    "pdf_b15",
+    "pdf_b16",
+    "pdf_b17",
+    "pdf_b20",
+    "pdf_b22",
+    "pdf_b23",
+    "pdf_b24",
+    "pdf_b25",
+    "pdf_b26",
+    "pdf_b27",
+    "official_complaint",
+    "business_observation",
+    "environment",
+    "disaster",
+    "supply_issue",
+    "food_safety",
+    "shooting",
+    "explosion",
+    "impersonation",
+    "discovery",
+    "hazardous_supply",
+    "drug_use",
+    "drug_supply",
+    "weapon_threat",
+    "vehicle_irregularity",
+    "resource_extraction",
+    "financial_complaint",
+    "property_dispute",
+    "family_dispute",
+    "medical_care",
+    "traffic_violation",
+    "passenger_complaint",
+    "workplace_accident",
+    "self_harm",
+    "fireworks",
+    "sexual_violence",
+    "online_harm",
+    "public_nuisance",
+    "data_breach",
+    "trafficking",
+    "confinement",
+    "forgery",
+    "assault",
+    "theft",
+    "fraud",
+    "damage",
+    "fire",
+    "accident",
+    "harassment",
+    "service",
+    "other"
+  ],
+  "topicDefinitions": {
+    "pdf_a02": {
+      "title": "انسداد مسیر و اختلال خدمات",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 2,
+        "page": 1,
+        "original": "همچنین مسدودسازی معابر، خیابان‌ها، راه‌آهن، فرودگاه‌ها یا هرگونه اختلال عمدی در زیرساخت‌های حمل‌ونقل و خدمات شهری."
+      },
+      "scope": "Record an observed obstruction or service interruption, not peaceful assembly or presumed intent."
+    },
+    "pdf_a03": {
+      "title": "درگیری مسلحانه و گروگان‌گیری",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 3,
+        "page": 1,
+        "original": "درگیری‌های مسلحانه، گروگان‌گیری، تیراندازی، نزاع دسته‌جمعی با سلاح و هرگونه اقدام خرابکارانه که توسط اراذل و اوباش مسلح یا گروه‌های معارض صورت گرفته و نظم عمومی را مختل کرده باشد."
+      },
+      "scope": "Requires a reported armed conflict, shooting or hostage taking. Never infer political affiliation or group membership. A generic fight alone is insufficient."
+    },
+    "pdf_a04": {
+      "title": "درگیری، تهدید یا مقاومت در برابر مأموران",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 4,
+        "page": 1,
+        "original": "حمله، تعرض یا درگیری فیزیکی علیه مأمورین دولتی، نیروهای انتظامی، امدادی، آتش‌نشانی، اورژانس و کارکنان شرکت‌های خدمت‌رسان (آب، برق، گاز، مخابرات، شهرداری) که منجر به مصدومیت، تخریب اموال عمومی یا اختلال در ارائهٔ خدمات حیاتی شود."
+      },
+      "scope": "Reported attack, fight, specific threat or active obstruction/resistance involving staff, including explicit دعوا با مامورین شهرداری. Mere criticism or insult alone is insufficient. Injury, damage and service interruption are NOT prerequisites. An unspecified fight may be verbal; clarify observed conduct without assuming physical violence, injury, fault or who initiated it. Mere staff presence, criticism or reporting an unrelated fight to staff is insufficient. The reporting scope is broader than the original source paragraph."
+    },
+    "pdf_a05": {
+      "title": "انفجار و تخریب زیرساخت‌ها",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 5,
+        "page": 1,
+        "original": "هرگونه انفجار، آتش‌سوزی عمدی یا خرابکاری در تأسیسات حساس و مهم مانند پالایشگاه‌ها، نیروگاه‌ها، سدها، شبکهٔ سراسری برق و گاز، مراکز هسته‌ای، نظامی، انتظامی، مخابراتی، فرودگاه‌ها، بنادر و انبارهای مهمات یا سوخت."
+      },
+      "scope": "A concrete harmful incident only. Do not survey sensitive facilities, collect security arrangements or infer intentional sabotage."
+    },
+    "pdf_a09": {
+      "title": "سرقت مسلحانه",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 9,
+        "page": 1,
+        "original": "سرقت‌های مسلحانه از بانک‌ها، طلافروشی‌ها، بیت‌المال، اماکن نظامی و انتظامی، موزه‌ها، اسناد طبقه‌بندی‌شده و هرگونه گروگان‌گیری در حین سرقت."
+      },
+      "scope": "Requires reported theft with a weapon or hostage taking during theft. Do not request classified contents or operational facility information."
+    },
+    "pdf_a10": {
+      "title": "احتکار کلان کالاهای ضروری",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 10,
+        "page": 1,
+        "original": "احتکار کلان و سازمان‌یافتهٔ کالاهای اساسی، دارو، سوخت، ارز و طلا که منجر به کمبود شدید، التهاب ملی و تهدید معیشت عمومی گردد."
+      },
+      "scope": "Large scale and actual shortage must be reported explicitly. Stock or warehouse presence alone does not establish hoarding. Do not infer criminality."
+    },
+    "pdf_a13": {
+      "title": "بمب‌گذاری و حملهٔ خشونت‌آمیز",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 13,
+        "page": 1,
+        "original": "هرگونه اقدام تروریستی شامل ترور، بمب‌گذاری، انفجار در اماکن عمومی یا خصوصی، عملیات بیوتروریستی، حمله با سلاح سرد، گرم یا وسایل نقلیه، و نیز خرابکاری، آشوب، اغتشاش یا شورش که به‌صورت بالفعل رخ داده باشد یا اخبار موثقی از وقوع قریب‌الوقوع آن در دسترس باشد."
+      },
+      "scope": "Concrete bombing, attack or specific threat only; never infer terrorism, motive or violence from protest/riot labels. Do not collect construction, targeting or tactical details."
+    },
+    "pdf_a14": {
+      "title": "آدم‌ربایی و حبس اجباری",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 14,
+        "page": 1,
+        "original": "آدم‌ربایی، حبس اجباری یا انتقال اشخاص برخلاف ارادهٔ آنان، با یا بدون سلاح، هنگامی که آزادی یا جان فرد در معرض خطر فوری است؛ همچنین مطالبهٔ وجه یا امتیاز برای رهایی فرد."
+      },
+      "scope": "Explicit involuntary transport, confinement or ransom, not ordinary migration or travel. No urgency score or enforcement advice."
+    },
+    "pdf_a15": {
+      "title": "خشونت خانگی و آزار آسیب‌پذیران",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 15,
+        "page": 1,
+        "original": "خشونت خانگی شدید یا تعرض در حال وقوع علیه کودک، سالمند یا سایر اشخاصی که خطر فوری آسیب جدی داشته و مستلزم مداخلهٔ حفاظتی پلیس باشد."
+      },
+      "scope": "Reported violence, not family disagreement or a vulnerability profile. Keep observations non-graphic; do not diagnose or assign urgency."
+    },
+    "pdf_a16": {
+      "title": "تهدید به قتل یا آسیب شدید",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 16,
+        "page": 1,
+        "original": "تهدید مشخص و معتبر به قتل یا حملهٔ شدید علیه اشخاص در شرایطی که نشانه‌های قابل اتکا از امکان اجرای قریب‌الوقوع تهدید وجود داشته باشد، حتی اگر درگیری هنوز آغاز نشده باشد."
+      },
+      "scope": "An explicit threat to kill or cause serious harm. Record the reporter’s basis, not a model risk prediction or presumed capability."
+    },
+    "pdf_a17": {
+      "title": "ورود اجباری همراه تهدید",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "الف",
+        "number": 17,
+        "page": 1,
+        "original": "ورود قهری به منزل یا محل کار همراه با تهدید، ضرب‌وجرح یا ایجاد خطر فوری برای افراد حاضر، حتی در صورت فقدان سلاح یا انجام‌نشدن سرقت."
+      },
+      "scope": "Forced entry with reported threat or injury. Do not infer theft or a weapon from entry alone."
+    },
+    "pdf_b08": {
+      "title": "تبعیض و تخلف در خدمات عمومی",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 8,
+        "page": 2,
+        "original": "گزارش از سوءمدیریت، فساد، تبعیض یا بی‌عدالتی در توزیع امکانات عمومی (یارانه‌ها، تسهیلات، مسکن، درمان، آموزش) که قابلیت تبدیل به مطالبه‌گری مردمی را داشته باشد."
+      },
+      "scope": "Record the service grievance only. Do not identify campaigners, monitor demands or predict mobilisation. Allegations are not findings."
+    },
+    "pdf_b11": {
+      "title": "افزایش قیمت کالا و دارو",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 11,
+        "page": 2,
+        "original": "افزایش محسوس قیمت کالاهای اساسی، دارو و خدمات با وجود اعلام رسمی نرخ‌ها، موج جدیدی از نارضایتی‌های پراکنده در محلات، بازارها یا شبکه‌های اجتماعی را به دنبال داشته باشد."
+      },
+      "scope": "Actual price or consumer complaint only. Do not monitor political dissatisfaction or infer price illegality without evidence."
+    },
+    "pdf_b15": {
+      "title": "خشونت، اخاذی و عرضهٔ غیرمجاز",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 15,
+        "page": 2,
+        "original": "فعالیت اراذل و اوباش در سطح محلات (اخاذی)، مزاحمت، نزاع‌های خیابانی غیرمسلحانه، تشکیل باندهای محلی، خرید و فروش اسلحه و مواد مخدر که هرچند فاقد فوریت عملیاتی است اما روند صعودی داشته و پتانسیل تبدیل به ناامنی گسترده را داشته باشد."
+      },
+      "scope": "Requires a reported local recurring pattern of violence, extortion or dangerous supply. Do not infer gangs, membership or escalating risk. A single incident can use a narrower topic."
+    },
+    "pdf_b16": {
+      "title": "سرقت خرد و غیرمسلحانه",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 16,
+        "page": 2,
+        "original": "سرقت‌های خرد و نیمه‌مهم مانند کیف‌قاپی، جیب‌بری، سرقت خودرو و موتورسیکلت، سرقت کابل‌های برق و مخابرات که هرچند غیرمسلحانه است اما موج‌آفرینی رسانه‌ای و افزایش احساس ناامنی محلی را به دنبال دارد."
+      },
+      "scope": "Requires explicitly unarmed theft. Theft type alone does not establish absence of a weapon; if unclear use the generic theft topic. If a weapon is reported use armed theft. Do not infer social impact."
+    },
+    "pdf_b17": {
+      "title": "احتکار خرد و صنفی",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 17,
+        "page": 2,
+        "original": "احتکار خرد و صنفی کالاهای اساسی، دارو، سوخت، ارز و طلا که گرچه در مقیاس کلان نیست اما با ایجاد التهاب محلی، صف‌های خرید و افزایش قیمت‌ها همراه بوده و می‌تواند به مطالبه‌گری مردمی تبدیل شود."
+      },
+      "scope": "Explicit local/retail withholding allegation with an observed supply effect. Stock alone is not hoarding; do not collect protest information."
+    },
+    "pdf_b20": {
+      "title": "قاچاق، زمین‌خواری و تخلفات مالی",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 20,
+        "page": 2,
+        "original": "هرگونه تحرک اقتصادی غیررسمی مانند قاچاق کلان، زمین‌خواری و اختلال در بازار ارز و طلا که اگرچه جنبهٔ امنیتی مستقیم ندارد اما می‌تواند به بحران‌های اقتصادی دامن زند."
+      },
+      "scope": "Concrete reported smuggling, land seizure or deceptive financial conduct only. Informal commerce or currency trading alone is insufficient; do not infer economic sabotage."
+    },
+    "pdf_b22": {
+      "title": "جعل عنوان و اخاذی",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 22,
+        "page": 2,
+        "original": "گزارش قابل بررسی از جعل عنوان مأمور یا مسئول، استفاده از مدارک و نشانه‌های جعلی برای دریافت وجه، اخاذی یا فریب اشخاص در موارد فاقد خطر جانی فوری."
+      },
+      "scope": "Claimed official role used for money, coercion or deception, with a stated basis for doubt. Does not alone imply forged ownership documents."
+    },
+    "pdf_b23": {
+      "title": "کلاهبرداری در معامله و پیش‌پرداخت",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 23,
+        "page": 3,
+        "original": "شکایت‌های مشابه دربارهٔ کلاهبرداری در خریدوفروش ملک و خودرو، اجارهٔ اقامتگاه یا دریافت پیش‌پرداخت برای کالا و خدماتی که ارائه نمی‌شوند."
+      },
+      "scope": "Reported deceptive transaction or non-delivery after prepayment. Do not infer guilt or other victims from one delayed delivery."
+    },
+    "pdf_b24": {
+      "title": "جعل اسناد و هویت",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 24,
+        "page": 3,
+        "original": "جعل یا سوءاستفاده از اسناد هویتی، مدارک مالکیت، وکالت‌نامه و قرارداد برای انجام معامله، تصاحب مال یا ایجاد تعهد به نام اشخاص دیگر."
+      },
+      "scope": "Specific misuse or forgery of identity/ownership/contract documents. Do not request full identity numbers or infer forgery merely from a disagreement."
+    },
+    "pdf_b25": {
+      "title": "تعقیب و مزاحمت تکراری",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 25,
+        "page": 3,
+        "original": "تعقیب، مزاحمت و تهدید تکرارشونده علیه اشخاص در محل سکونت، کار یا فضای عمومی که نیازمند پیگیری پلیسی باشد، اما نشانه‌ای از خطر جانی آنی نداشته باشد."
+      },
+      "scope": "Actual stalking, repeated harassment or threats. Do not infer stalking from mere co-presence or collect unrelated private routines."
+    },
+    "pdf_b26": {
+      "title": "بهره‌کشی اجباری از افراد",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 26,
+        "page": 3,
+        "original": "گزارش قابل بررسی از وادارکردن کودک یا فرد آسیب‌پذیر به تکدی‌گری، سرقت یا سایر فعالیت‌های مجرمانه و تصاحب درآمد او از طریق تهدید یا اجبار."
+      },
+      "scope": "Explicit coercion or exploitation, not poverty, begging, disability or child presence alone. Never treat the exploited person as an offender."
+    },
+    "pdf_b27": {
+      "title": "اخاذی و آزار سایبری",
+      "source": {
+        "document": "نیازمندی‌های اطلاعاتی — نسخهٔ یکپارچه",
+        "section": 1,
+        "part": "ب",
+        "number": 27,
+        "page": 3,
+        "original": "اخاذی با تهدید به انتشار تصاویر، مکاتبات یا اطلاعات خصوصی، جعل هویت در فضای مجازی و دیگر تعرض‌های رایانه‌ای علیه اشخاص در موارد فاقد خطر جانی فوری."
+      },
+      "scope": "Specific online extortion, impersonation or nonconsensual privacy harm. Do not request private images, credentials or unrelated contacts."
+    },
+    "official_complaint": {
+      "title": "رسیدگی‌نشدن یا شکایت از عملکرد دستگاه"
+    },
+    "business_observation": {
+      "title": "فروش یا سرو مشروبات الکلی"
+    },
+    "environment": {
+      "title": "آسیب محیط‌زیستی"
+    },
+    "disaster": {
+      "title": "سیل، زلزله و رخداد طبیعی"
+    },
+    "supply_issue": {
+      "title": "کمبود کالا یا شکایت مصرف‌کننده"
+    },
+    "food_safety": {
+      "title": "بهداشت مواد غذایی و محل عرضه"
+    },
+    "shooting": {
+      "title": "تیراندازی گزارش‌شده"
+    },
+    "explosion": {
+      "title": "انفجار گزارش‌شده"
+    },
+    "impersonation": {
+      "title": "معرفی خلاف واقع یا سوءاستفاده از عنوان"
+    },
+    "discovery": {
+      "title": "یافتن فرد بی‌هوش یا پیکر"
+    },
+    "hazardous_supply": {
+      "title": "عرضهٔ اقلام خطرناک گزارش‌شده"
+    },
+    "drug_use": {
+      "title": "مصرف مواد گزارش‌شده"
+    },
+    "drug_supply": {
+      "title": "خرید، فروش یا نگهداری مواد"
+    },
+    "weapon_threat": {
+      "title": "تهدید با سلاح یا وسیلهٔ تیز"
+    },
+    "vehicle_irregularity": {
+      "title": "پلاک مخدوش یا ابهام در مشخصات خودرو"
+    },
+    "resource_extraction": {
+      "title": "برداشت یا بهره‌برداری از منابع"
+    },
+    "financial_complaint": {
+      "title": "اختلاف مالی یا رفتار مالی مورد شکایت"
+    },
+    "property_dispute": {
+      "title": "اختلاف ملکی یا تصرف گزارش‌شده"
+    },
+    "family_dispute": {
+      "title": "اختلاف خانوادگی"
+    },
+    "medical_care": {
+      "title": "شکایت از خدمات پزشکی یا بهداشتی"
+    },
+    "traffic_violation": {
+      "title": "رفتار پرخطر یا تخلف در عبور و مرور"
+    },
+    "passenger_complaint": {
+      "title": "شکایت مسافر از خدمات سفر"
+    },
+    "workplace_accident": {
+      "title": "حادثه یا خطر در محیط کار"
+    },
+    "self_harm": {
+      "title": "نگرانی از آسیب به خود"
+    },
+    "fireworks": {
+      "title": "حادثه یا خطر مواد محترقه"
+    },
+    "sexual_violence": {
+      "title": "آزار یا خشونت جنسی گزارش‌شده"
+    },
+    "online_harm": {
+      "title": "پیام یا فراخوان مشخص به آسیب در فضای مجازی"
+    },
+    "public_nuisance": {
+      "title": "مزاحمت یا مانع در فضای عمومی"
+    },
+    "data_breach": {
+      "title": "دسترسی یا افشای بدون اجازهٔ اطلاعات"
+    },
+    "trafficking": {
+      "title": "احتمال قاچاق انسان و بهره‌کشی"
+    },
+    "confinement": {
+      "title": "ربایش یا نگهداری اجباری"
+    },
+    "forgery": {
+      "title": "جعل یا استفاده از مدرک جعلی"
+    },
+    "assault": {
+      "title": "نزاع، درگیری یا آسیب بدنی"
+    },
+    "theft": {
+      "title": "سرقت"
+    },
+    "fraud": {
+      "title": "کلاهبرداری"
+    },
+    "damage": {
+      "title": "تخریب اموال"
+    },
+    "fire": {
+      "title": "آتش‌سوزی"
+    },
+    "accident": {
+      "title": "حادثه و تصادف"
+    },
+    "harassment": {
+      "title": "تهدید و مزاحمت"
+    },
+    "service": {
+      "title": "خدمات شهری"
+    },
+    "other": {
+      "title": "سایر رخدادهای آسیب‌زا"
+    }
+  },
+  "sections": {
+    "person": {
+      "title": "افراد مرتبط با رخداد",
+      "question": "از افراد مرتبط با این اتفاق چیزی می‌دانید؟",
+      "hint": "اگر اطلاعاتی دارید، مشخصات هر فرد را جدا و در چند گام کوتاه می‌پرسیم.",
+      "fields": [
+        {
+          "id": "label",
+          "label": "عنوان فرد در این گزارش",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "role",
+          "label": "نقش فرد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "فرد آسیب‌دیده",
+            "شاهد",
+            "فردی که رفتار گزارش‌شده را انجام داد",
+            "راننده",
+            "فرد تماس‌گیرنده",
+            "نقش نامعلوم",
+            "سایر"
+          ]
+        },
+        {
+          "id": "basis",
+          "label": "نحوهٔ اطلاع از مشخصات",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "خودم مشاهده کردم",
+            "در تصویر یا ویدئوی رخداد دیدم",
+            "از شاهد شنیدم"
+          ]
+        },
+        {
+          "id": "count",
+          "label": "تعداد افراد مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true,
+          "numeric": true,
+          "max": 5
+        },
+        {
+          "id": "age",
+          "label": "سن تقریبی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "height",
+          "label": "قد تقریبی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "build",
+          "label": "اندام تقریبی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "clothes",
+          "label": "لباس و رنگ آن",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "hair",
+          "label": "رنگ و حالت مو یا ریش",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "marks",
+          "label": "نشانهٔ ظاهری دیگری که به یاد دارید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "movement",
+          "label": "جهت حرکت یا مسیر رفتن فرد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "notes",
+          "label": "آنچه دربارهٔ رفتار این فرد می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "contact": {
+      "title": "راه ارتباطیِ استفاده‌شده در رخداد",
+      "question": "شماره، حساب یا نشانی اینترنتیِ مرتبط با این اتفاق را می‌دانید؟",
+      "hint": "فقط راه ارتباطی‌ای که در همین اتفاق استفاده شده است.",
+      "fields": [
+        {
+          "id": "kind",
+          "label": "نوع راه ارتباطی",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "شبکهٔ اجتماعی یا پیام‌رسان",
+            "تلفن",
+            "ایمیل",
+            "وب‌سایت"
+          ]
+        },
+        {
+          "id": "platform",
+          "label": "نام شبکهٔ اجتماعی یا پیام‌رسان",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            {
+              "value": "تلگرام",
+              "label": "تلگرام — t.me/"
+            },
+            {
+              "value": "اینستاگرام",
+              "label": "اینستاگرام — instagram.com/"
+            },
+            {
+              "value": "ایکس",
+              "label": "ایکس — x.com/"
+            },
+            {
+              "value": "واتساپ",
+              "label": "واتساپ — wa.me/"
+            },
+            {
+              "value": "یوتیوب",
+              "label": "یوتیوب — youtube.com/"
+            },
+            {
+              "value": "فیسبوک",
+              "label": "فیسبوک — facebook.com/"
+            },
+            {
+              "value": "لینکدین",
+              "label": "لینکدین — linkedin.com/"
+            },
+            {
+              "value": "گیت‌هاب",
+              "label": "گیت‌هاب — github.com/"
+            },
+            {
+              "value": "تیک‌تاک",
+              "label": "تیک‌تاک — tiktok.com/@"
+            },
+            {
+              "value": "تردز",
+              "label": "تردز — threads.net/@"
+            },
+            {
+              "value": "دیسکورد",
+              "label": "دیسکورد — discord.gg/"
+            },
+            {
+              "value": "ایتا",
+              "label": "ایتا — eitaa.com/"
+            },
+            {
+              "value": "بله",
+              "label": "بله — ble.ir/"
+            },
+            {
+              "value": "سروش",
+              "label": "سروش — splus.ir/"
+            },
+            {
+              "value": "روبیکا",
+              "label": "روبیکا — rubika.ir/"
+            },
+            {
+              "value": "آی‌گپ",
+              "label": "آی‌گپ — igap.net/"
+            },
+            {
+              "value": "گپ",
+              "label": "گپ — gap.im/"
+            },
+            {
+              "value": "ویراستی",
+              "label": "ویراستی — virasty.com/"
+            },
+            {
+              "value": "آپارات",
+              "label": "آپارات — aparat.com/"
+            },
+            "سایر"
+          ],
+          "conditional": true
+        },
+        {
+          "id": "otherPlatform",
+          "label": "نام شبکهٔ اجتماعی یا پیام‌رسان دیگر",
+          "required": false,
+          "askedInFlow": true,
+          "conditional": true
+        },
+        {
+          "id": "socialValue",
+          "label": "شناسه یا پیوند فضای مجازی",
+          "required": false,
+          "askedInFlow": true,
+          "conditional": true
+        },
+        {
+          "id": "url",
+          "label": "نشانی وب‌سایت",
+          "required": false,
+          "askedInFlow": true,
+          "validate": "url",
+          "conditional": true
+        },
+        {
+          "id": "phoneType",
+          "label": "نوع شمارهٔ تلفن",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "تلفن ثابت ایران",
+            "تلفن همراه ایران",
+            "شمارهٔ بین‌المللی"
+          ],
+          "conditional": true
+        },
+        {
+          "id": "phone",
+          "label": "شماره از پیش‌نویس قبلی؛ نوع آن را انتخاب کنید",
+          "required": false,
+          "askedInFlow": true,
+          "conditional": true
+        },
+        {
+          "id": "phoneCompleteness",
+          "label": "چقدر از شماره را می‌دانید؟",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "شماره کامل",
+            "فقط بخشی از شماره"
+          ],
+          "conditional": true
+        },
+        {
+          "id": "province",
+          "label": "استان و پیش‌شماره",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            {
+              "value": "آذربایجان شرقی",
+              "label": "آذربایجان شرقی — 041"
+            },
+            {
+              "value": "آذربایجان غربی",
+              "label": "آذربایجان غربی — 044"
+            },
+            {
+              "value": "اردبیل",
+              "label": "اردبیل — 045"
+            },
+            {
+              "value": "اصفهان",
+              "label": "اصفهان — 031"
+            },
+            {
+              "value": "البرز",
+              "label": "البرز — 026"
+            },
+            {
+              "value": "ایلام",
+              "label": "ایلام — 084"
+            },
+            {
+              "value": "بوشهر",
+              "label": "بوشهر — 077"
+            },
+            {
+              "value": "تهران",
+              "label": "تهران — 021"
+            },
+            {
+              "value": "چهارمحال و بختیاری",
+              "label": "چهارمحال و بختیاری — 038"
+            },
+            {
+              "value": "خراسان جنوبی",
+              "label": "خراسان جنوبی — 056"
+            },
+            {
+              "value": "خراسان رضوی",
+              "label": "خراسان رضوی — 051"
+            },
+            {
+              "value": "خراسان شمالی",
+              "label": "خراسان شمالی — 058"
+            },
+            {
+              "value": "خوزستان",
+              "label": "خوزستان — 061"
+            },
+            {
+              "value": "زنجان",
+              "label": "زنجان — 024"
+            },
+            {
+              "value": "سمنان",
+              "label": "سمنان — 023"
+            },
+            {
+              "value": "سیستان و بلوچستان",
+              "label": "سیستان و بلوچستان — 054"
+            },
+            {
+              "value": "فارس",
+              "label": "فارس — 071"
+            },
+            {
+              "value": "قزوین",
+              "label": "قزوین — 028"
+            },
+            {
+              "value": "قم",
+              "label": "قم — 025"
+            },
+            {
+              "value": "کردستان",
+              "label": "کردستان — 087"
+            },
+            {
+              "value": "کرمان",
+              "label": "کرمان — 034"
+            },
+            {
+              "value": "کرمانشاه",
+              "label": "کرمانشاه — 083"
+            },
+            {
+              "value": "کهگیلویه و بویراحمد",
+              "label": "کهگیلویه و بویراحمد — 074"
+            },
+            {
+              "value": "گلستان",
+              "label": "گلستان — 017"
+            },
+            {
+              "value": "گیلان",
+              "label": "گیلان — 013"
+            },
+            {
+              "value": "لرستان",
+              "label": "لرستان — 066"
+            },
+            {
+              "value": "مازندران",
+              "label": "مازندران — 011"
+            },
+            {
+              "value": "مرکزی",
+              "label": "مرکزی — 086"
+            },
+            {
+              "value": "هرمزگان",
+              "label": "هرمزگان — 076"
+            },
+            {
+              "value": "همدان",
+              "label": "همدان — 081"
+            },
+            {
+              "value": "یزد",
+              "label": "یزد — 035"
+            }
+          ],
+          "conditional": true
+        },
+        {
+          "id": "subscriber",
+          "label": "شمارهٔ ثابت بدون پیش‌شماره",
+          "required": false,
+          "askedInFlow": true,
+          "numeric": true,
+          "max": 8,
+          "conditional": true
+        },
+        {
+          "id": "extension",
+          "label": "داخلی، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true,
+          "numeric": true,
+          "max": 6,
+          "conditional": true
+        },
+        {
+          "id": "mobile",
+          "label": "شمارهٔ همراه",
+          "required": false,
+          "askedInFlow": true,
+          "numeric": true,
+          "max": 11,
+          "conditional": true
+        },
+        {
+          "id": "international",
+          "label": "شماره با کد کشور، بدون +",
+          "required": false,
+          "askedInFlow": true,
+          "numeric": true,
+          "max": 15,
+          "conditional": true
+        },
+        {
+          "id": "phoneNotes",
+          "label": "کدام بخش از شماره را دیده‌اید؟",
+          "required": false,
+          "askedInFlow": true,
+          "conditional": true
+        },
+        {
+          "id": "email",
+          "label": "نشانی ایمیل مرتبط",
+          "required": false,
+          "askedInFlow": true,
+          "validate": "email",
+          "conditional": true
+        },
+        {
+          "id": "displayName",
+          "label": "نامی که در این تماس یا حساب نمایش داده می‌شد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "context",
+          "label": "این حساب یا شماره چگونه در اتفاق استفاده شد؟",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "contactTime",
+          "label": "زمان آخرین ارتباط مرتبط با رخداد",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "place": {
+      "title": "مکان‌های مرتبط",
+      "question": "این اتفاق کجا افتاد؟",
+      "hint": "نام محله، محل یا مسیری را که می‌دانید بنویسید.",
+      "fields": [
+        {
+          "id": "label",
+          "label": "عنوان مکان",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "role",
+          "label": "ارتباط این مکان با رخداد",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "محل مشاهده",
+            "مبدأ حرکت",
+            "محل نگهداری",
+            "محل توقف",
+            "مقصد مشاهده‌شده",
+            "مقصد گفته‌شده",
+            "نامعلوم",
+            "سایر"
+          ]
+        },
+        {
+          "id": "observedAt",
+          "label": "زمان اتفاق در این مکان",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "context",
+          "label": "آنچه در این مکان اتفاق افتاد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نحوهٔ اطلاع از مکان",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "خودم مشاهده کردم",
+            "از فرد درگیر شنیدم",
+            "از شاهد شنیدم",
+            "در مستندات مرتبط دیدم"
+          ]
+        },
+        {
+          "id": "province",
+          "label": "استان",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "city",
+          "label": "شهر یا روستا",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "district",
+          "label": "محله یا محدوده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "street",
+          "label": "خیابان و کوچه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "building",
+          "label": "نام یا توصیف محل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "placeType",
+          "label": "نوع مکان",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "رستوران یا کافه",
+            "مسکونی",
+            "تجاری",
+            "اداری",
+            "کارگاه یا انبار",
+            "معبر عمومی",
+            "فضای باز",
+            "نامشخص"
+          ]
+        },
+        {
+          "id": "number",
+          "label": "پلاک ساختمان",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "postal",
+          "label": "کدپستی",
+          "required": false,
+          "askedInFlow": true,
+          "numeric": true,
+          "max": 10,
+          "exact": 10
+        },
+        {
+          "id": "floor",
+          "label": "طبقه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "unit",
+          "label": "واحد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "landmark",
+          "label": "نشانهٔ نزدیک یا مسیر دسترسی",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "time": {
+      "title": "جزئیات زمان",
+      "question": "این اتفاق چه زمانی افتاد؟",
+      "hint": "زمان تقریبی هم کافی است.",
+      "fields": [
+        {
+          "id": "date",
+          "label": "تاریخ رخداد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "clock",
+          "label": "ساعت یا بازهٔ زمانی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "duration",
+          "label": "مدت رخداد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "certainty",
+          "label": "دقت زمان",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "دقیق",
+            "تقریبی"
+          ]
+        }
+      ]
+    },
+    "object": {
+      "title": "اشیاء و اموال مرتبط",
+      "question": "از وسایل یا اموال مرتبط با این اتفاق چیزی می‌دانید؟",
+      "hint": "مثلاً مال سرقت‌شده، وسیلهٔ آسیب‌دیده یا مدرک مرتبط. خودرو را جدا می‌پرسیم.",
+      "fields": [
+        {
+          "id": "label",
+          "label": "نام وسیله یا مال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "kind",
+          "label": "نوع شیء",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "مال شخصی",
+            "مدرک یا سند",
+            "کالای معامله",
+            "وسیلهٔ دیجیتال",
+            "حساب یا دادهٔ دیجیتال",
+            "تجهیزات یا تأسیسات",
+            "سایر"
+          ]
+        },
+        {
+          "id": "role",
+          "label": "ارتباط شیء با رخداد",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "مال سرقت‌شده",
+            "مال آسیب‌دیده",
+            "موضوع معامله",
+            "مدرک مرتبط",
+            "وسیلهٔ استفاده‌شده در رخداد",
+            "نامعلوم",
+            "سایر"
+          ]
+        },
+        {
+          "id": "brand",
+          "label": "برند و مدل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "color",
+          "label": "رنگ و ظاهر",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "quantity",
+          "label": "تعداد",
+          "required": false,
+          "askedInFlow": true,
+          "numeric": true,
+          "max": 6
+        },
+        {
+          "id": "serial",
+          "label": "شماره سریال یا شناسهٔ وسیله",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "condition",
+          "label": "وضعیت و آسیب قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "marks",
+          "label": "نشانهٔ متمایز یا بسته‌بندی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "lastSeen",
+          "label": "آخرین زمان و محل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نحوهٔ اطلاع از شیء",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "خودم مشاهده کردم",
+            "در مستند رخداد دیدم",
+            "از فرد درگیر شنیدم",
+            "از شاهد شنیدم"
+          ]
+        },
+        {
+          "id": "notes",
+          "label": "توضیح مرتبط دیگر",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "vehicle": {
+      "title": "وسیلهٔ نقلیهٔ مرتبط با رخداد",
+      "question": "از وسیلهٔ نقلیهٔ مرتبط با این اتفاق چیزی می‌دانید؟",
+      "hint": "نوع، ظاهر یا پلاک؛ هر مقدار که به یاد دارید کافی است.",
+      "fields": [
+        {
+          "id": "label",
+          "label": "عنوان وسیله در این گزارش",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "observation",
+          "label": "شرح مشاهدهٔ وسیله یا گروه وسایل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "count",
+          "label": "تعداد تقریبی وسایل، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "kind",
+          "label": "نوع وسیله",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "خودرو",
+            "ون",
+            "موتورسیکلت",
+            "وانت",
+            "کامیون",
+            "اتوبوس",
+            "دوچرخه",
+            "سایر"
+          ]
+        },
+        {
+          "id": "model",
+          "label": "برند و مدل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "color",
+          "label": "رنگ",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "plateStatus",
+          "label": "وضعیت مشاهدهٔ پلاک",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "کامل دیدم",
+            "بخشی را دیدم",
+            "پلاک را ندیدم",
+            "فاقد پلاک بود"
+          ],
+          "conditional": true
+        },
+        {
+          "id": "marks",
+          "label": "نشانهٔ متمایز وسیله",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "direction",
+          "label": "جهت حرکت در زمان رخداد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "observedAt",
+          "label": "زمانی که این وسیله را دیدید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "relation",
+          "label": "آنچه از ارتباط این وسیله با اتفاق می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "source": {
+      "title": "جزئیات منبع اطلاع",
+      "question": "چطور از این اتفاق مطلع شدید؟",
+      "hint": "مشاهدهٔ مستقیم را از شنیده‌ها جدا کنید.",
+      "fields": [
+        {
+          "id": "time",
+          "label": "زمان اطلاع از رخداد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "type",
+          "label": "نوع منبع",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "url",
+          "label": "پیوند مطلب مرتبط، در صورت وجود",
+          "required": false,
+          "askedInFlow": true,
+          "validate": "url"
+        },
+        {
+          "id": "notes",
+          "label": "توضیح نحوهٔ اطلاع",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a02": {
+      "title": "جزئیات انسداد مسیر و اختلال خدمات",
+      "question": "چه مسیری بسته شده یا کدام خدمت دچار اختلال شده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "service",
+          "label": "مسیر یا خدمت دچار اختلال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "condition",
+          "label": "مانع یا اختلالی که مشاهده کردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "duration",
+          "label": "مدت یا زمان‌های اختلال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر قابل مشاهده بر رفت‌وآمد یا خدمات",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a03": {
+      "title": "جزئیات درگیری مسلحانه و گروگان‌گیری",
+      "question": "دربارهٔ درگیری با سلاح یا گروگان‌گیری چه چیزی مشاهده کرده‌اید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "behavior",
+          "label": "رفتار یا محدودیت آزادی مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "tool",
+          "label": "سلاح یا وسیله، فقط در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "peopleCount",
+          "label": "تعداد تقریبی افراد، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب اتفاق‌ها",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "injury",
+          "label": "آسیب قابل مشاهده، بدون شرح گرافیکی",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a04": {
+      "title": "جزئیات درگیری، تهدید یا مقاومت در برابر مأموران",
+      "question": "چه درگیری، تهدید یا مقاومتی در برابر کارکنان رخ داد؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "service",
+          "label": "دستگاه یا خدمت مرتبط، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "behavior",
+          "label": "رفتار مشخص درگیری، تهدید یا مقاومت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "injury",
+          "label": "آسیب قابل مشاهده، فقط در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "damage",
+          "label": "خسارت یا اختلال خدمت، فقط در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب اتفاق‌ها",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a05": {
+      "title": "جزئیات انفجار و تخریب زیرساخت‌ها",
+      "question": "چه انفجار، آتش یا آسیبی به تأسیسات مشاهده شده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "facility",
+          "label": "نوع خدمت یا تأسیسات آسیب‌دیده، در حد اطلاع عمومی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "observation",
+          "label": "صدا، آتش یا آسیب مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "زمان و ترتیب مشاهدات",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "پیامد قابل مشاهده برای افراد یا خدمات",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a09": {
+      "title": "جزئیات سرقت مسلحانه",
+      "question": "چه چیزی ربوده شد و از استفاده از سلاح چه می‌دانید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "item",
+          "label": "مال ربوده‌شده، بدون محتوای محرمانه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "tool",
+          "label": "سلاح یا وسیلهٔ مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "behavior",
+          "label": "رفتار یا محدودیت آزادی هنگام سرقت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب رخداد سرقت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "injury",
+          "label": "آسیب قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a10": {
+      "title": "جزئیات احتکار کلان کالاهای ضروری",
+      "question": "چه اطلاعاتی دربارهٔ نگهداری گستردهٔ کالا و کمبود ناشی از آن دارید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "product",
+          "label": "نوع کالا یا قلم مرتبط",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "quantity",
+          "label": "مقدار و واحد، فقط در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "observation",
+          "label": "آنچه دربارهٔ نگهداری یا عرضه می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "کمبود یا اثر مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "مبنای اطلاع از گستردگی موضوع",
+          "required": false,
+          "askedInFlow": false
+        }
+      ]
+    },
+    "details_pdf_a13": {
+      "title": "جزئیات بمب‌گذاری و حملهٔ خشونت‌آمیز",
+      "question": "چه حمله یا انفجار مشخصی رخ داده یا چه تهدید مشخصی دریافت شده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "observation",
+          "label": "رفتار، انفجار یا عبارت تهدید مشخص",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب مشاهدات یا زمان دریافت تهدید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "آسیب یا خسارت قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a14": {
+      "title": "جزئیات آدم‌ربایی و حبس اجباری",
+      "question": "دربارهٔ بردن یا نگه‌داشتن فرد برخلاف خواستش چه می‌دانید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "lastSeen",
+          "label": "زمان و محل آخرین مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "restriction",
+          "label": "محدودیت آزادی که از آن اطلاع دارید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب انتقال یا نگهداری",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "demand",
+          "label": "درخواست وجه یا شرط رهایی، فقط اگر مطرح شده است",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a15": {
+      "title": "جزئیات خشونت خانگی و آزار آسیب‌پذیران",
+      "question": "چه رفتار آسیب‌زایی در خانه یا علیه فرد آسیب‌پذیر رخ داده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "behavior",
+          "label": "رفتار آسیب‌زای گزارش‌شده، بدون شرح گرافیکی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "زمان یا دفعات وقوع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "injury",
+          "label": "پیامد قابل مشاهده، در صورت تمایل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "support",
+          "label": "کمکی که تا این لحظه دریافت شده است",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a16": {
+      "title": "جزئیات تهدید به قتل یا آسیب شدید",
+      "question": "چه تهدید مشخصی بیان شده و چه چیزی دربارهٔ آن می‌دانید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "words",
+          "label": "عبارت تهدید، در صورت یادآوری",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "channel",
+          "label": "روش دریافت تهدید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "time",
+          "label": "زمان بیان یا دریافت تهدید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "مشاهده‌ای که مبنای نگرانی شماست",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "frequency",
+          "label": "دفعات تکرار، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_a17": {
+      "title": "جزئیات ورود اجباری همراه تهدید",
+      "question": "چه چیزی از ورود اجباری و تهدید یا آسیب همراه آن مشاهده کردید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "entry",
+          "label": "نحوهٔ ورود مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "behavior",
+          "label": "تهدید یا رفتار همراه ورود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "damage",
+          "label": "آسیب به در، محل یا اموال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "injury",
+          "label": "آسیب قابل مشاهده به افراد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب اتفاق‌ها",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b08": {
+      "title": "جزئیات تبعیض و تخلف در خدمات عمومی",
+      "question": "در دریافت کدام خدمت عمومی چه مشکل یا تفاوتی مشاهده کرده‌اید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "service",
+          "label": "خدمت یا امتیاز عمومی مورد شکایت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "agency",
+          "label": "دستگاه یا واحد مرتبط",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "conduct",
+          "label": "رفتار یا تفاوت مشخص در ارائهٔ خدمت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "document",
+          "label": "مدرک یا پاسخ موجود، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر مشکل بر دریافت خدمت",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b11": {
+      "title": "جزئیات افزایش قیمت کالا و دارو",
+      "question": "قیمت کدام کالا یا خدمت تغییر کرده و چه مبلغی از شما خواسته شده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "product",
+          "label": "کالا، دارو یا خدمت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "price",
+          "label": "قیمت اعلام‌شده یا پرداخت‌شده و واحد پول",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "priorPrice",
+          "label": "قیمت قبلی یا نرخ اعلامی، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "observedAt",
+          "label": "زمان مشاهدهٔ قیمت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "document",
+          "label": "رسید یا منبع نرخ، در صورت وجود",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b15": {
+      "title": "جزئیات خشونت، اخاذی و عرضهٔ غیرمجاز",
+      "question": "چه رفتار مشخص و تکرارشونده‌ای در محله مشاهده شده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "behavior",
+          "label": "رفتار مشخص مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "زمان‌ها یا دفعات تکرار",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "demand",
+          "label": "درخواست یا تبادل مشاهده‌شده، در صورت وجود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر قابل مشاهده بر افراد یا محل",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b16": {
+      "title": "جزئیات سرقت خرد و غیرمسلحانه",
+      "question": "چه مالی ربوده شده و از نحوهٔ سرقت چه می‌دانید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "item",
+          "label": "مال ربوده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "brand",
+          "label": "برند، مدل یا مشخصات مال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "serial",
+          "label": "شمارهٔ سریال، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "lastSeen",
+          "label": "آخرین زمان و مکان مشاهدهٔ مال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "behavior",
+          "label": "آنچه از نحوهٔ سرقت دیده‌اید",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b17": {
+      "title": "جزئیات احتکار خرد و صنفی",
+      "question": "چه اطلاعاتی از خودداری از عرضهٔ کالا در این محل دارید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "product",
+          "label": "نوع کالا یا قلم",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "observation",
+          "label": "آنچه از عرضه یا نگهداری کالا مشاهده کرده‌اید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "quantity",
+          "label": "مقدار و واحد، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "response",
+          "label": "پاسخ عرضه‌کننده، در صورت دریافت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر قابل مشاهده بر خرید یا عرضه",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b20": {
+      "title": "جزئیات قاچاق، زمین‌خواری و تخلفات مالی",
+      "question": "چه جابه‌جایی کالا، تصرف زمین یا رفتار اقتصادی مشخصی مشاهده شده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "کالا، زمین یا معاملهٔ مرتبط",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "action",
+          "label": "رفتار یا جابه‌جایی مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "quantity",
+          "label": "مقدار یا محدوده، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "document",
+          "label": "مدرک یا توافق مرتبط، در صورت وجود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "خسارت یا تغییر قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b22": {
+      "title": "جزئیات جعل عنوان و اخاذی",
+      "question": "چه عنوانی معرفی شد و با آن چه درخواستی از شما داشتند؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "claimedRole",
+          "label": "عنوانی که فرد معرفی کرد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "request",
+          "label": "درخواست وجه، اطلاعات یا اقدام",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sign",
+          "label": "مدرک یا نشانه‌ای که ارائه شد، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "مبنای تردید شما",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "impact",
+          "label": "اثر یا نتیجهٔ مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b23": {
+      "title": "جزئیات کلاهبرداری در معامله و پیش‌پرداخت",
+      "question": "چه معامله یا وعده‌ای مطرح شد و پس از پرداخت چه اتفاقی افتاد؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "deal",
+          "label": "کالا، ملک، خودرو یا خدمت موضوع معامله",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "promise",
+          "label": "توافق یا وعدهٔ اولیه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "amount",
+          "label": "مبلغ و واحد پول",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "payment",
+          "label": "زمان و روش پرداخت، بدون اطلاعات محرمانه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "result",
+          "label": "آنچه دریافت شد یا انجام نشد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "response",
+          "label": "پاسخ طرف معامله پس از پیگیری",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b24": {
+      "title": "جزئیات جعل اسناد و هویت",
+      "question": "کدام مدرک یا هویت در چه معامله یا تعهدی استفاده شده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "document",
+          "label": "نوع مدرک، بدون شناسهٔ هویتی کامل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sign",
+          "label": "نشانهٔ مشاهده‌شده یا علت تردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "use",
+          "label": "نحوهٔ استفاده در معامله یا ایجاد تعهد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر بر مال یا تعهد اشخاص",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b25": {
+      "title": "جزئیات تعقیب و مزاحمت تکراری",
+      "question": "چه رفتار تکرارشونده‌ای رخ داده و چند بار آن را تجربه یا مشاهده کرده‌اید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "behavior",
+          "label": "رفتار یا عبارت مشخص",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "دفعات و بازهٔ تکرار",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "channel",
+          "label": "حضوری یا راه ارتباطی استفاده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر قابل مشاهده بر فرد",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b26": {
+      "title": "جزئیات بهره‌کشی اجباری از افراد",
+      "question": "چه نشانه‌ای از اجبار فرد به کار یا فعالیت و گرفتن درآمد او می‌دانید؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "activity",
+          "label": "فعالیتی که فرد به آن وادار شده است",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "coercion",
+          "label": "نشانهٔ مشخص تهدید یا اجبار",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "income",
+          "label": "آنچه از گرفتن درآمد فرد می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "lastContact",
+          "label": "آخرین مشاهده یا ارتباط مرتبط",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "support",
+          "label": "کمک دریافت‌شده، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_pdf_b27": {
+      "title": "جزئیات اخاذی و آزار سایبری",
+      "question": "چه تهدید، سوءاستفاده از هویت یا تعرضی در فضای مجازی رخ داده است؟",
+      "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
+      "fields": [
+        {
+          "id": "conduct",
+          "label": "پیام یا رفتار مشخص، بدون محتوای خصوصی غیرضروری",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "demand",
+          "label": "آنچه در ازای منتشرنکردن یا توقف آزار خواسته شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "platform",
+          "label": "بستر یا راه ارتباطی مرتبط",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "زمان یا دفعات پیام‌ها",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "پیامد قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_official_complaint": {
+      "title": "جزئیات رسیدگی‌نشدن یا شکایت از عملکرد دستگاه",
+      "question": "چه موضوعی را به کدام دستگاه اعلام کردید و چه پاسخی گرفتید؟",
+      "hint": "زمان، روش اعلام، شمارهٔ پیگیری و پاسخ دریافتی را جدا بنویسید؛ عدم رسیدگی، ادعای گزارش‌دهنده است.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "عدم پاسخ یا رسیدگی",
+            "رفتار مأمور یا کارمند",
+            "درخواست وجه یا منفعت",
+            "سوءاستفاده از موقعیت شغلی",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "agency",
+          "label": "نام دستگاه، واحد یا شعبه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "conduct",
+          "label": "رفتار یا موضوع مورد شکایت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "reportTime",
+          "label": "زمان و دفعات اعلام",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "channel",
+          "label": "روش اعلام",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "reference",
+          "label": "شمارهٔ پیگیری، در صورت وجود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "response",
+          "label": "پاسخ یا نتیجه‌ای که خودتان دریافت کردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_business_observation": {
+      "title": "جزئیات فروش یا سرو مشروبات الکلی",
+      "question": "دربارهٔ فروش یا سرو نوشیدنی الکلی چه چیزی دیدید یا شنیدید؟",
+      "hint": "مشاهده را از شنیده و برداشت شخصی جدا کنید؛ مشخصات مشتریان یا باورهای آنان لازم نیست.",
+      "fields": [
+        {
+          "id": "activity",
+          "label": "خدمت یا فعالیت مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "product",
+          "label": "نوع کالا یا نوشیدنی، فقط در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نشانه‌ای که مبنای تشخیص شما بود",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "quantity",
+          "label": "مقدار یا تعداد مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "زمان‌ها یا دفعات مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_environment": {
+      "title": "جزئیات آسیب محیط‌زیستی",
+      "question": "چه آسیبی به محیط، منابع یا جانوران مشاهده شده است؟",
+      "hint": "نوع آسیب، محدوده و زمان را بنویسید؛ عامل و علت نامعلوم را حدس نزنید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "آلودگی آب، خاک یا هوا",
+            "آسیب به درختان",
+            "آسیب به جانوران",
+            "تخلیهٔ پسماند",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "subject",
+          "label": "منبع، محیط یا جانور در معرض آسیب",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "action",
+          "label": "رفتار یا آلودگی مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "extent",
+          "label": "محدوده و شدت قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_disaster": {
+      "title": "جزئیات سیل، زلزله و رخداد طبیعی",
+      "question": "چه رخداد طبیعی و چه پیامدی مشاهده کردید؟",
+      "hint": "زمان، محل و آسیب قابل مشاهده را ثبت کنید.",
+      "fields": [
+        {
+          "id": "type",
+          "label": "نوع رخداد طبیعی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "آسیب به افراد، اموال یا خدمات",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "extent",
+          "label": "محدودهٔ مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_supply_issue": {
+      "title": "جزئیات کمبود کالا یا شکایت مصرف‌کننده",
+      "question": "مشکل کالا، عرضه یا معامله چه بود؟",
+      "hint": "کمبود، قیمت اعلام‌شده و آنچه دریافت کرده‌اید را ثبت کنید؛ از وجود انبار به‌تنهایی احتکار نتیجه نگیرید.",
+      "fields": [
+        {
+          "id": "product",
+          "label": "نوع کالا یا خدمت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "problem",
+          "label": "مشکل مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "quantity",
+          "label": "مقدار و واحد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "price",
+          "label": "قیمت و واحد پول",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "document",
+          "label": "رسید یا نشانهٔ مرتبط",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "response",
+          "label": "پاسخ عرضه‌کننده، در صورت دریافت",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_food_safety": {
+      "title": "جزئیات بهداشت مواد غذایی و محل عرضه",
+      "question": "چه نشانه‌ای از مشکل بهداشتی مشاهده کردید؟",
+      "hint": "ظاهر، شرایط نگهداری و علائم گزارش‌شده را ثبت کنید؛ تشخیص بیماری لازم نیست.",
+      "fields": [
+        {
+          "id": "product",
+          "label": "مادهٔ غذایی یا خدمت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "condition",
+          "label": "وضعیت و نشانهٔ مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "date",
+          "label": "تاریخ خرید، تولید یا مصرف، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "پیامد مشاهده‌شده، بدون حدس پزشکی",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_shooting": {
+      "title": "جزئیات تیراندازی گزارش‌شده",
+      "question": "چه چیزی از تیراندازی دیدید یا شنیدید؟",
+      "hint": "صدای شنیده‌شده را از شلیک دیده‌شده جدا کنید. علت و هویت نامعلوم را حدس نزنید.",
+      "fields": [
+        {
+          "id": "observation",
+          "label": "مشاهده یا صدای شنیده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "tool",
+          "label": "نشانهٔ قابل مشاهدهٔ وسیله، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب اتفاق‌ها",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "damage",
+          "label": "آسیب قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_explosion": {
+      "title": "جزئیات انفجار گزارش‌شده",
+      "question": "چه نشانه‌ای از انفجار مشاهده یا دریافت کرده‌اید؟",
+      "hint": "مشاهدهٔ مستقیم، شنیده و علت نامعلوم را جدا ثبت کنید.",
+      "fields": [
+        {
+          "id": "signs",
+          "label": "صدا، نور یا آثار مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "damage",
+          "label": "آسیب به افراد و اموال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "cause",
+          "label": "علت فقط در صورت اطلاع؛ همراه مبنای اطلاع",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_impersonation": {
+      "title": "جزئیات معرفی خلاف واقع یا سوءاستفاده از عنوان",
+      "question": "فرد چه عنوانی معرفی کرد و چه درخواستی داشت؟",
+      "hint": "عنوان ادعاشده، درخواست و مبنای تردید را بنویسید؛ ادعا به معنای اثبات نیست.",
+      "fields": [
+        {
+          "id": "claimedRole",
+          "label": "عنوان معرفی‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "request",
+          "label": "درخواست یا اقدام انجام‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "مبنای تردید شما",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "impact",
+          "label": "مال، اطلاعات یا آسیب مرتبط",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_discovery": {
+      "title": "جزئیات یافتن فرد بی‌هوش یا پیکر",
+      "question": "چه وضعیت قابل مشاهده‌ای پیدا کردید؟",
+      "hint": "مکان، زمان و مشاهدات غیرگرافیکی را بنویسید؛ هویت، علت و تشخیص پزشکی نامعلوم باقی می‌مانند.",
+      "fields": [
+        {
+          "id": "observation",
+          "label": "وضعیت قابل مشاهده، بدون شرح گرافیکی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "notified",
+          "label": "تماس یا اعلام قبلی، در صورت انجام",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_hazardous_supply": {
+      "title": "جزئیات عرضهٔ اقلام خطرناک گزارش‌شده",
+      "question": "چه عرضه یا جابه‌جایی مشخصی از اقلام خطرناک مشاهده کردید؟",
+      "hint": "اقلام، مقدار و مبنای تشخیص را فقط در حد مشاهده بنویسید؛ دستور ساخت، خرید یا استفاده لازم نیست.",
+      "fields": [
+        {
+          "id": "item",
+          "label": "نوع قلم، فقط در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "activity",
+          "label": "رفتار مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "quantity",
+          "label": "مقدار و واحد مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "مبنای تشخیص شما",
+          "required": false,
+          "askedInFlow": false
+        }
+      ]
+    },
+    "details_drug_use": {
+      "title": "جزئیات مصرف مواد گزارش‌شده",
+      "question": "دربارهٔ مصرف مواد چه چیزی مشاهده کردید؟",
+      "hint": "آنچه دیدید را شرح دهید؛ نوع ماده و علت رفتار افراد را حدس نزنید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "مصرف مشاهده‌شده",
+            "مصرف گزارش‌شده توسط دیگری",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "observation",
+          "label": "رفتاری که از مصرف مشاهده کردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "substance",
+          "label": "نام ماده، فقط اگر می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "signs",
+          "label": "نشانهٔ قابل مشاهدهٔ ماده یا وسیله",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "پیامد قابل مشاهده برای افراد یا محیط",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_drug_supply": {
+      "title": "جزئیات خرید، فروش یا نگهداری مواد",
+      "question": "دربارهٔ خرید، عرضه یا نگهداری مواد چه چیزی دیدید یا شنیدید؟",
+      "hint": "مراجعه برای خرید را از معاملهٔ انجام‌شده، نگهداری، جابه‌جایی و مصرف جدا کنید؛ پیپر یا نام گل به‌تنهایی نوع ماده یا مصرف را مشخص نمی‌کند.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "خرید یا درخواست خرید گزارش‌شده",
+            "نگهداری یا همراه‌داشتن گزارش‌شده",
+            "فروش یا تحویل مشاهده‌شده",
+            "جابه‌جایی گزارش‌شده",
+            "عرضه در فضای مجازی",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "activity",
+          "label": "آنچه از درخواست خرید، معامله، نگهداری یا جابه‌جایی می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "substance",
+          "label": "نام ماده، فقط اگر می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "quantity",
+          "label": "مقدار تقریبی و واحد، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "exchange",
+          "label": "آنچه از تبادل وجه یا کالا مشاهده کردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب اتفاق‌ها در این مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_weapon_threat": {
+      "title": "جزئیات تهدید با سلاح یا وسیلهٔ تیز",
+      "question": "تهدید چگونه انجام شد و چه وسیله‌ای مشاهده شد؟",
+      "hint": "تهدید را از واردشدن ضربه جدا کنید؛ دیدن وسیله به‌تنهایی به معنی تهدید نیست.",
+      "fields": [
+        {
+          "id": "conduct",
+          "label": "رفتار یا عبارت تهدیدآمیز",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "tool",
+          "label": "شکل یا نوع وسیله، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "target",
+          "label": "فرد یا گروهی که تهدید متوجه او بود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب تهدید و اقدام‌های مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "پیامد قابل مشاهده، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_vehicle_irregularity": {
+      "title": "جزئیات پلاک مخدوش یا ابهام در مشخصات خودرو",
+      "question": "چه وضعیتی در پلاک یا مدارک وسیلهٔ نقلیه مشاهده شد؟",
+      "hint": "مخدوش‌بودن پلاک یا ابهام در مدارک به‌تنهایی سرقت یا جعل را ثابت نمی‌کند.",
+      "fields": [
+        {
+          "id": "plateCondition",
+          "label": "وضعیت مشاهده‌شدهٔ پلاک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "document",
+          "label": "نوع مدرک مرتبط، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "discrepancy",
+          "label": "ابهام یا مغایرت مشخص در مدرک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نحوهٔ اطلاع از وضعیت پلاک یا مدارک",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "sequence",
+          "label": "زمان و ترتیب مشاهده‌ها",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_resource_extraction": {
+      "title": "جزئیات برداشت یا بهره‌برداری از منابع",
+      "question": "چه برداشتی از کدام منبع مشاهده کردید؟",
+      "hint": "وضعیت مجوز فقط در صورت اطلاع ثبت می‌شود؛ از ظاهر فعالیت، غیرمجاز بودن را نتیجه نگیرید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "برداشت آب",
+            "برداشت خاک یا شن",
+            "بهره‌برداری از معدن",
+            "برداشت سایر منابع",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "resource",
+          "label": "منبع مورد برداشت؛ مانند آب، خاک یا معدن",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "activity",
+          "label": "فعالیت یا وسیلهٔ مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "extent",
+          "label": "محدوده، مقدار یا مدت مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "permission",
+          "label": "آنچه از وضعیت مجوز می‌دانید و نحوهٔ اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "آسیب یا تغییر قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_financial_complaint": {
+      "title": "جزئیات اختلاف مالی یا رفتار مالی مورد شکایت",
+      "question": "چه پرداخت، برداشت یا تعهد مالی محل شکایت است؟",
+      "hint": "مبلغ، توافق و نتیجه را شرح دهید؛ رمز، شمارهٔ کامل کارت و اطلاعات بانکی غیرضروری ننویسید.",
+      "fields": [
+        {
+          "id": "agreement",
+          "label": "توافق یا تعهد مالی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "amount",
+          "label": "مبلغ و واحد پول",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "transaction",
+          "label": "زمان و روش پرداخت یا برداشت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "problem",
+          "label": "تفاوت آنچه توافق شد با آنچه رخ داد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "document",
+          "label": "نوع رسید یا مدرک موجود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "response",
+          "label": "پاسخ دریافت‌شده پس از پیگیری",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_property_dispute": {
+      "title": "جزئیات اختلاف ملکی یا تصرف گزارش‌شده",
+      "question": "چه اختلافی دربارهٔ استفاده یا مالکیت ملک رخ داده است؟",
+      "hint": "توافق، اقدام و مدارک موجود را شرح دهید؛ تعیین مالک یا حکم حقوقی لازم نیست.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "تصرف گزارش‌شده",
+            "اختلاف اجاره",
+            "اختلاف مالکیت",
+            "ممانعت از دسترسی",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "property",
+          "label": "نوع ملک و بخش مورد اختلاف",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "agreement",
+          "label": "توافق یا اجازهٔ استفاده، طبق اطلاع شما",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "action",
+          "label": "اقدام یا تغییر مشاهده‌شده در ملک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "document",
+          "label": "نوع سند، قرارداد یا مدرک موجود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر اختلاف بر دسترسی یا استفاده از ملک",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_family_dispute": {
+      "title": "جزئیات اختلاف خانوادگی",
+      "question": "چه اتفاق مشخصی در این اختلاف رخ داده است؟",
+      "hint": "فقط جزئیات مرتبط را بنویسید. وجود اختلاف به‌تنهایی به معنای وقوع جرم نیست.",
+      "fields": [
+        {
+          "id": "issue",
+          "label": "موضوع مشخص اختلاف",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "conduct",
+          "label": "رفتار یا گفت‌وگوی مرتبط با اختلاف",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "زمان یا دفعات تکرار",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر قابل مشاهدهٔ اختلاف",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_medical_care": {
+      "title": "جزئیات شکایت از خدمات پزشکی یا بهداشتی",
+      "question": "دربارهٔ کدام خدمت و چه مشکل قابل مشاهده‌ای گزارش می‌دهید؟",
+      "hint": "نام بیماری یا علت آسیب را حدس نزنید؛ اطلاعات پزشکی غیرمرتبط لازم نیست.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "مشکل خدمت درمانی",
+            "شرایط بهداشتی مرکز",
+            "شکایت از دارو یا تجهیزات",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "service",
+          "label": "خدمت دریافت‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "provider",
+          "label": "نام مرکز ارائهٔ خدمت، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "problem",
+          "label": "مشکل یا نشانهٔ مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "زمان خدمت و زمان مشاهدهٔ مشکل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "response",
+          "label": "پاسخ مرکز پس از اعلام مشکل",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_traffic_violation": {
+      "title": "جزئیات رفتار پرخطر یا تخلف در عبور و مرور",
+      "question": "چه رفتار مشخصی در مسیر مشاهده کردید؟",
+      "hint": "مسیر، جهت حرکت و اثر رفتار را بنویسید؛ مالک خودرو از روی پلاک تعیین نمی‌شود.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "رانندگی پرخطر",
+            "توقف مزاحم",
+            "عبور ممنوع",
+            "اختلال در عبور و مرور",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "behavior",
+          "label": "رفتار مشاهده‌شده در رانندگی یا توقف",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "route",
+          "label": "مسیر و جهت حرکت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "conditions",
+          "label": "وضعیت راه یا دید در زمان مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "مانع، خطر یا خسارت قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_passenger_complaint": {
+      "title": "جزئیات شکایت مسافر از خدمات سفر",
+      "question": "در سفر چه خدمتی ارائه نشد یا چه مشکلی رخ داد؟",
+      "hint": "مسیر، زمان، خدمت وعده‌داده‌شده و پاسخ شرکت را بنویسید.",
+      "fields": [
+        {
+          "id": "service",
+          "label": "نوع وسیله یا خدمت سفر",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "route",
+          "label": "مبدأ و مقصد سفر",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "provider",
+          "label": "نام شرکت یا خط، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "problem",
+          "label": "مشکل مشاهده‌شده یا خدمت ارائه‌نشده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "response",
+          "label": "پاسخ ارائه‌دهندهٔ خدمت",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_workplace_accident": {
+      "title": "جزئیات حادثه یا خطر در محیط کار",
+      "question": "چه حادثه یا خطر مشخصی در محیط کار مشاهده شد؟",
+      "hint": "کار در حال انجام و پیامد مشاهده‌شده را شرح دهید؛ علت و مسئولیت نامعلوم را حدس نزنید.",
+      "fields": [
+        {
+          "id": "activity",
+          "label": "کاری که هنگام حادثه انجام می‌شد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "condition",
+          "label": "وضعیت قابل مشاهدهٔ محیط یا تجهیزات",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب رخداد حادثه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "آسیب قابل مشاهده به افراد یا تجهیزات",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_self_harm": {
+      "title": "جزئیات نگرانی از آسیب به خود",
+      "question": "چه نشانه یا گفته‌ای باعث نگرانی شما برای فرد شده است؟",
+      "hint": "گفته و مشاهده را بدون شرح روش آسیب ثبت کنید؛ تشخیص پزشکی لازم نیست.",
+      "fields": [
+        {
+          "id": "observation",
+          "label": "گفته یا وضعیت نگران‌کننده، بدون جزئیات روش",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "lastContact",
+          "label": "زمان آخرین مشاهده یا تماس مرتبط",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "support",
+          "label": "کمکی که تا این لحظه دریافت شده است",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_fireworks": {
+      "title": "جزئیات حادثه یا خطر مواد محترقه",
+      "question": "چه استفاده، نگهداری یا حادثه‌ای دربارهٔ مواد محترقه مشاهده کردید؟",
+      "hint": "نشانه‌ها و آسیب را بنویسید؛ جزئیات ساخت یا استفاده لازم نیست.",
+      "fields": [
+        {
+          "id": "observation",
+          "label": "آنچه دربارهٔ اقلام یا رفتار مشاهده کردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "condition",
+          "label": "وضعیت محل نگهداری یا استفاده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "آسیب یا خطر قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_sexual_violence": {
+      "title": "جزئیات آزار یا خشونت جنسی گزارش‌شده",
+      "question": "چه رفتار بدون رضایت یا همراه با اجبار رخ داده است؟",
+      "hint": "شرح کوتاه و غیرگرافیکی کافی است؛ فقط اطلاعاتی را بنویسید که مایل به ثبت آن هستید.",
+      "fields": [
+        {
+          "id": "conduct",
+          "label": "رفتار گزارش‌شده، بدون شرح گرافیکی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "coercion",
+          "label": "آنچه از اجبار یا تهدید می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "زمان یا دفعات وقوع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "پیامد یا نیاز به حمایت، در صورت تمایل",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_online_harm": {
+      "title": "جزئیات پیام یا فراخوان مشخص به آسیب در فضای مجازی",
+      "question": "کدام پیام به تهدید، خشونت یا آسیب مشخص مربوط است؟",
+      "hint": "رفتار آسیب‌زا و عبارت مرتبط را ثبت کنید؛ انتقاد، عقیده و تجمع مسالمت‌آمیز مبنای شناسایی افراد نیستند.",
+      "fields": [
+        {
+          "id": "content",
+          "label": "عبارت مرتبط با تهدید یا درخواست آسیب مشخص",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "channel",
+          "label": "بستری که پیام را در آن مشاهده کردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "observedAt",
+          "label": "زمان مشاهدهٔ پیام",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "پیامد مشاهده‌شده، اگر اطلاعی دارید",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_public_nuisance": {
+      "title": "جزئیات مزاحمت یا مانع در فضای عمومی",
+      "question": "چه مزاحمت یا مانع قابل مشاهده‌ای ایجاد شده است؟",
+      "hint": "رفتار مشخص و اثر آن بر استفاده از فضا را بنویسید.",
+      "fields": [
+        {
+          "id": "conduct",
+          "label": "رفتار یا مانع مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "duration",
+          "label": "مدت یا دفعات تکرار",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر بر رفت‌وآمد، استراحت یا استفاده از فضا",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_data_breach": {
+      "title": "جزئیات دسترسی یا افشای بدون اجازهٔ اطلاعات",
+      "question": "چه رفتار مشخصی از دسترسی یا افشای بدون اجازه مشاهده کرده‌اید؟",
+      "hint": "نشانهٔ مشاهده‌شده، حساب یا وسیلهٔ درگیر و نحوهٔ اطلاع را توضیح دهید؛ رمز، محتوای محرمانه یا اطلاعات خصوصی غیرضروری ننویسید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "تصرف حساب",
+            "دسترسی بدون اجازه",
+            "افشای محتوای خصوصی",
+            "فیشینگ یا پیام فریبنده",
+            "اختلال سامانه",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "affected",
+          "label": "حساب، سامانه یا وسیلهٔ درگیر؛ بدون رمز و اطلاعات محرمانه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "observed",
+          "label": "نشانهٔ مشخص دسترسی یا افشای بدون اجازه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "discovered",
+          "label": "زمان و روش آگاه‌شدن از این موضوع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_trafficking": {
+      "title": "جزئیات احتمال قاچاق انسان و بهره‌کشی",
+      "question": "چه نشانه‌ای از اجبار، فریب یا بهره‌کشی مشاهده یا دریافت کرده‌اید؟",
+      "hint": "وعدهٔ اولیه، محدودیت رفت‌وآمد، گرفتن مدارک یا وادارکردن به کار را فقط در صورت اطلاع شرح دهید. انتقال افراد به‌تنهایی اثبات قاچاق نیست.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "کار اجباری",
+            "بهره‌کشی از کودک",
+            "اجبار همراه گرفتن مدارک",
+            "فریب همراه بهره‌کشی",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "promise",
+          "label": "وعده یا شرایط اولیه، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "coercion",
+          "label": "رفتار مشخصِ اجبار یا فریب",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "restriction",
+          "label": "محدودیت رفت‌وآمد یا دسترسی به مدارک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "exploitation",
+          "label": "نوع بهره‌کشی گزارش‌شده، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب جابه‌جایی‌ها و اتفاق‌ها",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "lastContact",
+          "label": "آخرین مشاهده یا ارتباط با فرد آسیب‌دیده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "مبنای این اطلاعات",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "مشاهدهٔ مستقیم",
+            "گفتهٔ فرد آسیب‌دیده",
+            "گفتهٔ شاهد",
+            "مستند مرتبط",
+            "ترکیبی؛ در شرح مشخص شده"
+          ]
+        }
+      ]
+    },
+    "details_confinement": {
+      "title": "جزئیات ربایش یا نگهداری اجباری",
+      "question": "دربارهٔ بردن یا نگه‌داشتن فرد برخلاف خواستش چه می‌دانید؟",
+      "hint": "ترتیب اتفاق‌ها، آخرین مشاهده و نحوهٔ اطلاع خود را جدا بنویسید.",
+      "fields": [
+        {
+          "id": "lastSeen",
+          "label": "زمان و محل آخرین مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "restriction",
+          "label": "آنچه دربارهٔ محدودیت آزادی می‌دانید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب انتقال یا نگهداری، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_forgery": {
+      "title": "جزئیات جعل یا استفاده از مدرک جعلی",
+      "question": "کدام مدرک محل تردید است و چه چیزی دربارهٔ آن مشاهده کرده‌اید؟",
+      "hint": "نوع مدرک و نحوهٔ استفاده را بنویسید؛ اگر جعلی‌بودن فقط شنیده یا احتمال است، مشخص کنید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "مدرک یا کارت",
+            "سند یا وکالت‌نامه",
+            "رسید یا نوشته",
+            "تغییر مشخصات وسیله",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "document",
+          "label": "نوع مدرک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sign",
+          "label": "نشانهٔ مشاهده‌شده یا علت تردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "use",
+          "label": "نحوهٔ استفاده از مدرک در همین رخداد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "مبنای تردید",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "خودم مدرک را دیدم",
+            "از شاهد شنیدم",
+            "فقط احتمال می‌دهم"
+          ]
+        }
+      ]
+    },
+    "details_assault": {
+      "title": "جزئیات نزاع، درگیری یا آسیب بدنی",
+      "question": "چه نوع درگیری رخ داد و چه رفتاری مشاهده کردید؟",
+      "hint": "درگیری لفظی یا فیزیکی و رفتار دیده‌شده را شرح دهید؛ آسیب، سلاح یا مقصر نامعلوم را حدس نزنید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "نزاع فردی",
+            "نزاع گروهی",
+            "خشونت خانگی",
+            "آسیب به کودک یا سالمند",
+            "آسیب با وسیله یا سلاح",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "tool",
+          "label": "وسیله یا سلاح مشاهده‌شده، بدون حدس",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "peopleCount",
+          "label": "تعداد تقریبی افراد، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "دفعات یا الگوی تکرار",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "behavior",
+          "label": "رفتار مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "injury",
+          "label": "آسیب قابل مشاهده، بدون حدس پزشکی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sequence",
+          "label": "ترتیب اتفاق‌ها",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_theft": {
+      "title": "جزئیات سرقت",
+      "question": "چه چیزی به سرقت رفته است؟",
+      "hint": "نوع مال، مشخصات و آخرین زمان مشاهده را در صورت اطلاع بنویسید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "کیف‌قاپی یا جیب‌بری",
+            "سرقت خودرو یا موتورسیکلت",
+            "سرقت از خودرو",
+            "سرقت از منزل یا محل کسب",
+            "سرقت کابل یا تجهیزات",
+            "سرقت همراه خشونت",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "item",
+          "label": "نوع مال سرقت‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "brand",
+          "label": "برند، مدل یا مشخصات مال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "serial",
+          "label": "شمارهٔ سریال مال، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "value",
+          "label": "ارزش تقریبی و واحد پول",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "lastSeen",
+          "label": "آخرین زمان و مکان مشاهدهٔ مال",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "entry",
+          "label": "آثار ورود یا آسیب مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_fraud": {
+      "title": "جزئیات کلاهبرداری",
+      "question": "چه وعده یا معامله‌ای مطرح شد و چه اتفاقی افتاد؟",
+      "hint": "روش پرداخت و آنچه دریافت کرده‌اید را توضیح دهید. رمز یا اطلاعات بانکی کامل ننویسید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "خرید اینترنتی",
+            "معامله یا اجارهٔ ملک",
+            "پیش‌فروش یا سرمایه‌گذاری",
+            "وعدهٔ شغل یا خدمت",
+            "سوءاستفاده از حساب یا هویت",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "method",
+          "label": "روش معامله یا وعدهٔ داده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "amount",
+          "label": "مبلغ و واحد پول",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "payment",
+          "label": "روش پرداخت",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "کارت‌به‌کارت",
+            "انتقال بانکی",
+            "درگاه پرداخت",
+            "نقدی",
+            "سایر"
+          ]
+        },
+        {
+          "id": "date",
+          "label": "تاریخ پرداخت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "reference",
+          "label": "شمارهٔ پیگیری تراکنش",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "result",
+          "label": "آنچه پس از پرداخت رخ داد",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_damage": {
+      "title": "جزئیات تخریب اموال",
+      "question": "چه آسیبی به اموال وارد شده است؟",
+      "hint": "نوع مال و آسیب قابل مشاهده را شرح دهید؛ علت نامعلوم را حدس نزنید.",
+      "fields": [
+        {
+          "id": "object",
+          "label": "مال آسیب‌دیده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "extent",
+          "label": "نوع و میزان آسیب قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "cause",
+          "label": "علت، فقط اگر مشاهده کرده‌اید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "value",
+          "label": "برآورد خسارت و واحد پول",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_fire": {
+      "title": "جزئیات آتش‌سوزی",
+      "question": "کدام بخش دچار آتش‌سوزی شده بود؟",
+      "hint": "آنچه مشاهده کردید و خسارت قابل مشاهده را شرح دهید.",
+      "fields": [
+        {
+          "id": "part",
+          "label": "بخش دچار آتش‌سوزی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "damage",
+          "label": "خسارت مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "condition",
+          "label": "وضعیت محل هنگام مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_accident": {
+      "title": "جزئیات حادثه و تصادف",
+      "question": "چه آسیب یا خسارتی مشاهده کردید؟",
+      "hint": "مشاهدات خود را توضیح دهید؛ تعیین مقصر لازم نیست.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "تصادف وسیلهٔ نقلیه",
+            "حادثهٔ کار",
+            "حادثهٔ خانگی",
+            "حادثهٔ معبر",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "type",
+          "label": "نوع حادثه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "damage",
+          "label": "خسارت قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "injury",
+          "label": "آسیب جسمی مشاهده‌شده، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "conditions",
+          "label": "وضعیت محیط در زمان حادثه",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_harassment": {
+      "title": "جزئیات تهدید و مزاحمت",
+      "question": "چه رفتار یا تهدید مشخصی رخ داده است؟",
+      "hint": "رفتار یا عبارت گفته‌شده و دفعات وقوع را در صورت اطلاع بنویسید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "تهدید مشخص",
+            "تعقیب یا مزاحمت تکراری",
+            "اخاذی",
+            "تهدید به انتشار محتوای خصوصی",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "channel",
+          "label": "روش وقوع مزاحمت یا تهدید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "words",
+          "label": "رفتار یا عبارت دقیق، در صورت یادآوری",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "تعداد دفعات و بازهٔ زمانی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "evidence",
+          "label": "نوع مستند موجود؛ اصل آن را در مرحلهٔ مستندات اضافه کنید",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_service": {
+      "title": "جزئیات خدمات شهری",
+      "question": "مشکل مشاهده‌شده چیست؟",
+      "hint": "خرابی یا اختلال و تأثیر قابل مشاهدهٔ آن را شرح دهید.",
+      "fields": [
+        {
+          "id": "type",
+          "label": "نوع خدمت یا تأسیسات",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "duration",
+          "label": "مدت ادامهٔ مشکل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر قابل مشاهدهٔ مشکل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "prior",
+          "label": "پیگیری قبلی، در صورت انجام",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_other": {
+      "title": "جزئیات سایر رخدادهای آسیب‌زا",
+      "question": "ترتیب اتفاق‌ها و نتیجهٔ قابل مشاهده چه بود؟",
+      "hint": "آنچه می‌دانید را به زبان خودتان شرح دهید. می‌توانید بخش‌های مرتبط را از «موضوع‌ها و بخش‌ها» اضافه کنید.",
+      "fields": [
+        {
+          "id": "sequence",
+          "label": "ترتیب اتفاق‌ها",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "آسیب یا نتیجهٔ قابل مشاهده",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    }
+  }
+}

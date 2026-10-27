@@ -1,0 +1,2 @@
+# Python 3.12 or 3.13. No external model weights are downloaded by this pipeline.
+hazm==0.12.1

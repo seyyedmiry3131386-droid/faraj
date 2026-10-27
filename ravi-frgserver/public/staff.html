@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>کارتابل گزارش‌ها</title>
+<link rel="stylesheet" href="/staff.css"><script type="module" src="/staff.js"></script>
+</head>
+<body>
+<header><h1>کارتابل گزارش‌ها</h1><button id="logout" hidden>خروج</button></header>
+<main>
+ <p id="notice" role="status" aria-live="polite"></p>
+ <section id="login-panel" class="panel" hidden>
+  <h2>ورود مسئول</h2><p>هر مسئول حساب شخصی و کد یک‌بارمصرف جداگانه دارد.</p>
+  <form id="login-form">
+   <label for="username">نام کاربری</label><input id="username" name="username" autocomplete="username" maxlength="64" dir="ltr" required>
+   <label for="password">رمز عبور</label><input id="password" type="password" name="password" autocomplete="current-password" maxlength="256" required>
+   <label for="otp">کد یک‌بارمصرف برنامهٔ احراز هویت</label><input id="otp" name="otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" dir="ltr" required>
+   <button type="submit">ورود امن</button>
+  </form>
+ </section>
+ <section id="inbox" hidden>
+  <div class="topline"><h2>گزارش‌های دریافتی</h2><span id="staff-name"></span><button id="audit-button" class="secondary" hidden>رویدادهای دسترسی</button></div>
+  <section id="audit-panel" class="panel" hidden><div class="topline"><h2>رویدادهای دسترسی</h2><button id="close-audit" class="secondary">بستن</button></div><div id="audit-list"></div></section>
+  <p class="hint">گزارش‌ها حاوی اطلاعات حساس‌اند. فایل‌ها را فقط پس از بررسی امنیتی در محیط امن باز کنید.</p>
+  <form id="find-report"><label for="report-id">جست‌وجو با شناسهٔ دریافت</label><input id="report-id" dir="ltr" maxlength="35" placeholder="RV-…"><button type="submit">یافتن گزارش</button></form>
+  <div id="list" aria-live="polite"></div><button id="more" class="secondary" hidden>گزارش‌های قدیمی‌تر</button>
+  <article id="detail" class="panel" hidden>
+   <div class="topline"><h2 id="report-title"></h2><button id="close-detail" class="secondary">بستن</button></div>
+   <p id="report-meta" class="hint"></p><h3>شرح</h3><p id="report-text" class="preserve"></p>
+   <section><h3>پاسخ‌ها و مشخصات اختیاری</h3><div id="report-answers"></div></section>
+   <section><h3>فایل‌ها</h3><ul id="report-files"></ul></section>
+   <details><summary>سایر داده‌های ثبت‌شده</summary><pre id="report-extra"></pre></details>
+   <form id="status-form"><label for="status">وضعیت بررسی</label><select id="status"><option value="new">جدید</option><option value="in_review">در حال بررسی</option><option value="closed">بسته‌شده</option></select><button type="submit">ثبت وضعیت</button></form>
+  </article>
+ </section>
+</main>
+</body>
+</html>

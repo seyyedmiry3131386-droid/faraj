@@ -1,0 +1,24 @@
+[Unit]
+Description=Ravi reporting website
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ravi-web
+Group=ravi-web
+WorkingDirectory=/opt/ravi
+EnvironmentFile=/etc/ravi.env
+ExecStart=/usr/bin/node /opt/ravi/server.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+StateDirectory=ravi
+StateDirectoryMode=0700
+ProtectHome=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

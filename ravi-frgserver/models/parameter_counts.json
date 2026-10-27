@@ -1,0 +1,80 @@
+{
+  "text": {
+    "components": {
+      "token_embeddings": 16777216,
+      "position_embeddings": 524288,
+      "encoder_layers": 31523840,
+      "input_and_output_norms": 2048,
+      "topic_head": 32832,
+      "subtopic_head": 256500,
+      "category_head": 2052,
+      "entity_BIO_head": 7695,
+      "module_head": 4104,
+      "grounding_head": 1026,
+      "relation_head": 1053192,
+      "question_ranker": 262401
+    },
+    "total": 50447194
+  },
+  "speech": {
+    "components": {
+      "subsampling_conv1": 123392,
+      "subsampling_conv2": 786944,
+      "encoder_15_layers": 47285760,
+      "input_and_output_norms": 2048,
+      "ctc_head": 2101248
+    },
+    "total": 50299392
+  },
+  "150m": {
+    "components": {
+      "token_embeddings": 25165824,
+      "position_embeddings": 1572864,
+      "encoder_layers": 127581696,
+      "input_and_output_norms": 3072,
+      "topic_head": 49216,
+      "subtopic_head": 384500,
+      "category_head": 3076,
+      "entity_BIO_head": 11535,
+      "module_head": 6152,
+      "grounding_head": 1538,
+      "relation_head": 2366216,
+      "question_ranker": 393473
+    },
+    "total": 157539162
+  },
+  "400m": {
+    "components": {
+      "token_embeddings": 33554432,
+      "position_embeddings": 4194304,
+      "encoder_layers": 352694272,
+      "input_and_output_norms": 4096,
+      "topic_head": 65600,
+      "subtopic_head": 512500,
+      "category_head": 4100,
+      "entity_BIO_head": 15375,
+      "module_head": 8200,
+      "grounding_head": 2050,
+      "relation_head": 4203528,
+      "question_ranker": 524545
+    },
+    "total": 395783002
+  },
+  "1b": {
+    "components": {
+      "token_embeddings": 50331648,
+      "position_embeddings": 6291456,
+      "encoder_layers": 934940160,
+      "input_and_output_norms": 6144,
+      "topic_head": 98368,
+      "subtopic_head": 768500,
+      "category_head": 6148,
+      "entity_BIO_head": 23055,
+      "module_head": 12296,
+      "grounding_head": 3074,
+      "relation_head": 9451016,
+      "question_ranker": 786689
+    },
+    "total": 1002718554
+  }
+}
