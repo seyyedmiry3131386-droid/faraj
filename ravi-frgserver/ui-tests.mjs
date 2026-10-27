@@ -137,7 +137,7 @@ await step('the guide keeps a chip answer, and the questionnaire does not repeat
  await ctx.close();
  // The object section can ask for additional properties of a known item; it
  // is not the same as the base «what happened?» question answered above.
- for(const repeated of ['این اتفاق چه زمانی افتاد؟','این اتفاق کجا افتاد؟','چطور از این اتفاق مطلع شدید؟','از افراد مرتبط با این اتفاق چیزی می‌دانید؟'])
+ for(const repeated of ['این اتفاق چه زمانی افتاد؟','این اتفاق کجا افتاد؟','چگونه از این اتفاق مطلع شدید؟','از افراد مرتبط با این اتفاق چیزی می‌دانید؟'])
   if(formAsked.includes(repeated))throw new Error(`asked again after the guide: ${repeated}`);
  console.log(`     guide asked ${guideAsked.length}, questionnaire then asked ${formAsked.length}: ${formAsked.join(' / ')}`);
 });

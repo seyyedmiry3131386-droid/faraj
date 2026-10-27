@@ -10,7 +10,7 @@
 // Model output is untrusted: facts must come from the reporter's words, and
 // neither the model's question nor its done flag can bypass the ordered path.
 
-import { GUIDE_STEPS, guideAnswersFromTurns, composeNarrative } from './public/guidance.js';
+import { GUIDE_STEPS, guideAnswersFromTurns, composeNarrative, displayNewsDomain } from './public/guidance.js';
 import { orderedInterviewPath as interviewPath } from './public/interview-order.js';
 
 const LLM_DEFAULT_URL = 'http://127.0.0.1:11434';
@@ -131,7 +131,7 @@ export const INTERVIEW_SCHEMA = obj({
   facts: { type: 'array', items: obj({ label: str, value: str }) },
   urgent: { type: 'string', enum: URGENT_NUMBERS },
   narrative: str,
-  domain: { type: 'string', enum: ['اداری', 'امنیتی', 'خدماتی', 'مرور', 'رفاه', 'سایر'] },
+  domain: { type: 'string', enum: ['انتظامی', 'اداری', 'امنیتی', 'خدماتی', 'مرور', 'اجتماعی', 'سایر'] },
   quality_grade: { type: 'string', enum: ['عالی', 'معمولی', 'ضعیف', 'خالی'] },
   quantity_note: { type: 'string', enum: ['کم', 'متوسط', 'کامل', 'بیش از حد', 'خالی'] },
   reporter_role: { type: 'string', enum: ['vedadegar', 'shahid', 'eshteghal', 'nashel'] },
@@ -149,7 +149,7 @@ The application determines next_guide_step after accounting for the original des
 Return short Persian options only for the supplied question, or an empty list. The application controls the final question and options. Facts must be verbatim excerpts from the description or answers. For the reason and method, distinguish observed or reported information from speculation.
 
 URGENT: If life/safety is at immediate risk (injury, fire, gas, violence in progress, child danger), set urgent to 110/115/125/123.
-DOMAIN: اداری, امنیتی, خدماتی, مرور, رفاه, or سایر.
+DOMAIN: انتظامی, اداری, امنیتی, خدماتی, مرور, اجتماعی, or سایر.
 QUALITY_GRADE: عالی, معمولی, ضعیف, or خالی.
 QUANTITY_NOTE: کم, متوسط, کامل, بیش از حد, or خالی.
 REPORTER_ROLE: vedadegar (reporter/victim), shahid (witness), eshteghal (heard from others), nashel (unclear).
@@ -239,7 +239,8 @@ export function cleanInterview(raw, input) {
     .map(o => String(o ?? '').replace(/\s+/g, ' ').trim()).filter(o => o && o.length <= 60 && !UNKNOWN_OPTION.test(fold(o))))].slice(0, 4);
   const urgent = URGENT_NUMBERS.includes(String(v.urgent)) ? String(v.urgent) : '';
   const narrative = mode === 'intake' && done ? String(v.narrative ?? '').trim().slice(0, 6000) : '';
-  const domain = ['اداری','امنیتی','خدماتی','مرور','رفاه','سایر'].includes(String(v.domain)) ? String(v.domain) : 'سایر';
+  const requestedDomain = displayNewsDomain(v.domain);
+  const domain = ['انتظامی','اداری','امنیتی','خدماتی','مرور','اجتماعی','سایر'].includes(requestedDomain) ? requestedDomain : 'سایر';
   const quality_grade = ['عالی','معمولی','ضعیف','خالی'].includes(String(v.quality_grade)) ? String(v.quality_grade) : 'ضعیف';
   const quantity_note = ['کم','متوسط','کامل','بیش از حد','خالی'].includes(String(v.quantity_note)) ? String(v.quantity_note) : 'متوسط';
   const reporter_role = ['vedadegar','shahid','eshteghal','nashel'].includes(String(v.reporter_role)) ? String(v.reporter_role) : 'nashel';

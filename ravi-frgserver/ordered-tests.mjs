@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GUIDE_STEPS,coreStepsFor,stepsFor,unknownStagesInText,carryGuideAnswers,composeNarrative,isNonAnswer,newsDomain} from './public/guidance.js';
+import {GUIDE_STEPS,LEGACY_STAGE_TITLES,FOLLOW_UPS,guideStageForQuestion,displayGuideQuestion,guideAnswersFromTurns,migrateGuideOrder,coreStepsFor,stepsFor,unknownStagesInText,carryGuideAnswers,composeNarrative,isNonAnswer,newsDomain,displayNewsDomain} from './public/guidance.js';
 import {orderedInterviewPath,orderedClientStep} from './public/interview-order.js';
 import {guideFallback,newInterview,applyStep,answerCurrent,stepBack} from './public/ai-interview.js';
 import {vehicleCharacteristics} from './public/narrative-facts.js';
@@ -78,6 +78,9 @@ test('AI back preserves the current unsent draft and guide fallback retains prio
  applyStep(ai,{done:false,stage:'who',question:GUIDE_STEPS[1].title,options:[]});ai.draft='یک پاسخ هنوز ارسال نشده';
  assert.ok(stepBack(ai));answerCurrent(ai,'خودم دیدم');applyStep(ai,{done:false,stage:'who',question:GUIDE_STEPS[1].title,options:[]});
  assert.equal(ai.draft,'یک پاسخ هنوز ارسال نشده');
+ const old=newInterview('intake');old.pendingDrafts={[LEGACY_STAGE_TITLES.when]:'پیش‌نویس قدیمی'};
+ applyStep(old,{done:false,stage:'when',question:GUIDE_STEPS[2].title,options:[]});assert.equal(old.draft,'پیش‌نویس قدیمی');
+ answerCurrent(old,old.draft);assert.equal(old.pendingDrafts[LEGACY_STAGE_TITLES.when],undefined);
  const detail=newInterview('detail');const base='من خودم دیدم کیفم را بردند';
  const prior={answers:{source:'من خودم این را دیدم'},skipped:['who'],forText:base};
  const g=guideFallback(detail,base,prior);
@@ -121,4 +124,54 @@ test('label cleanup is presentation-only, current page determines button state a
  assert.equal(pageHasInput(description,{model:'پراید'}),true);
  assert.equal(pageHasInput(description,{model:'  '}),false);
  assert.ok(newsDomain('دیروز کیفم را سرقت کردند').includes('انتظامی'));
+});
+
+test('questions have no category prefix, witness is clear, and duration is never asked',()=>{
+ const labels=['این را خودتان دیدید یا از کسی شنیدید؟','چه کسی این کار را انجام داد؟',
+  'این اتفاق چه زمانی رخ داد؟','این اتفاق در کدام محل رخ داد؟',
+  'چه اتفاقی رخ داد و چه چیزی در آن دخیل بود؟','آیا درباره دلیل یا انگیزه این اتفاق اطلاعاتی دارید؟','این اتفاق چگونه رخ داد؟'];
+ assert.deepEqual(GUIDE_STEPS.map(s=>s.title),labels);
+ assert.equal(FOLLOW_UPS.find(s=>s.id==='witness').title,'آیا فرد دیگری هم این اتفاق را مشاهده کرد؟');
+ for(const [base,answers] of [['دیروز کیفم را سرقت کردند',{}],
+  ['این مشکل قطع آب همچنان ادامه دارد',{ongoing:'این وضعیت در لحظهٔ ثبت گزارش ادامه داشت'}],
+  ['',{result:'خودرو را بردند',ongoing:'ادامه دارد'}]]){
+  assert.ok(!stepsFor(answers,base).some(s=>s.id==='duration'),base);
+  assert.ok(!stepsFor(answers,base).some(s=>s.title.includes('از کِی این مشکل شروع شده است')));
+ }
+ assert.equal(detailSchema('details_self_harm','self_harm').fields.find(f=>f.id==='observation').label,'چه گفته یا رفتاری باعث نگرانی شما شده است؟');
+});
+
+test('old seven-stage labels replay exactly, preserve answers and do not turn victim into actor',()=>{
+ const turns=GUIDE_STEPS.map((s,i)=>({stage:s.id,q:LEGACY_STAGE_TITLES[s.id],a:`پاسخ ${i+1}`}));
+ const p=orderedInterviewPath({mode:'intake',turns});
+ assert.equal(p.error,undefined);assert.equal(p.next,null);
+ assert.deepEqual(guideAnswersFromTurns(p.turns).completed,order);
+ assert.equal(guideAnswersFromTurns(p.turns).answers.who,'پاسخ 2');
+ for(const step of GUIDE_STEPS)assert.equal(guideStageForQuestion(LEGACY_STAGE_TITLES[step.id],step.id)?.id,step.id);
+ assert.equal(guideStageForQuestion('چه کسی: این اتفاق برای چه کسی افتاد؟','who'),null);
+ assert.equal(displayGuideQuestion('چه کسی: این اتفاق برای چه کسی افتاد؟','who'),'این اتفاق برای چه کسی افتاد؟');
+ assert.equal(guideStageForQuestion(LEGACY_STAGE_TITLES.source,'who'),null);
+});
+
+test('migrating a duration draft preserves the user answer and cursor, and completion keeps observations',()=>{
+ const answers={source:'من خودم این را دیدم',who:'یک نفر',when:'دیروز',where:'تهران',
+  result:'مشکل قطع آب ادامه دارد',reason:'نامعلوم',method:'نامعلوم',ongoing:'این وضعیت در لحظهٔ ثبت گزارش ادامه داشت'};
+ const before=stepsFor(answers,'',[],{includeDeprecated:true});const at=before.findIndex(s=>s.id==='duration');assert.ok(at>=0);
+ const g={orderVersion:2,index:at,base:'',answers:{...answers},skipped:[],draft:{step:'duration',value:'از دو هفته پیش'}};
+ migrateGuideOrder(g);assert.equal(g.orderVersion,3);assert.equal(g.answers.duration,'از دو هفته پیش');assert.equal(g.draft,null);
+ assert.equal(stepsFor(g.answers,g.base,g.skipped)[g.index].id,before[at+1].id);
+ const narrative=composeNarrative({...g.answers,injury:'یک نفر آسیب دید',injuryCare:'اورژانس آمد',repeated:'این اتفاق تکرار شد'});
+ for(const expected of ['از دو هفته پیش','یک نفر آسیب دید','اورژانس آمد','این وضعیت در لحظهٔ ثبت گزارش ادامه داشت','این اتفاق تکرار شد'])assert.ok(narrative.includes(expected),expected);
+ const last={orderVersion:2,index:before.length,answers:{...answers,duration:'از پارسال'},skipped:[],base:''};
+ migrateGuideOrder(last);assert.equal(last.index,stepsFor(last.answers,last.base,last.skipped).length);assert.ok(composeNarrative(last.answers).includes('از پارسال'));
+ const atLater=before.findIndex(s=>s.id==='witness');assert.ok(atLater>at);
+ const later={orderVersion:2,index:atLater,answers:{...answers,duration:'چند روزی است'},skipped:[],base:'',draft:{step:'witness',value:'یک نفر شاهد بود'}};
+ migrateGuideOrder(later);assert.equal(stepsFor(later.answers,later.base,later.skipped)[later.index].id,'witness');assert.equal(later.draft.value,'یک نفر شاهد بود');
+});
+
+test('domain metadata is renamed while the user\'s own wording remains intact',()=>{
+ assert.ok(newsDomain('در بیمارستان خدمات درمانی دریافت نکرده است').includes('اجتماعی'));
+ assert.equal(displayNewsDomain('رفاه، امنیتی'),'اجتماعی، امنیتی');
+ assert.equal(displayNewsDomain('رسیدگی به رفاه خانواده'),'رسیدگی به رفاه خانواده');
+ const quote='او گفت «رفاه خانواده‌ام مهم است»';assert.ok(composeNarrative({result:quote}).includes(quote));
 });

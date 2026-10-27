@@ -132,7 +132,7 @@ export const GUIDE_STEPS = [
  {
   id: 'source',
   fact: 'source',
-  title: 'نحوه اطلاع: این را خودتان دیدید یا از کسی شنیدید؟',
+  title: 'این را خودتان دیدید یا از کسی شنیدید؟',
   hint: 'مشاهدهٔ مستقیم و شنیده جدا ثبت می‌شوند.',
   options: [opt('خودم دیدم', 'من خودم این را دیدم'), opt('از فرد دیگری شنیدم', 'این را از فرد دیگری شنیدم'), opt('در فضای مجازی دیدم', 'این را در فضای مجازی دیدم'), opt('مطمئن نیستم', '')],
   allowFreeText: true,
@@ -142,7 +142,7 @@ export const GUIDE_STEPS = [
  {
   id: 'who',
   fact: 'actor',
-  title: 'چه کسی: چه کسی این کار را انجام داد؟',
+  title: 'چه کسی این کار را انجام داد؟',
   hint: 'فقط آنچه از فرد یا افراد انجام‌دهنده می‌دانید؛ هویت یا تقصیر را حدس نزنید.',
   options: [opt('یک نفر', 'یک نفر این کار را انجام داد'), opt('چند نفر', 'چند نفر این کار را انجام دادند'), opt('فرد ناشناس', 'فرد انجام‌دهنده برای من ناشناس بود'), opt('فرد آشنا', 'فرد انجام‌دهنده برای من آشنا بود')],
   allowFreeText: true,
@@ -152,7 +152,7 @@ export const GUIDE_STEPS = [
  {
   id: 'when',
   fact: 'time',
-  title: 'چه زمانی: این اتفاق چه زمانی افتاد؟',
+  title: 'این اتفاق چه زمانی رخ داد؟',
   hint: 'تقریبی هم کافی است.',
   options: [opt('همین حالا'), opt('امروز'), opt('دیشب'), opt('دیروز'), opt('چند روز پیش'), opt('هفتهٔ گذشته'), opt('زمانش را نمی‌دانم', '')],
   allowFreeText: true,
@@ -162,7 +162,7 @@ export const GUIDE_STEPS = [
  {
   id: 'where',
   fact: 'place',
-  title: 'چه مکانی: کجا اتفاق افتاد؟',
+  title: 'این اتفاق در کدام محل رخ داد؟',
   hint: 'محله، خیابان یا یک نشانهٔ نزدیک.',
   placeholder: 'مثلاً: خیابان بهار، نزدیک نانوایی',
   allowFreeText: true,
@@ -171,7 +171,7 @@ export const GUIDE_STEPS = [
  {
   id: 'result',
   fact: 'clarify',
-  title: 'چه چیزی: چه اتفاقی افتاد و چه چیزی در آن دخیل بود؟',
+  title: 'چه اتفاقی رخ داد و چه چیزی در آن دخیل بود؟',
   hint: 'یک یا دو جمله از آنچه دیده یا شنیده‌اید؛ مثلاً «شیشهٔ ماشین را شکستند و کیف را بردند».',
   placeholder: 'مثلاً: دو نفر آمدند، شیشهٔ ماشین را شکستند و کیف را بردند.',
   allowFreeText: true,
@@ -180,7 +180,7 @@ export const GUIDE_STEPS = [
  {
   id: 'reason',
   fact: 'reason',
-  title: 'چرا: دلیل یا انگیزه‌ای مطرح شد؟',
+  title: 'آیا درباره دلیل یا انگیزه این اتفاق اطلاعاتی دارید؟',
   hint: 'فقط اگر چیزی شنیده‌اید یا دیده‌اید.',
   options: [opt('دلیلی نمی‌دانم', ''), opt('سر اختلاف قبلی بود', 'گفتند سر اختلاف قبلی بوده است'), opt('سر پول یا بدهی بود', 'گفتند سر پول یا بدهی بوده است')],
   allowFreeText: true,
@@ -190,13 +190,36 @@ export const GUIDE_STEPS = [
  {
   id: 'method',
   fact: 'method',
-  title: 'چگونه: این کار چطور انجام شد؟',
+  title: 'این اتفاق چگونه رخ داد؟',
   hint: 'فقط آنچه دیده یا شنیده‌اید؛ حدس نزنید.',
   placeholder: 'مثلاً: شیشهٔ کنار در را شکستند و از آنجا وارد شدند',
   allowFreeText: true,
   skippable: true,
  },
 ];
+
+// Recognize the exact seven-stage wording from older drafts without treating
+// the older victim question as the new actor question. Text the reporter
+// entered is never rewritten; this lookup is only for system question labels.
+export const LEGACY_STAGE_TITLES = Object.freeze({
+ source:'نحوه اطلاع: این را خودتان دیدید یا از کسی شنیدید؟',
+ who:'چه کسی: چه کسی این کار را انجام داد؟',
+ when:'چه زمانی: این اتفاق چه زمانی افتاد؟',
+ where:'چه مکانی: کجا اتفاق افتاد؟',
+ result:'چه چیزی: چه اتفاقی افتاد و چه چیزی در آن دخیل بود؟',
+ reason:'چرا: دلیل یا انگیزه‌ای مطرح شد؟',
+ method:'چگونه: این کار چطور انجام شد؟',
+});
+export function guideStageForQuestion(question, stage = null) {
+ return GUIDE_STEPS.find(step => (!stage || step.id === stage) &&
+  (question === step.title || question === LEGACY_STAGE_TITLES[step.id])) || null;
+}
+// Presentation only: retain the old question internally for replay. In
+// particular the old victim question must never become the new actor stage.
+export function displayGuideQuestion(question, stage = null) {
+ if (question === 'چه کسی: این اتفاق برای چه کسی افتاد؟') return 'این اتفاق برای چه کسی افتاد؟';
+ return guideStageForQuestion(question,stage)?.title || question;
+}
 
 // ------------------------------------------------- situational follow-ups
 // Some questions only make sense for some accounts. Asking every reporter about
@@ -210,8 +233,12 @@ export const GUIDE_STEPS = [
 // reporter one tap and leaves nothing behind in the report.
 
 /** The account so far, as the conditions see it. */
-const situation = (answers = {}, base = '') => {
- const composed = composeNarrative(answers);
+const situation = (answers = {}, base = '', legacyNarrative = false) => {
+ // Before orderVersion 3, these five answers were not included in the text
+ // used for follow-up conditions. Reproduce that context only when locating
+ // an old cursor; otherwise a newly opened branch can shift its old index.
+ const contextAnswers = legacyNarrative ? {...answers,injury:'',injuryCare:'',ongoing:'',duration:'',repeated:''} : answers;
+ const composed = composeNarrative(contextAnswers);
  const text = [String(base || '').trim(), composed].filter(Boolean).join(' ');
  return { answers, base: String(base || ''), text, events: eventIds(localAnalysis(text)) };
 };
@@ -244,7 +271,7 @@ export const FOLLOW_UPS = [
  {
   after: 'who',
   id: 'peopleCount',
-  title: 'چند نفر در این اتفاق دخیل بودند؟',
+  title: 'چند نفر در این اتفاق نقش داشتند؟',
   hint: 'تقریبی هم کافی است.',
   options: [opt('یک نفر', 'یک نفر در این اتفاق دخیل بود'), opt('دو نفر', 'دو نفر در این اتفاق دخیل بودند'),
    opt('سه تا پنج نفر', 'حدود سه تا پنج نفر در این اتفاق دخیل بودند'), opt('بیشتر از پنج نفر', 'بیش از پنج نفر در این اتفاق دخیل بودند'),
@@ -255,7 +282,7 @@ export const FOLLOW_UPS = [
  {
   after: 'peopleCount',
   id: 'peopleDescription',
-  title: 'از ظاهر یا نشانه‌های آن‌ها چه چیزی به یاد دارید؟',
+  title: 'آیا از ظاهر یا نشانه‌های این افراد اطلاعاتی دارید؟',
   hint: 'قد، لباس، سن، لهجه — هر چه یادتان هست.',
   placeholder: 'مثلاً: یکی قد بلند با کاپشن مشکی، دیگری جوان‌تر و با کلاه',
   allowFreeText: true,
@@ -266,7 +293,7 @@ export const FOLLOW_UPS = [
  {
   after: 'peopleDescription',
   id: 'peopleKnown',
-  title: 'آن‌ها را می‌شناختید؟',
+  title: 'آیا این افراد را می‌شناختید؟',
   hint: 'نام لازم نیست.',
   options: [opt('ناشناس بودند', 'افراد برای من ناشناس بودند'), opt('قبلاً دیده بودمشان', 'قبلاً آن‌ها را در محل دیده بودم'),
    opt('آشنا بودند', 'با آن‌ها آشنایی قبلی داشتم'), opt('نمی‌دانم', '')],
@@ -276,7 +303,7 @@ export const FOLLOW_UPS = [
  {
   after: 'result',
   id: 'vehicleInvolved',
-  title: 'وسیلهٔ نقلیه‌ای در این اتفاق نقش داشت؟',
+  title: 'آیا وسیله نقلیه‌ای در این اتفاق نقش داشت؟',
   hint: 'ماشین یا موتوری که نقش داشت.',
   options: [opt('بله، خودرو', 'یک خودرو در این اتفاق نقش داشت'), opt('بله، موتورسیکلت', 'یک موتورسیکلت در این اتفاق نقش داشت'),
    opt('بله، وسیلهٔ دیگری', 'یک وسیلهٔ نقلیهٔ دیگر در این اتفاق نقش داشت'), opt('نه', ''), opt('نمی‌دانم', '')],
@@ -286,7 +313,7 @@ export const FOLLOW_UPS = [
  {
   after: 'vehicleInvolved',
   id: 'vehicleDescription',
-  title: 'از آن وسیله چه چیزی به یاد دارید؟',
+  title: 'آیا از مشخصات این وسیله نقلیه اطلاعاتی دارید؟',
   hint: 'رنگ، مدل، یا هر بخشی از پلاک.',
   placeholder: 'مثلاً: پراید سفید، دو رقم آخر پلاک ۴۷',
   allowFreeText: true,
@@ -296,7 +323,7 @@ export const FOLLOW_UPS = [
  {
   after: 'result',
   id: 'amount',
-  title: 'چه مبلغی در میان بود؟',
+  title: 'مبلغ مرتبط با این اتفاق چقدر بود؟',
   hint: 'تقریبی کافی است. رمز و شمارهٔ کارت ننویسید.',
   placeholder: 'مثلاً: حدود دوازده میلیون تومان',
   allowFreeText: true,
@@ -306,7 +333,7 @@ export const FOLLOW_UPS = [
  {
   after: 'method',
   id: 'platform',
-  title: 'این ماجرا در کدام پیام‌رسان، سایت یا شماره اتفاق افتاد؟',
+  title: 'این اتفاق از طریق کدام پیام‌رسان، وب‌سایت یا شماره انجام شد؟',
   hint: 'فقط بستر همین ماجرا.',
   options: [opt('تلگرام', 'این ماجرا در تلگرام اتفاق افتاد'), opt('واتساپ', 'این ماجرا در واتساپ اتفاق افتاد'),
    opt('اینستاگرام', 'این ماجرا در اینستاگرام اتفاق افتاد'), opt('تماس یا پیامک', 'این ماجرا از طریق تماس یا پیامک انجام شد'),
@@ -320,7 +347,7 @@ export const FOLLOW_UPS = [
  {
   after: 'result',
   id: 'injury',
-  title: 'کسی در این اتفاق آسیب دید؟',
+  title: 'آیا فردی در این اتفاق آسیب دید؟',
   hint: 'اگر حال کسی بد است، اول ۱۱۵.',
   options: [opt('کسی آسیب ندید', 'کسی در این اتفاق آسیب ندید'), opt('آسیب جزئی بود', 'یک نفر آسیب جزئی دید'),
    opt('آسیب جدی بود', 'یک نفر آسیب جدی دید'), opt('چند نفر آسیب دیدند', 'چند نفر در این اتفاق آسیب دیدند'),
@@ -331,7 +358,7 @@ export const FOLLOW_UPS = [
  {
   after: 'injury',
   id: 'injuryCare',
-  title: 'برای آن فرد کمک پزشکی رسید؟',
+  title: 'آیا به فرد آسیب‌دیده کمک پزشکی ارائه شد؟',
   hint: 'اگر هنوز نرسیده، ۱۱۵ مقدم است.',
   options: [opt('به بیمارستان یا درمانگاه رفت', 'مصدوم به مرکز درمانی منتقل شد'),
    opt('اورژانس آمد', 'اورژانس در محل حاضر شد'),
@@ -345,7 +372,7 @@ export const FOLLOW_UPS = [
  {
   after: 'result',
   id: 'ongoing',
-  title: 'این وضعیت همین حالا هم ادامه دارد؟',
+  title: 'آیا این وضعیت در زمان ثبت گزارش همچنان ادامه دارد؟',
   hint: 'تعیین می‌کند گزارش فوری بررسی شود یا عادی.',
   options: [opt('بله، همین الان ادامه دارد', 'این وضعیت در لحظهٔ ثبت گزارش ادامه داشت'),
    opt('تمام شده است', 'این اتفاق تمام شده است'),
@@ -357,7 +384,8 @@ export const FOLLOW_UPS = [
  {
   after: 'ongoing',
   id: 'duration',
-  title: 'از کِی این مشکل شروع شده است؟',
+  deprecated: true, // retained solely to migrate older answered drafts
+  title: 'زمان شروع اعلام‌شده در پاسخ پیشین',
   hint: 'تقریبی کافی است.',
   options: [opt('از امروز', 'این مشکل از امروز شروع شده است'), opt('چند روزی است', 'این مشکل چند روزی است ادامه دارد'),
    opt('چند هفته است', 'این مشکل چند هفته‌ای است ادامه دارد'), opt('چند ماه است', 'این مشکل چند ماهی است ادامه دارد'),
@@ -371,7 +399,7 @@ export const FOLLOW_UPS = [
  {
   after: 'ongoing',
   id: 'repeated',
-  title: 'این اولین بار است یا قبلاً هم تکرار شده؟',
+  title: 'آیا این اتفاق پیش از این نیز رخ داده است؟',
   hint: 'تکرار، پروندهٔ متفاوتی می‌سازد.',
   options: [opt('اولین بار است', 'این اتفاق برای اولین بار رخ داده است'),
    opt('دو سه بار شده', 'این اتفاق پیش‌تر هم دو سه بار تکرار شده است'),
@@ -383,7 +411,7 @@ export const FOLLOW_UPS = [
  {
   after: 'peopleKnown',
   id: 'weapon',
-  title: 'چیزی در دست آن‌ها بود؟',
+  title: 'آیا فرد یا افراد وسیله‌ای در دست داشتند؟',
   hint: 'فقط آنچه خودتان دیدید.',
   options: [opt('چیزی ندیدم', 'چیزی در دست آن‌ها ندیدم'), opt('چاقو یا قمه', 'یکی از آن‌ها چاقو یا قمه در دست داشت'),
    opt('اسلحهٔ گرم', 'یکی از آن‌ها اسلحهٔ گرم در دست داشت'), opt('چوب، میله یا سنگ', 'یکی از آن‌ها چوب یا میله در دست داشت'),
@@ -396,7 +424,7 @@ export const FOLLOW_UPS = [
  {
   after: 'peopleKnown',
   id: 'childInvolved',
-  title: 'کودک یا نوجوانی در این ماجرا بود؟',
+  title: 'آیا کودک یا نوجوانی در این اتفاق حضور داشت؟',
   hint: 'برای کودک در خطر، ۱۲۳ هم هست.',
   options: [opt('نه', ''), opt('بله، آسیب‌دیده بود', 'یک کودک یا نوجوان در این ماجرا آسیب دید'),
    opt('بله، حاضر بود', 'یک کودک یا نوجوان در محل حاضر بود'), opt('نمی‌دانم', '')],
@@ -407,7 +435,7 @@ export const FOLLOW_UPS = [
  {
   after: 'result',
   id: 'witness',
-  title: 'کس دیگری هم این را دید؟',
+  title: 'آیا فرد دیگری هم این اتفاق را مشاهده کرد؟',
   hint: 'نام و شماره لازم نیست.',
   options: [opt('بله، شاهد دیگری بود', 'فرد دیگری هم شاهد این اتفاق بود'),
    opt('چند نفر دیدند', 'چند نفر دیگر هم شاهد این اتفاق بودند'),
@@ -418,7 +446,7 @@ export const FOLLOW_UPS = [
  {
   after: 'result',
   id: 'reportedBefore',
-  title: 'پیش از این به جایی اطلاع داده‌اید؟',
+  title: 'آیا پیش از این موضوع را به مرجع یا فردی اطلاع داده‌اید؟',
   hint: 'نتیجهٔ پیگیری قبلی به بررسی کمک می‌کند.',
   options: [opt('نه، اولین بار است', 'پیش از این به جایی اطلاع نداده بودم'),
    opt('تماس گرفتم ولی نتیجه نداد', 'پیش‌تر تماس گرفته بودم اما نتیجه‌ای نگرفتم'),
@@ -432,7 +460,7 @@ export const FOLLOW_UPS = [
  {
   after: 'source',
   id: 'informantKnown',
-  title: 'کسی که این را به شما گفت را می‌شناسید؟',
+  title: 'آیا فردی را که این موضوع را به شما اطلاع داد می‌شناسید؟',
   hint: 'اگر نمی‌شناسید هم اشکالی ندارد.',
   options: [opt('بله، می‌شناسمش', 'فردی که این را به من گفت را می‌شناسم'), opt('نه، نمی‌شناسمش', 'فردی که این را به من گفت را نمی‌شناسم')],
   skippable: true,
@@ -441,7 +469,7 @@ export const FOLLOW_UPS = [
  {
   after: 'informantKnown',
   id: 'informantRelation',
-  title: 'چه نسبتی با شما دارد؟ خودش شاهد بود؟',
+  title: 'آن فرد چه نسبتی با شما دارد و آیا خود او شاهد اتفاق بود؟',
   hint: 'مثلاً «همسایه‌مان است، خودش دید».',
   placeholder: 'مثلاً همسایه، همکار، یکی از اقوام',
   allowFreeText: true,
@@ -451,7 +479,7 @@ export const FOLLOW_UPS = [
  {
   after: 'informantKnown',
   id: 'informantContact',
-  title: 'شماره یا راه ارتباطی با او دارید؟',
+  title: 'آیا شماره یا راه ارتباطی با آن فرد در اختیار دارید؟',
   hint: 'برای پیگیری، حتی یک شماره کافی است.',
   placeholder: 'شمارهٔ تلفن یا شناسهٔ پیام‌رسان',
   allowFreeText: true,
@@ -462,7 +490,7 @@ export const FOLLOW_UPS = [
  {
   after: 'amount',
   id: 'paymentMethod',
-  title: 'پول چطور جابه‌جا شد؟',
+  title: 'وجه چگونه انتقال یافت؟',
   hint: 'فقط روش. شمارهٔ حساب ننویسید.',
   options: [opt('کارت به کارت', 'پرداخت به‌صورت کارت‌به‌کارت انجام شد'), opt('واریز بانکی', 'پرداخت با واریز بانکی انجام شد'),
    opt('نقدی', 'پرداخت نقدی انجام شد'), opt('درگاه اینترنتی', 'پرداخت از طریق یک درگاه اینترنتی انجام شد'),
@@ -522,8 +550,8 @@ export function coreStepsFor(answers = {}, base = '') {
  * The live question list: all missing base steps first, then relevant optional
  * follow-ups in parent/child order. Recomputed from the answers each time.
  */
-export function stepsFor(answers = {}, base = '', skipped = []) {
- const ctx = situation(answers, base);
+export function stepsFor(answers = {}, base = '', skipped = [], { includeDeprecated = false } = {}) {
+ const ctx = situation(answers, base, includeDeprecated);
  const covered = coverageInBase(answers, base);
  const byAnchor = new Map();
  const blocked = new Set([...(Array.isArray(skipped)?skipped:[]),...unknownStagesInText(base),
@@ -532,6 +560,7 @@ export function stepsFor(answers = {}, base = '', skipped = []) {
  // FOLLOW_UPS is ordered parent before child, so one pass is enough: a
  // follow-up of a follow-up is only kept when its own anchor was kept.
  for (const followUp of FOLLOW_UPS) {
+  if (followUp.deprecated && !includeDeprecated) continue;
   // A skipped/unknown parent closes its dependent branch even if a topic
   // classifier happens to think that branch would otherwise be relevant.
   if (blocked.has(followUp.after)) { blocked.add(followUp.id); continue; }
@@ -554,6 +583,39 @@ export function stepsFor(answers = {}, base = '', skipped = []) {
  const mode = reportMode({ source: SOURCE_FROM_GUIDE_ANSWER[String(answers.source || '')] || '' }, ctx.text);
  return out.map(step => adapt(step, mode));
 }
+// Rebase a seven-stage draft made before the deprecated duration question was
+// removed. Keep its unsent answer, and continue from the same logical step.
+export function migrateGuideOrder(g) {
+ if (!g || g.orderVersion !== 2) return g;
+ g.answers ??= {}; g.skipped ??= [];
+ const oldSteps = stepsFor(g.answers, g.base || '', g.skipped, {includeDeprecated:true});
+ const oldIndex = Math.max(0, Math.min(Number(g.index) || 0, oldSteps.length));
+ const currentId = g.draft?.step || oldSteps[oldIndex]?.id;
+ if (currentId === 'duration' && g.draft?.step === 'duration') {
+  const value = String(g.draft.value || '').trim();
+  if (value && !isNonAnswer(value)) g.answers.duration = value;
+  else if (value && !g.skipped.includes('duration')) g.skipped.push('duration');
+  g.draft = null;
+ }
+ let nextSteps = stepsFor(g.answers, g.base || '', g.skipped);
+ // If a previously visible conditional step no longer exists, preserve its
+ // unsent text as an answer rather than dropping it when the guide completes.
+ if (g.draft?.step && !nextSteps.some(s => s.id === g.draft.step)) {
+  const {step,value} = g.draft, text=String(value || '').trim();
+  if (text && !isNonAnswer(text)) g.answers[step]=text;
+  else if (text && !g.skipped.includes(step)) g.skipped.push(step);
+  g.draft=null;
+  nextSteps=stepsFor(g.answers,g.base||'',g.skipped);
+ }
+ let target = currentId && currentId !== 'duration' ? nextSteps.findIndex(s => s.id === currentId) : -1;
+ if (target < 0) {
+  const nextId = oldSteps.slice(oldIndex + (currentId === 'duration' ? 1 : 0)).find(s => nextSteps.some(n => n.id === s.id))?.id;
+  target = nextId ? nextSteps.findIndex(s => s.id === nextId) : nextSteps.length;
+ }
+ g.index = target; g.pendingAdvance = null; g.autoAdvancedAt = 0; g.orderVersion = 3;
+ return g;
+}
+
 // The guide's own «how do you know» chips, in the wording reportMode reads.
 const SOURCE_FROM_GUIDE_ANSWER = {
  'من خودم این را دیدم': 'خودم شاهد بودم',
@@ -620,6 +682,12 @@ export function composeNarrative(answers = {}) {
  if (vehicleDescription) sentences.push(`از مشخصات وسیله: ${vehicleDescription}`);
  if (amount) sentences.push(`مبلغ مرتبط: ${amount}`);
  if (paymentMethod) sentences.push(paymentMethod);
+ // Keep all previously supplied observations, including duration in an old draft.
+ if (injury) sentences.push(injury);
+ if (injuryCare) sentences.push(injuryCare);
+ if (ongoing) sentences.push(ongoing);
+ if (duration) sentences.push(duration);
+ if (repeated) sentences.push(repeated);
  if (reason) sentences.push(reason);
  if (evidence) sentences.push(evidence);
  if (witness) sentences.push(witness);
@@ -658,7 +726,7 @@ const FACT_CHECKS = [
  { id: 'person', label: 'چه کسی', title: 'از افراد مرتبط با این اتفاق چیزی می‌دانید؟', hint: 'فقط نقش‌ها؛ مثلاً «دو نفر ناشناس» یا «راننده». مشخصات خصوصی لازم نیست.', test: PERSON_HINT },
  { id: 'time', label: 'کِی', title: 'این اتفاق چه زمانی افتاد؟', hint: 'زمان تقریبی هم کافی است؛ مثلاً «دیروز حدود ظهر».', test: TIME_HINT },
  { id: 'place', label: 'کجا', title: 'این اتفاق کجا افتاد؟', hint: 'نام محله، خیابان یا نشانهٔ نزدیک؛ اگر نمی‌دانید همین را بنویسید.', test: PLACE_HINT },
- { id: 'method', label: 'چگونه', title: 'این اتفاق چطور انجام شد؟', hint: 'فقط آنچه دیده یا شنیده‌اید؛ مثلاً «قفل را شکستند» یا «با پیامک لینک فرستاد». اگر نمی‌دانید، همین را بنویسید و حدس نزنید.', test: METHOD_HINT },
+ { id: 'method', label: 'چگونه', title: 'این اتفاق چگونه انجام شد؟', hint: 'فقط آنچه دیده یا شنیده‌اید؛ مثلاً «قفل را شکستند» یا «با پیامک لینک فرستاد». اگر نمی‌دانید، همین را بنویسید و حدس نزنید.', test: METHOD_HINT },
  { id: 'reason', label: 'چرا', title: 'دربارهٔ دلیل یا انگیزهٔ این اتفاق چیزی گفته شد یا می‌دانید؟', hint: 'فقط اگر خودتان چیزی شنیده‌اید یا دیده‌اید؛ مثلاً «گفت سر بدهی است». اگر دلیلی نمی‌دانید، «نمی‌دانم» پاسخ درستی است و حدس لازم نیست.', test: REASON_HINT },
  { id: 'evidence', label: 'چه مدرکی', title: 'مدرک یا نشانه‌ای از این اتفاق دارید؟', hint: 'مثلاً عکس، فیلم، رسید، پیام، تصویر دوربین یا فردی که شاهد بوده است. اگر ندارید، رد کنید.', test: EVIDENCE_HINT },
 ];
@@ -689,7 +757,13 @@ export function factCoverage(text, analysis = null) {
  return { covered, missing: FACT_LABELS.filter(f => missing.has(f.id)), total: FACT_LABELS.length, count: covered.length };
 }
 
-/** News/topic domain of the report: administrative, security, service, traffic, welfare, other. */
+// Old stored model metadata used «رفاه» for this category. Rename only the
+// system-generated category, never the reporter's narrative or quotations.
+export function displayNewsDomain(value) {
+ return String(value || '').split('،').map(s => s.trim()==='رفاه'?'اجتماعی':s.trim()).filter(Boolean).join('، ');
+}
+
+/** Suggested news/topic domain of the report. */
 export function newsDomain(text, analysis = null) {
  const s = normalize(String(text || ''));
  const events = eventIds(analysis ?? localAnalysis(s));
@@ -699,7 +773,7 @@ export function newsDomain(text, analysis = null) {
  if (ev.has('trafficking') || ev.has('confinement') || ev.has('assault') || ev.has('weapon_threat') || ev.has('shooting') || ev.has('explosion') || ev.has('sexual_violence') || /تهدید|سلاح|تسلیح|تشابیه|فیشینگ|تزریق|بازداشت/u.test(s)) domains.push('امنیتی');
  if (ev.has('service') || ev.has('public_nuisance') || ev.has('supply_issue') || ev.has('food_safety') || ev.has('environment') || /برق|آب|زباله|چراغ|گاز|تهویه|صرفه‌جویی|خدمات شهری/u.test(s)) domains.push('خدماتی');
  if (ev.has('traffic_violation') || ev.has('accident') || ev.has('vehicle_theft') || ev.has('vehicle_irregularity') || /تصادف|پلاک|رانندگی|مسیر|راننده|دربخاطر/u.test(s)) domains.push('مرور');
- if (ev.has('self_harm') || ev.has('medical_care') || ev.has('food_safety') || /بیمارستان|درمان|غذا|سلامت| کودک|نوجوان/u.test(s)) domains.push('رفاه');
+ if (ev.has('self_harm') || ev.has('medical_care') || ev.has('food_safety') || /بیمارستان|درمان|غذا|سلامت| کودک|نوجوان/u.test(s)) domains.push('اجتماعی');
  if (!domains.length) domains.push('سایر');
  return domains;
 }
@@ -784,7 +858,7 @@ export function readAnswer(value) {
 export function guideAnswersFromTurns(turns = []) {
  const answers = {}, skipped = new Set(), completed = [], legacy = [];
  for (const turn of turns) {
-  const step = turn?.stage && GUIDE_STEPS.find(s => s.id === turn.stage && s.title === turn.q);
+  const step = turn?.stage && guideStageForQuestion(turn.q, turn.stage);
   const text = String(turn?.a ?? '').trim();
   if (!step) {
    if (text && !isNonAnswer(text)) legacy.push(text);

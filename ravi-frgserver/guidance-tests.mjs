@@ -327,7 +327,7 @@ test('«گم کرده‌ام» is not turned into a definite theft',()=>{
 test('a stuck reporter is asked one plain question that suggests no answer',()=>{
  const first=GUIDE_STEPS[0];
  assert.equal(first.id,'source');
- assert.match(first.title,/نحوه اطلاع/);
+ assert.equal(first.title,'این را خودتان دیدید یا از کسی شنیدید؟');
  // Neither the question nor the hint tells the reporter what to say happened.
  for(const leading of ['احتمالا','حتما','باید','مطمئنا','شما که'])assert.equal(first.title.includes(leading),false,leading);
  // Every option is how they know, not a claim put in their mouth.

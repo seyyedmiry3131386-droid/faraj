@@ -1,6 +1,6 @@
 // The same replayable order is used by the server and the browser. A model's
 // proposed question, cursor or done flag never determines the next stage.
-import {GUIDE_STEPS,coreStepsFor} from './guidance.js';
+import {coreStepsFor,guideStageForQuestion} from './guidance.js';
 
 // Drafts made before the seven-stage change may contain the old victim
 // question and a separate evidence question. Preserve their answers as legacy
@@ -15,9 +15,7 @@ export function orderedInterviewPath({mode='detail',text='',turns=[]}={}){
  for(const turn of turns){
   const legacyStage=(turn.stage==='who'&&turn.q===OLD_WHO)||(turn.stage==='evidence'&&turn.q===OLD_EVIDENCE);
   if(legacyStage){oldDraft=true;keepLegacy(turn);continue}
-  const step=turn.stage
-   ?GUIDE_STEPS.find(s=>s.id===turn.stage&&s.title===turn.q)
-   :GUIDE_STEPS.find(s=>s.title===turn.q);
+  const step=guideStageForQuestion(turn.q,turn.stage||null);
   if(step&&steps[cursor]?.id===step.id){
    cursor++;recovered.push({...turn,stage:step.id});continue;
   }

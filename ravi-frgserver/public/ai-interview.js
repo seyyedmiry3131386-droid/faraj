@@ -2,7 +2,7 @@
 // the offline guide while the model reads the report and extracts facts.
 // This module holds state and draws it; app.js does the network call.
 
-import { GUIDE_STEPS, stepsFor, guideAnswersFromTurns, composeNarrative } from './guidance.js';
+import { GUIDE_STEPS, LEGACY_STAGE_TITLES, guideStageForQuestion, displayGuideQuestion, displayNewsDomain, stepsFor, guideAnswersFromTurns, composeNarrative } from './guidance.js';
 import {orderedInterviewPath} from './interview-order.js';
 import {uiLabel} from './ui-label.js';
 
@@ -24,7 +24,7 @@ export function answerCurrent(ai, answer) {
   if (!ai?.current) return false;
   ai.turns.push({ q: ai.current.question, a: String(answer || '').trim(), options: ai.current.options || [],
     ...(ai.current.stage ? { stage: ai.current.stage } : {}), ...(ai.current.hint ? { hint: ai.current.hint } : {}) });
-  if(ai.pendingDrafts)delete ai.pendingDrafts[ai.current.question];
+  if(ai.pendingDrafts){delete ai.pendingDrafts[ai.current.question];if(ai.current.stage)delete ai.pendingDrafts[LEGACY_STAGE_TITLES[ai.current.stage]]}
   ai.current = null; ai.draft = '';
   return true;
 }
@@ -33,7 +33,7 @@ export function answerCurrent(ai, answer) {
 export function applyStep(ai, step) {
   ai.facts = Array.isArray(step.facts) ? step.facts : ai.facts;
   if (step.urgent) ai.urgent = step.urgent;
-  if (step.domain) ai.domain = step.domain;
+  if (step.domain) ai.domain = displayNewsDomain(step.domain);
   if (step.quality_grade) ai.quality_grade = step.quality_grade;
   if (step.quantity_note) ai.quantity_note = step.quantity_note;
   if (step.reporter_role) ai.reporter_role = step.reporter_role;
@@ -44,7 +44,7 @@ export function applyStep(ai, step) {
   }
   ai.current = { question: step.question, options: Array.isArray(step.options) ? step.options.slice(0, 4) : [],
     ...(step.stage ? { stage: step.stage } : {}), ...(step.hint ? { hint: step.hint } : {}) };
-  ai.draft=String(ai.pendingDrafts?.[step.question]||'');
+  ai.draft=String(ai.pendingDrafts?.[step.question]||ai.pendingDrafts?.[LEGACY_STAGE_TITLES[step.stage]]||'');
 }
 
 /** Back: the last question comes back on screen with its answer in the box. */
@@ -52,8 +52,9 @@ export function stepBack(ai) {
   const last = ai.turns.pop();
   if (!last) return false;
   if(ai.current&&String(ai.draft||'').trim())(ai.pendingDrafts??={})[ai.current.question]=ai.draft;
-  ai.current = { question: last.q, options: last.options || [],
-    ...(last.stage ? { stage: last.stage } : {}), ...(last.hint ? { hint: last.hint } : {}) };
+  const step=guideStageForQuestion(last.q,last.stage||null);
+  ai.current = { question: step?.title || last.q, options: last.options || [],
+    ...(last.stage ? { stage: last.stage } : {}), ...((step?.hint||last.hint) ? { hint: step?.hint||last.hint } : {}) };
   ai.draft = last.a; ai.done = false;
   return true;
 }
@@ -82,13 +83,13 @@ export function guideFallback(ai, text = '', prior = null) {
   let index = steps.findIndex(s => coreIds.has(s.id) && !done.has(s.id));
   if (index < 0) index = steps.findIndex(s => !coreIds.has(s.id) && !done.has(s.id));
   if (index < 0) index = steps.length;
-  return { orderVersion:2,index,answers,skipped,base };
+  return { orderVersion:3,index,answers,skipped,base };
 }
 
 /** Question-and-answer lines for the review page and the saved report. */
 export function interviewRecord(ai) {
   if (!ai || !ai.turns.length) return null;
-  return { turns: ai.turns.map(t => ({ q: t.q, a: t.a || UNKNOWN_ANSWER })), facts: ai.facts || [], domain: ai.domain || 'سایر', quality_grade: ai.quality_grade || 'ضعیف', quantity_note: ai.quantity_note || 'متوسط', reporter_role: ai.reporter_role || 'nashel' };
+  return { turns: ai.turns.map(t => ({ q: displayGuideQuestion(t.q,t.stage||null), a: t.a || UNKNOWN_ANSWER })), facts: ai.facts || [], domain: displayNewsDomain(ai.domain || 'سایر'), quality_grade: ai.quality_grade || 'ضعیف', quantity_note: ai.quantity_note || 'متوسط', reporter_role: ai.reporter_role || 'nashel' };
 }
 
 export function renderInterview(ai, { escape, icon, stepper, fa, miniApp = false }, { loading = false, error = '' } = {}) {
@@ -96,7 +97,7 @@ export function renderInterview(ai, { escape, icon, stepper, fa, miniApp = false
   // The emergency call box belongs to the description page only (the
   // reporter's request); later screens never show it.
   const history = ai.turns.length
-    ? `<details class="ai-history"><summary>پاسخ‌های قبلی (${fa(ai.turns.length)})</summary><ol>${ai.turns.map(t => `<li><b>${escape(t.q)}</b><span>${escape(t.a || UNKNOWN_ANSWER)}</span></li>`).join('')}</ol></details>`
+    ? `<details class="ai-history"><summary>پاسخ‌های قبلی (${fa(ai.turns.length)})</summary><ol>${ai.turns.map(t => `<li><b>${escape(displayGuideQuestion(t.q,t.stage||null))}</b><span>${escape(t.a || UNKNOWN_ANSWER)}</span></li>`).join('')}</ol></details>`
     : '';
   const facts = ai.facts?.length
     ? `<details class="ai-facts"><summary>${icon('spark')}آنچه تا اینجا از گزارش شما ثبت شد</summary><ul>${ai.facts.map(f => `<li><b>${escape(f.label)}</b><span>${escape(f.value)}</span></li>`).join('')}</ul></details>`
@@ -108,7 +109,7 @@ export function renderInterview(ai, { escape, icon, stepper, fa, miniApp = false
     body = `<div class="ai-thinking" role="status" aria-live="polite"><span class="ai-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${ai.turns.length ? 'دستیار پاسخ شما را می‌خواند…' : 'دستیار گزارش شما را می‌خواند…'}</span></div>`;
   } else {
     const chips = (ai.current.options || []).map((o, i) => `<button type="button" class="guide-chip" style="--i:${i}" data-ai-option="${i}"><span class="guide-chip-check" aria-hidden="true"></span>${escape(uiLabel(o))}</button>`).join('');
-    body = `<h2 id="ai-question" class="question-title" tabindex="-1">${escape(uiLabel(ai.current.question))}</h2>
+    body = `<h2 id="ai-question" class="question-title" tabindex="-1">${escape(uiLabel(displayGuideQuestion(ai.current.question,ai.current.stage||null)))}</h2>
 ${ai.current.hint ? `<p class="question-desc">${escape(uiLabel(ai.current.hint))}</p>` : ''}
 <textarea id="ai-answer" class="field answer-field" rows="3" maxlength="1500" dir="auto" placeholder="${chips ? 'یا پاسخ خودتان را بنویسید…' : 'پاسخ خود را بنویسید…'}" aria-labelledby="ai-question">${escape(ai.draft || '')}</textarea>
 ${chips ? `<div class="guide-chips ai-chips">${chips}</div>` : ''}

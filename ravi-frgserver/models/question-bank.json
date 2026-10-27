@@ -102,6 +102,20 @@
     "sexual_violence",
     "online_harm",
     "public_nuisance",
+    "drone_sighting",
+    "home_burglary",
+    "vehicle_theft",
+    "bribery",
+    "embezzlement",
+    "dereliction",
+    "corrupt_network",
+    "abuse_of_office",
+    "stolen_goods",
+    "gambling",
+    "investment_fraud",
+    "cyber_attack",
+    "identity_misuse",
+    "dangerous_instruction",
     "data_breach",
     "trafficking",
     "confinement",
@@ -418,7 +432,7 @@
       "title": "انفجار گزارش‌شده"
     },
     "impersonation": {
-      "title": "معرفی خلاف واقع یا سوءاستفاده از عنوان"
+      "title": "جعل عنوان و سوءاستفاده از عنوان"
     },
     "discovery": {
       "title": "یافتن فرد بی‌هوش یا پیکر"
@@ -476,6 +490,48 @@
     },
     "public_nuisance": {
       "title": "مزاحمت یا مانع در فضای عمومی"
+    },
+    "drone_sighting": {
+      "title": "پرواز غیرمجاز پهپاد بر فراز تأسیسات"
+    },
+    "home_burglary": {
+      "title": "سرقت از منزل و لوازم داخل منزل"
+    },
+    "vehicle_theft": {
+      "title": "سرقت خودرو و لوازم داخل خودرو"
+    },
+    "bribery": {
+      "title": "ارتشا و دریافت رشوه"
+    },
+    "embezzlement": {
+      "title": "اختلاس"
+    },
+    "dereliction": {
+      "title": "ترک فعل کارکنان و مأموران"
+    },
+    "corrupt_network": {
+      "title": "شبکه‌سازی و باندبازی در دستگاه"
+    },
+    "abuse_of_office": {
+      "title": "سوءاستفاده از جایگاه شغلی"
+    },
+    "stolen_goods": {
+      "title": "خریدوفروش یا نگهداری اموال مسروقه"
+    },
+    "gambling": {
+      "title": "قمار و شرط‌بندی"
+    },
+    "investment_fraud": {
+      "title": "جذب سرمایه با وعدهٔ سود"
+    },
+    "cyber_attack": {
+      "title": "حملهٔ سایبری یا تصاحب حساب"
+    },
+    "identity_misuse": {
+      "title": "سوءاستفاده از حساب یا مدارک دیگران"
+    },
+    "dangerous_instruction": {
+      "title": "آموزش ساخت مواد خطرناک"
     },
     "data_breach": {
       "title": "دسترسی یا افشای بدون اجازهٔ اطلاعات"
@@ -547,7 +603,7 @@
         },
         {
           "id": "basis",
-          "label": "نحوهٔ اطلاع از مشخصات",
+          "label": "نحوه اطلاع از مشخصات",
           "required": false,
           "askedInFlow": false,
           "type": "select",
@@ -597,7 +653,7 @@
         },
         {
           "id": "marks",
-          "label": "نشانهٔ ظاهری دیگری که به یاد دارید",
+          "label": "نشانه ظاهری دیگری که به یاد دارید",
           "required": false,
           "askedInFlow": true
         },
@@ -609,7 +665,7 @@
         },
         {
           "id": "notes",
-          "label": "آنچه دربارهٔ رفتار این فرد می‌دانید",
+          "label": "آنچه درباره رفتار این فرد می‌دانید",
           "required": false,
           "askedInFlow": true
         }
@@ -635,7 +691,7 @@
         },
         {
           "id": "platform",
-          "label": "نام شبکهٔ اجتماعی یا پیام‌رسان",
+          "label": "نام شبکه اجتماعی یا پیام‌رسان",
           "required": false,
           "askedInFlow": true,
           "type": "select",
@@ -722,7 +778,7 @@
         },
         {
           "id": "otherPlatform",
-          "label": "نام شبکهٔ اجتماعی یا پیام‌رسان دیگر",
+          "label": "نام شبکه اجتماعی یا پیام‌رسان دیگر",
           "required": false,
           "askedInFlow": true,
           "conditional": true
@@ -744,7 +800,7 @@
         },
         {
           "id": "phoneType",
-          "label": "نوع شمارهٔ تلفن",
+          "label": "نوع شماره تلفن",
           "required": false,
           "askedInFlow": true,
           "type": "select",
@@ -910,7 +966,7 @@
         },
         {
           "id": "subscriber",
-          "label": "شمارهٔ ثابت بدون پیش‌شماره",
+          "label": "شماره ثابت بدون پیش‌شماره",
           "required": false,
           "askedInFlow": true,
           "numeric": true,
@@ -928,7 +984,7 @@
         },
         {
           "id": "mobile",
-          "label": "شمارهٔ همراه",
+          "label": "شماره همراه",
           "required": false,
           "askedInFlow": true,
           "numeric": true,
@@ -1021,7 +1077,7 @@
         },
         {
           "id": "basis",
-          "label": "نحوهٔ اطلاع از مکان",
+          "label": "نحوه اطلاع از مکان",
           "required": false,
           "askedInFlow": false,
           "type": "select",
@@ -1108,7 +1164,7 @@
         },
         {
           "id": "landmark",
-          "label": "نشانهٔ نزدیک یا مسیر دسترسی",
+          "label": "نشانه نزدیک یا مسیر دسترسی",
           "required": false,
           "askedInFlow": true
         }
@@ -1126,8 +1182,25 @@
           "askedInFlow": true
         },
         {
+          "id": "period",
+          "label": "حدود چه ساعتی",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "صبح زود",
+            "صبح",
+            "ظهر",
+            "بعدازظهر",
+            "عصر",
+            "شب",
+            "نیمه‌شب",
+            "نمی‌دانم"
+          ]
+        },
+        {
           "id": "clock",
-          "label": "ساعت یا بازهٔ زمانی",
+          "label": "ساعت دقیق، اگر می‌دانید",
           "required": false,
           "askedInFlow": true
         },
@@ -1215,7 +1288,7 @@
         },
         {
           "id": "serial",
-          "label": "شماره سریال یا شناسهٔ وسیله",
+          "label": "شماره سریال یا شناسه وسیله",
           "required": false,
           "askedInFlow": true
         },
@@ -1227,7 +1300,7 @@
         },
         {
           "id": "marks",
-          "label": "نشانهٔ متمایز یا بسته‌بندی",
+          "label": "نشانه متمایز یا بسته‌بندی",
           "required": false,
           "askedInFlow": true
         },
@@ -1239,7 +1312,7 @@
         },
         {
           "id": "basis",
-          "label": "نحوهٔ اطلاع از شیء",
+          "label": "نحوه اطلاع از شیء",
           "required": false,
           "askedInFlow": false,
           "type": "select",
@@ -1259,7 +1332,7 @@
       ]
     },
     "vehicle": {
-      "title": "وسیلهٔ نقلیهٔ مرتبط با رخداد",
+      "title": "وسیله نقلیه مرتبط با رخداد",
       "question": "از وسیلهٔ نقلیهٔ مرتبط با این اتفاق چیزی می‌دانید؟",
       "hint": "نوع، ظاهر یا پلاک؛ هر مقدار که به یاد دارید کافی است.",
       "fields": [
@@ -1271,7 +1344,7 @@
         },
         {
           "id": "observation",
-          "label": "شرح مشاهدهٔ وسیله یا گروه وسایل",
+          "label": "مشخصه وسیله",
           "required": false,
           "askedInFlow": true
         },
@@ -1300,7 +1373,7 @@
         },
         {
           "id": "model",
-          "label": "برند و مدل",
+          "label": "نام وسیله",
           "required": false,
           "askedInFlow": true
         },
@@ -1312,7 +1385,7 @@
         },
         {
           "id": "plateStatus",
-          "label": "وضعیت مشاهدهٔ پلاک",
+          "label": "وضعیت مشاهده پلاک",
           "required": false,
           "askedInFlow": true,
           "type": "select",
@@ -1326,7 +1399,7 @@
         },
         {
           "id": "marks",
-          "label": "نشانهٔ متمایز وسیله",
+          "label": "نشانه متمایز وسیله",
           "required": false,
           "askedInFlow": true
         },
@@ -1352,12 +1425,56 @@
     },
     "source": {
       "title": "جزئیات منبع اطلاع",
-      "question": "چطور از این اتفاق مطلع شدید؟",
+      "question": "چگونه از این اتفاق مطلع شدید؟",
       "hint": "مشاهدهٔ مستقیم را از شنیده‌ها جدا کنید.",
       "fields": [
         {
+          "id": "informantKnown",
+          "label": "آیا فردی را که این موضوع را به شما اطلاع داد می‌شناسید؟",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "بله، می‌شناسمش",
+            "نه، نمی‌شناسمش"
+          ]
+        },
+        {
+          "id": "informantRelation",
+          "label": "نسبت یا آشنایی شما با او",
+          "required": false,
+          "askedInFlow": true,
+          "conditional": true
+        },
+        {
+          "id": "informantName",
+          "label": "نام یا عنوانی که او را با آن می‌شناسید",
+          "required": false,
+          "askedInFlow": true,
+          "conditional": true
+        },
+        {
+          "id": "informantWitness",
+          "label": "آیا آن فرد خود شاهد این اتفاق بود؟",
+          "required": false,
+          "askedInFlow": true,
+          "type": "select",
+          "options": [
+            "خودش دید",
+            "خودش هم از کسی شنیده بود",
+            "نمی‌دانم"
+          ],
+          "conditional": true
+        },
+        {
+          "id": "informantContact",
+          "label": "شماره یا راه ارتباطی با او",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
           "id": "time",
-          "label": "زمان اطلاع از رخداد",
+          "label": "زمان مطلع شدن از رخداد",
           "required": false,
           "askedInFlow": true
         },
@@ -1376,7 +1493,7 @@
         },
         {
           "id": "notes",
-          "label": "توضیح نحوهٔ اطلاع",
+          "label": "توضیح نحوه اطلاع",
           "required": false,
           "askedInFlow": true
         }
@@ -1531,7 +1648,7 @@
         },
         {
           "id": "tool",
-          "label": "سلاح یا وسیلهٔ مشاهده‌شده",
+          "label": "سلاح یا وسیله مشاهده‌شده",
           "required": false,
           "askedInFlow": true
         },
@@ -1574,7 +1691,7 @@
         },
         {
           "id": "observation",
-          "label": "آنچه دربارهٔ نگهداری یا عرضه می‌دانید",
+          "label": "آنچه درباره نگهداری یا عرضه می‌دانید",
           "required": false,
           "askedInFlow": true
         },
@@ -1593,7 +1710,7 @@
       ]
     },
     "details_pdf_a13": {
-      "title": "جزئیات بمب‌گذاری و حملهٔ خشونت‌آمیز",
+      "title": "جزئیات بمب‌گذاری و حمله خشونت‌آمیز",
       "question": "چه حمله یا انفجار مشخصی رخ داده یا چه تهدید مشخصی دریافت شده است؟",
       "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
       "fields": [
@@ -1723,7 +1840,7 @@
       "fields": [
         {
           "id": "entry",
-          "label": "نحوهٔ ورود مشاهده‌شده",
+          "label": "نحوه ورود مشاهده‌شده",
           "required": false,
           "askedInFlow": true
         },
@@ -1772,7 +1889,7 @@
         },
         {
           "id": "conduct",
-          "label": "رفتار یا تفاوت مشخص در ارائهٔ خدمت",
+          "label": "رفتار یا تفاوت مشخص در ارائه خدمت",
           "required": false,
           "askedInFlow": true
         },
@@ -1815,7 +1932,7 @@
         },
         {
           "id": "observedAt",
-          "label": "زمان مشاهدهٔ قیمت",
+          "label": "زمان مشاهده قیمت",
           "required": false,
           "askedInFlow": true
         },
@@ -1828,7 +1945,7 @@
       ]
     },
     "details_pdf_b15": {
-      "title": "جزئیات خشونت، اخاذی و عرضهٔ غیرمجاز",
+      "title": "جزئیات خشونت، اخاذی و عرضه غیرمجاز",
       "question": "چه رفتار مشخص و تکرارشونده‌ای در محله مشاهده شده است؟",
       "hint": "فقط آنچه دیده‌اید یا از آن اطلاع دارید بنویسید؛ موارد نامعلوم می‌تواند خالی بماند.",
       "fields": [
@@ -1877,19 +1994,19 @@
         },
         {
           "id": "serial",
-          "label": "شمارهٔ سریال، در صورت اطلاع",
+          "label": "شماره سریال، در صورت اطلاع",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "lastSeen",
-          "label": "آخرین زمان و مکان مشاهدهٔ مال",
+          "label": "آخرین زمان و مکان مشاهده مال",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "behavior",
-          "label": "آنچه از نحوهٔ سرقت دیده‌اید",
+          "label": "آنچه از نحوه سرقت دیده‌اید",
           "required": false,
           "askedInFlow": true
         }
@@ -1939,7 +2056,7 @@
       "fields": [
         {
           "id": "subject",
-          "label": "کالا، زمین یا معاملهٔ مرتبط",
+          "label": "کالا، زمین یا معامله مرتبط",
           "required": false,
           "askedInFlow": true
         },
@@ -2000,7 +2117,7 @@
         },
         {
           "id": "impact",
-          "label": "اثر یا نتیجهٔ مشاهده‌شده",
+          "label": "اثر یا نتیجه مشاهده‌شده",
           "required": false,
           "askedInFlow": true
         }
@@ -2019,7 +2136,7 @@
         },
         {
           "id": "promise",
-          "label": "توافق یا وعدهٔ اولیه",
+          "label": "توافق یا وعده اولیه",
           "required": false,
           "askedInFlow": true
         },
@@ -2056,19 +2173,19 @@
       "fields": [
         {
           "id": "document",
-          "label": "نوع مدرک، بدون شناسهٔ هویتی کامل",
+          "label": "نوع مدرک، بدون شناسه هویتی کامل",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "sign",
-          "label": "نشانهٔ مشاهده‌شده یا علت تردید",
+          "label": "نشانه مشاهده‌شده یا علت تردید",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "use",
-          "label": "نحوهٔ استفاده در معامله یا ایجاد تعهد",
+          "label": "نحوه استفاده در معامله یا ایجاد تعهد",
           "required": false,
           "askedInFlow": true
         },
@@ -2093,7 +2210,7 @@
         },
         {
           "id": "frequency",
-          "label": "دفعات و بازهٔ تکرار",
+          "label": "دفعات و بازه تکرار",
           "required": false,
           "askedInFlow": true
         },
@@ -2124,7 +2241,7 @@
         },
         {
           "id": "coercion",
-          "label": "نشانهٔ مشخص تهدید یا اجبار",
+          "label": "نشانه مشخص تهدید یا اجبار",
           "required": false,
           "askedInFlow": true
         },
@@ -2231,7 +2348,7 @@
         },
         {
           "id": "reference",
-          "label": "شمارهٔ پیگیری، در صورت وجود",
+          "label": "شماره پیگیری، در صورت وجود",
           "required": false,
           "askedInFlow": true
         },
@@ -2351,7 +2468,7 @@
         },
         {
           "id": "extent",
-          "label": "محدودهٔ مشاهده‌شده",
+          "label": "محدوده مشاهده‌شده",
           "required": false,
           "askedInFlow": true
         }
@@ -2388,7 +2505,7 @@
         },
         {
           "id": "document",
-          "label": "رسید یا نشانهٔ مرتبط",
+          "label": "رسید یا نشانه مرتبط",
           "required": false,
           "askedInFlow": true
         },
@@ -2407,13 +2524,13 @@
       "fields": [
         {
           "id": "product",
-          "label": "مادهٔ غذایی یا خدمت",
+          "label": "ماده غذایی یا خدمت",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "condition",
-          "label": "وضعیت و نشانهٔ مشاهده‌شده",
+          "label": "وضعیت و نشانه مشاهده‌شده",
           "required": false,
           "askedInFlow": true
         },
@@ -2444,7 +2561,7 @@
         },
         {
           "id": "tool",
-          "label": "نشانهٔ قابل مشاهدهٔ وسیله، در صورت اطلاع",
+          "label": "نشانه قابل مشاهده وسیله، در صورت اطلاع",
           "required": false,
           "askedInFlow": true
         },
@@ -2488,7 +2605,7 @@
       ]
     },
     "details_impersonation": {
-      "title": "جزئیات معرفی خلاف واقع یا سوءاستفاده از عنوان",
+      "title": "جزئیات جعل عنوان و سوءاستفاده از عنوان",
       "question": "فرد چه عنوانی معرفی کرد و چه درخواستی داشت؟",
       "hint": "عنوان ادعاشده، درخواست و مبنای تردید را بنویسید؛ ادعا به معنای اثبات نیست.",
       "fields": [
@@ -2538,7 +2655,7 @@
       ]
     },
     "details_hazardous_supply": {
-      "title": "جزئیات عرضهٔ اقلام خطرناک گزارش‌شده",
+      "title": "جزئیات عرضه اقلام خطرناک گزارش‌شده",
       "question": "چه عرضه یا جابه‌جایی مشخصی از اقلام خطرناک مشاهده کردید؟",
       "hint": "اقلام، مقدار و مبنای تشخیص را فقط در حد مشاهده بنویسید؛ دستور ساخت، خرید یا استفاده لازم نیست.",
       "fields": [
@@ -2600,7 +2717,7 @@
         },
         {
           "id": "signs",
-          "label": "نشانهٔ قابل مشاهدهٔ ماده یا وسیله",
+          "label": "نشانه قابل مشاهده ماده یا وسیله",
           "required": false,
           "askedInFlow": true
         },
@@ -2666,7 +2783,7 @@
       ]
     },
     "details_weapon_threat": {
-      "title": "جزئیات تهدید با سلاح یا وسیلهٔ تیز",
+      "title": "جزئیات تهدید با سلاح یا وسیله تیز",
       "question": "تهدید چگونه انجام شد و چه وسیله‌ای مشاهده شد؟",
       "hint": "تهدید را از واردشدن ضربه جدا کنید؛ دیدن وسیله به‌تنهایی به معنی تهدید نیست.",
       "fields": [
@@ -2709,7 +2826,7 @@
       "fields": [
         {
           "id": "plateCondition",
-          "label": "وضعیت مشاهده‌شدهٔ پلاک",
+          "label": "وضعیت مشاهده‌شده پلاک",
           "required": false,
           "askedInFlow": true
         },
@@ -2727,7 +2844,7 @@
         },
         {
           "id": "basis",
-          "label": "نحوهٔ اطلاع از وضعیت پلاک یا مدارک",
+          "label": "نحوه اطلاع از وضعیت پلاک یا مدارک",
           "required": false,
           "askedInFlow": false
         },
@@ -2767,7 +2884,7 @@
         },
         {
           "id": "activity",
-          "label": "فعالیت یا وسیلهٔ مشاهده‌شده",
+          "label": "فعالیت یا وسیله مشاهده‌شده",
           "required": false,
           "askedInFlow": true
         },
@@ -2779,7 +2896,7 @@
         },
         {
           "id": "permission",
-          "label": "آنچه از وضعیت مجوز می‌دانید و نحوهٔ اطلاع",
+          "label": "آنچه از وضعیت مجوز می‌دانید و نحوه اطلاع",
           "required": false,
           "askedInFlow": true
         },
@@ -2862,7 +2979,7 @@
         },
         {
           "id": "agreement",
-          "label": "توافق یا اجازهٔ استفاده، طبق اطلاع شما",
+          "label": "توافق یا اجازه استفاده، طبق اطلاع شما",
           "required": false,
           "askedInFlow": true
         },
@@ -2911,7 +3028,7 @@
         },
         {
           "id": "impact",
-          "label": "اثر قابل مشاهدهٔ اختلاف",
+          "label": "اثر قابل مشاهده اختلاف",
           "required": false,
           "askedInFlow": true
         }
@@ -2944,19 +3061,19 @@
         },
         {
           "id": "provider",
-          "label": "نام مرکز ارائهٔ خدمت، در صورت اطلاع",
+          "label": "نام مرکز ارائه خدمت، در صورت اطلاع",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "problem",
-          "label": "مشکل یا نشانهٔ مشاهده‌شده",
+          "label": "مشکل یا نشانه مشاهده‌شده",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "sequence",
-          "label": "زمان خدمت و زمان مشاهدهٔ مشکل",
+          "label": "زمان خدمت و زمان مشاهده مشکل",
           "required": false,
           "askedInFlow": true
         },
@@ -3045,7 +3162,7 @@
         },
         {
           "id": "response",
-          "label": "پاسخ ارائه‌دهندهٔ خدمت",
+          "label": "پاسخ ارائه‌دهنده خدمت",
           "required": false,
           "askedInFlow": true
         }
@@ -3064,7 +3181,7 @@
         },
         {
           "id": "condition",
-          "label": "وضعیت قابل مشاهدهٔ محیط یا تجهیزات",
+          "label": "وضعیت قابل مشاهده محیط یا تجهیزات",
           "required": false,
           "askedInFlow": true
         },
@@ -3089,7 +3206,7 @@
       "fields": [
         {
           "id": "observation",
-          "label": "گفته یا وضعیت نگران‌کننده، بدون جزئیات روش",
+          "label": "چه گفته یا رفتاری باعث نگرانی شما شده است؟",
           "required": false,
           "askedInFlow": true
         },
@@ -3114,7 +3231,7 @@
       "fields": [
         {
           "id": "observation",
-          "label": "آنچه دربارهٔ اقلام یا رفتار مشاهده کردید",
+          "label": "آنچه درباره اقلام یا رفتار مشاهده کردید",
           "required": false,
           "askedInFlow": true
         },
@@ -3182,7 +3299,7 @@
         },
         {
           "id": "observedAt",
-          "label": "زمان مشاهدهٔ پیام",
+          "label": "زمان مشاهده پیام",
           "required": false,
           "askedInFlow": true
         },
@@ -3219,8 +3336,636 @@
         }
       ]
     },
+    "details_drone_sighting": {
+      "title": "جزئیات پرواز غیرمجاز پهپاد بر فراز تأسیسات",
+      "question": "چه چیزی در آسمان مشاهده کردید و بر فراز کدام محل بود؟",
+      "hint": "فقط آنچه دیدید: نوع پرنده، محل و زمان. هدف یا هویت اپراتور را حدس نزنید.",
+      "fields": [
+        {
+          "id": "craft",
+          "label": "پهپاد، ریزپرنده یا نامشخص",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "site",
+          "label": "تأسیسات یا محلی که بر فراز آن بود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "altitude",
+          "label": "ارتفاع و مدت تقریبی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "time",
+          "label": "زمان مشاهده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نحوه اطلاع شما",
+          "required": false,
+          "askedInFlow": false
+        }
+      ]
+    },
+    "details_home_burglary": {
+      "title": "جزئیات سرقت از منزل و لوازم داخل منزل",
+      "question": "چه چیزی از منزل برده شد و چگونه از آن مطلع شدید؟",
+      "hint": "راه ورود، زمان متوجه‌شدن و وسایل برده‌شده را بنویسید. ارزش تقریبی هم کافی است.",
+      "fields": [
+        {
+          "id": "items",
+          "label": "وسایل برده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "entry",
+          "label": "راه ورود: در، پنجره، قفل، بالکن…",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "noticed",
+          "label": "زمان و نحوه متوجه‌شدن",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "present",
+          "label": "آیا فردی در منزل حضور داشت؟",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "value",
+          "label": "ارزش تقریبی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "camera",
+          "label": "دوربین یا شاهد در محل",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_vehicle_theft": {
+      "title": "جزئیات سرقت خودرو و لوازم داخل خودرو",
+      "question": "خودرو یا چه چیزی از داخل آن برده شد؟",
+      "hint": "نوع وسیله، پلاک، محل پارک و روش سرقت را بنویسید؛ پلاک ناقص هم ارزش دارد.",
+      "fields": [
+        {
+          "id": "what",
+          "label": "خود وسیله یا لوازم داخل آن",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "vehicle",
+          "label": "نوع و نام وسیله، رنگ",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "plate",
+          "label": "پلاک، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "parked",
+          "label": "محل و زمان پارک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "method",
+          "label": "روش: شکستن شیشه، قفل، کلید…",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "tracker",
+          "label": "ردیاب یا دوربین",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_bribery": {
+      "title": "جزئیات ارتشا و دریافت رشوه",
+      "question": "چه کسی، در کدام دستگاه، برای چه کاری پول یا منفعت خواست یا گرفت؟",
+      "hint": "سمت و دستگاه کافی است؛ نام لازم نیست. مبلغ، زمان و اینکه پرداخت شد یا نه را جدا بنویسید.",
+      "fields": [
+        {
+          "id": "agency",
+          "label": "دستگاه، اداره یا یگان",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "role",
+          "label": "سمت یا نقش کارمند یا مأمور",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "favour",
+          "label": "کاری که در ازای آن خواسته شد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "amount",
+          "label": "مبلغ یا منفعت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "paid",
+          "label": "پرداخت شد یا فقط درخواست شد؟",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "evidence",
+          "label": "مدرک: پیام، رسید، شاهد…",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "followUp",
+          "label": "پیگیری قبلی و نتیجه آن",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_embezzlement": {
+      "title": "جزئیات اختلاس",
+      "question": "چه مالی، از کدام دستگاه یا صندوق، و چگونه برداشته شد؟",
+      "hint": "فقط آنچه می‌دانید؛ برآورد مبلغ و بازهٔ زمانی کافی است.",
+      "fields": [
+        {
+          "id": "agency",
+          "label": "دستگاه، شرکت یا صندوق",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "role",
+          "label": "سمت فرد",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "what",
+          "label": "مال یا وجهی که برداشته شد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "amount",
+          "label": "مبلغ تقریبی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "how",
+          "label": "روش: سند سازی، برداشت، انتقال…",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "period",
+          "label": "بازه زمانی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "evidence",
+          "label": "مدرک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "followUp",
+          "label": "پیگیری قبلی و نتیجه آن",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_dereliction": {
+      "title": "جزئیات ترک فعل کارکنان و مأموران",
+      "question": "چه وظیفه‌ای انجام نشد و چه اثری داشت؟",
+      "hint": "وظیفه، زمان اعلام، پاسخ گرفته‌شده و اثر آن را بنویسید.",
+      "fields": [
+        {
+          "id": "agency",
+          "label": "دستگاه، اداره یا یگان",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "role",
+          "label": "سمت یا نقش",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "duty",
+          "label": "وظیفه‌ای که انجام نشد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "when",
+          "label": "زمان اعلام یا مراجعه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "impact",
+          "label": "اثر آن",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "reference",
+          "label": "شماره پیگیری، در صورت وجود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "followUp",
+          "label": "پیگیری قبلی و نتیجه آن",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_corrupt_network": {
+      "title": "جزئیات شبکه‌سازی و باندبازی در دستگاه",
+      "question": "چه کسانی، در کدام دستگاه، و برای چه منفعتی با هم هماهنگ عمل می‌کنند؟",
+      "hint": "نقش‌ها و الگوی کار را بنویسید؛ نام لازم نیست. فقط آنچه دیده یا شنیده‌اید.",
+      "fields": [
+        {
+          "id": "agency",
+          "label": "دستگاه یا مجموعه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "roles",
+          "label": "نقش افراد درگیر",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "pattern",
+          "label": "الگوی کار: واگذاری، استخدام، مجوز…",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "benefit",
+          "label": "منفعتی که جابه‌جا می‌شود",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "period",
+          "label": "از چه زمانی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "evidence",
+          "label": "مدرک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "followUp",
+          "label": "پیگیری قبلی و نتیجه آن",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_abuse_of_office": {
+      "title": "جزئیات سوءاستفاده از جایگاه شغلی",
+      "question": "از کدام جایگاه، برای چه کاری و به نفع چه کسی استفاده شد؟",
+      "hint": "سمت و دستگاه کافی است. نفع شخصی یا اطرافیان را فقط اگر می‌دانید بنویسید.",
+      "fields": [
+        {
+          "id": "agency",
+          "label": "دستگاه، اداره یا یگان",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "role",
+          "label": "سمت یا جایگاه",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "act",
+          "label": "کاری که انجام شد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "beneficiary",
+          "label": "به نفع چه کسی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "evidence",
+          "label": "مدرک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "followUp",
+          "label": "پیگیری قبلی و نتیجه آن",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_stolen_goods": {
+      "title": "جزئیات خریدوفروش یا نگهداری اموال مسروقه",
+      "question": "دربارهٔ خرید، فروش یا نگهداری مالی که سابقهٔ سرقت دارد چه می‌دانید؟",
+      "hint": "نشانه‌ای که مبنای تشخیص شماست بنویسید — قیمت غیرعادی، نبود سند، تغییر مشخصات. «مسروقه‌بودن» برداشت شماست، نه واقعیت اثبات‌شده.",
+      "fields": [
+        {
+          "id": "goods",
+          "label": "نوع مال یا قطعه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "activity",
+          "label": "خرید، فروش، نگهداری یا عرضه",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نشانه‌ای که مبنای تشخیص شما بود",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "place",
+          "label": "محل عرضه یا نگهداری",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "price",
+          "label": "قیمت پیشنهادی، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_gambling": {
+      "title": "جزئیات قمار و شرط‌بندی",
+      "question": "چه فعالیت قمار یا شرط‌بندی‌ای مشاهده یا گزارش شده است؟",
+      "hint": "بازی، محل و نحوهٔ گردش پول را در صورت اطلاع بنویسید؛ مشخصات بازیکنان لازم نیست.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "بازی با پول",
+            "شرط‌بندی ورزشی",
+            "سایت یا اپلیکیشن شرط‌بندی",
+            "قمارخانه",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "activity",
+          "label": "نوع بازی یا شرط‌بندی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "place",
+          "label": "محل برگزاری یا بستر اینترنتی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "money",
+          "label": "نحوه گردش پول، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "frequency",
+          "label": "دفعات یا زمان‌های برگزاری",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نشانه‌ای که مبنای اطلاع شماست",
+          "required": false,
+          "askedInFlow": false
+        }
+      ]
+    },
+    "details_investment_fraud": {
+      "title": "جزئیات جذب سرمایه با وعده سود",
+      "question": "چه وعده‌ای برای سرمایه‌گذاری یا سود داده شد و چه اتفاقی افتاد؟",
+      "hint": "وعده، مبلغ و آنچه واقعاً دریافت کردید را جدا بنویسید. رمز و شمارهٔ کامل حساب ننویسید.",
+      "fields": [
+        {
+          "id": "promise",
+          "label": "وعده یا طرحی که مطرح شد",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "amount",
+          "label": "مبلغ پرداختی، در صورت تمایل",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "channel",
+          "label": "بستر یا محل معرفی طرح",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "outcome",
+          "label": "آنچه در عمل دریافت کردید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "others",
+          "label": "آیا افراد دیگری هم پرداخت کرده‌اند؟",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_cyber_attack": {
+      "title": "جزئیات حمله سایبری یا تصاحب حساب",
+      "question": "چه اتفاقی برای حساب، دستگاه یا سامانه افتاد؟",
+      "hint": "پیام یا لینک دریافتی، زمان و تغییری که دیدید را بنویسید. رمز یا کد پیامکی را اینجا ننویسید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "پیام یا لینک فریبنده",
+            "تصاحب حساب",
+            "بدافزار یا باج‌افزار",
+            "نفوذ به سامانه یا دوربین",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "target",
+          "label": "حساب، دستگاه یا سامانه درگیر",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "method",
+          "label": "لینک، پیام، فایل یا روش مشاهده‌شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "sign",
+          "label": "تغییر یا نشانه‌ای که دیدید",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "time",
+          "label": "زمان تقریبی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "damage",
+          "label": "خسارت یا دسترسی ازدست‌رفته",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_identity_misuse": {
+      "title": "جزئیات سوءاستفاده از حساب یا مدارک دیگران",
+      "question": "حساب، سیم‌کارت یا مدرک چه کسی و برای چه کاری استفاده شده است؟",
+      "hint": "فقط آنچه می‌دانید. اگر حساب خودتان است، نحوهٔ اطلاع و تراکنش‌های ناشناس را شرح دهید؛ شمارهٔ کامل کارت ننویسید.",
+      "fields": [
+        {
+          "id": "subtype",
+          "label": "نوع رخداد طبق اطلاعات شما",
+          "required": false,
+          "askedInFlow": false,
+          "type": "select",
+          "options": [
+            "اجارهٔ حساب بانکی",
+            "سیم‌کارت به نام دیگری",
+            "استفاده از مدارک دیگری",
+            "نامشخص",
+            "سایر"
+          ]
+        },
+        {
+          "id": "item",
+          "label": "حساب بانکی، سیم‌کارت یا مدرک",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "owner",
+          "label": "صاحب آن، بدون مشخصات غیرضروری",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "use",
+          "label": "کاری که با آن انجام شده",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نحوه اطلاع شما",
+          "required": false,
+          "askedInFlow": false
+        },
+        {
+          "id": "amount",
+          "label": "مبلغ یا تعداد تراکنش، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        }
+      ]
+    },
+    "details_dangerous_instruction": {
+      "title": "جزئیات آموزش ساخت مواد خطرناک",
+      "question": "کجا و چه آموزشی برای ساخت مادهٔ منفجره، سم یا دستکاری تأسیسات دیده‌اید؟",
+      "hint": "نشانی کانال یا صفحه و آنچه دیدید را بنویسید؛ خودِ دستورالعمل را بازنویسی نکنید.",
+      "fields": [
+        {
+          "id": "platform",
+          "label": "کانال، صفحه یا سایت",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "content",
+          "label": "موضوع آموزش، به‌طور کلی",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "audience",
+          "label": "مخاطب یا تعداد اعضا، در صورت اطلاع",
+          "required": false,
+          "askedInFlow": true
+        },
+        {
+          "id": "basis",
+          "label": "نحوه اطلاع شما",
+          "required": false,
+          "askedInFlow": false
+        }
+      ]
+    },
     "details_data_breach": {
-      "title": "جزئیات دسترسی یا افشای بدون اجازهٔ اطلاعات",
+      "title": "جزئیات دسترسی یا افشای بدون اجازه اطلاعات",
       "question": "چه رفتار مشخصی از دسترسی یا افشای بدون اجازه مشاهده کرده‌اید؟",
       "hint": "نشانهٔ مشاهده‌شده، حساب یا وسیلهٔ درگیر و نحوهٔ اطلاع را توضیح دهید؛ رمز، محتوای محرمانه یا اطلاعات خصوصی غیرضروری ننویسید.",
       "fields": [
@@ -3242,13 +3987,13 @@
         },
         {
           "id": "affected",
-          "label": "حساب، سامانه یا وسیلهٔ درگیر؛ بدون رمز و اطلاعات محرمانه",
+          "label": "حساب، سامانه یا وسیله درگیر؛ بدون رمز و اطلاعات محرمانه",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "observed",
-          "label": "نشانهٔ مشخص دسترسی یا افشای بدون اجازه",
+          "label": "نشانه مشخص دسترسی یا افشای بدون اجازه",
           "required": false,
           "askedInFlow": true
         },
@@ -3351,7 +4096,7 @@
         },
         {
           "id": "restriction",
-          "label": "آنچه دربارهٔ محدودیت آزادی می‌دانید",
+          "label": "آنچه درباره محدودیت آزادی می‌دانید",
           "required": false,
           "askedInFlow": true
         },
@@ -3391,13 +4136,13 @@
         },
         {
           "id": "sign",
-          "label": "نشانهٔ مشاهده‌شده یا علت تردید",
+          "label": "نشانه مشاهده‌شده یا علت تردید",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "use",
-          "label": "نحوهٔ استفاده از مدرک در همین رخداد",
+          "label": "نحوه استفاده از مدرک در همین رخداد",
           "required": false,
           "askedInFlow": true
         },
@@ -3510,7 +4255,7 @@
         },
         {
           "id": "serial",
-          "label": "شمارهٔ سریال مال، در صورت اطلاع",
+          "label": "شماره سریال مال، در صورت اطلاع",
           "required": false,
           "askedInFlow": true
         },
@@ -3522,7 +4267,7 @@
         },
         {
           "id": "lastSeen",
-          "label": "آخرین زمان و مکان مشاهدهٔ مال",
+          "label": "آخرین زمان و مکان مشاهده مال",
           "required": false,
           "askedInFlow": true
         },
@@ -3557,7 +4302,7 @@
         },
         {
           "id": "method",
-          "label": "روش معامله یا وعدهٔ داده‌شده",
+          "label": "روش معامله یا وعده داده‌شده",
           "required": false,
           "askedInFlow": true
         },
@@ -3589,7 +4334,7 @@
         },
         {
           "id": "reference",
-          "label": "شمارهٔ پیگیری تراکنش",
+          "label": "شماره پیگیری تراکنش",
           "required": false,
           "askedInFlow": true
         },
@@ -3737,13 +4482,13 @@
         },
         {
           "id": "frequency",
-          "label": "تعداد دفعات و بازهٔ زمانی",
+          "label": "تعداد دفعات و بازه زمانی",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "evidence",
-          "label": "نوع مستند موجود؛ اصل آن را در مرحلهٔ مستندات اضافه کنید",
+          "label": "نوع مستند موجود؛ اصل آن را در مرحله مستندات اضافه کنید",
           "required": false,
           "askedInFlow": true
         }
@@ -3762,13 +4507,13 @@
         },
         {
           "id": "duration",
-          "label": "مدت ادامهٔ مشکل",
+          "label": "مدت ادامه مشکل",
           "required": false,
           "askedInFlow": true
         },
         {
           "id": "impact",
-          "label": "اثر قابل مشاهدهٔ مشکل",
+          "label": "اثر قابل مشاهده مشکل",
           "required": false,
           "askedInFlow": true
         },
@@ -3793,7 +4538,7 @@
         },
         {
           "id": "impact",
-          "label": "آسیب یا نتیجهٔ قابل مشاهده",
+          "label": "آسیب یا نتیجه قابل مشاهده",
           "required": false,
           "askedInFlow": true
         }

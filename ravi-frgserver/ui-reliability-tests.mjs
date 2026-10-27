@@ -27,6 +27,24 @@ try{
    assert.deepEqual(errors,[]);
   }finally{await ctx.close()}
  });
+ await run('identity fields are aligned, labelled and keyboard-accessible on mobile and desktop',async()=>{
+  for(const [width,height] of [[320,568],[390,844],[1024,800]]){
+   const ctx=await browser.newContext({viewport:{width,height}}),p=await start(ctx),errors=[];p.on('pageerror',e=>errors.push(e.message));
+   try{
+    await toReview(p);await p.click('[data-action="review"]');await p.check('#confirm');await p.click('#submit-report');await p.waitForSelector('#reporter-identity-form');
+    for(const [id,label] of [['rep-name','نام و نام خانوادگی'],['rep-province','استان'],['rep-mobile','شماره همراه'],['rep-rank','عنوان رده'],['rep-post','عنوان سمت']]){
+     const input=p.locator(`#${id}`);assert.equal(await input.count(),1);assert.equal(await input.evaluate(el=>el.labels?.[0]?.innerText.trim()),label);
+     const b=await input.boundingBox();assert.ok(b.x>=0&&b.x+b.width<=width+1,`${width}: ${id} outside viewport`);assert.ok(b.height>=44,`${width}: ${id} too short`);
+    }
+    const grid=await p.locator('.identity-fields').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);assert.equal(grid,width<=520?1:2);
+    const buttons=await p.locator('.identity-actions button').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {x:r.x,right:r.right,y:r.y}}));
+    assert.equal(buttons.length,2);assert.ok(buttons.every(b=>b.x>=0&&b.right<=width+1));assert.ok(Math.abs(buttons[0].y-buttons[1].y)<1);
+    assert.equal(await p.evaluate(()=>document.activeElement?.getAttribute('aria-label')),'بستن');await p.keyboard.press('Tab');assert.equal(await p.evaluate(()=>document.activeElement?.id),'rep-name');
+    await p.fill('#rep-name','نام آزمایشی');await p.fill('#rep-mobile','09123456789');await p.click('[data-action="save-identity"]');await p.waitForSelector('.success');
+    assert.deepEqual(errors,[]);
+   }finally{await ctx.close()}
+  }
+ });
  await run('an in-progress offline guide and its unsent answer survive refresh',async()=>{
   const ctx=await browser.newContext({viewport:{width:390,height:844}}),p=await start(ctx);
   try{

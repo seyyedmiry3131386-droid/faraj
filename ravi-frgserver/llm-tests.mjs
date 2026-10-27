@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker from './worker.js';
-import { local, stripThinking, sameQuestion, cleanInterview, interviewStep, interviewInput, MAX_TURNS } from './llm.js';
+import { local, stripThinking, sameQuestion, cleanInterview, interviewStep, interviewInput, INTERVIEW_SCHEMA, MAX_TURNS } from './llm.js';
 import { start } from './mock-llm.mjs';
 import { newInterview, interviewRequest, answerCurrent, applyStep, stepBack, answersNarrative, guideFallback, interviewRecord, MAX_TURNS as CLIENT_MAX_TURNS } from './public/ai-interview.js';
 import { GUIDE_STEPS, coreStepsFor, stepsFor } from './public/guidance.js';
@@ -308,4 +308,15 @@ test('browser side: answer, back, early finish, record', () => {
   applyStep(ai, { done: true, question: '', facts: [{ label: 'مکان', value: 'خیابان' }] });
   assert.equal(ai.done, true);
   assert.deepEqual(interviewRecord(ai).turns.map(t => t.a), ['کیفم را دزدیدند', 'خیابان']);
+});
+
+test('model domain vocabulary includes انتظامی and اجتماعی and accepts old metadata without rewriting facts',()=>{
+ const choices=INTERVIEW_SCHEMA.properties.domain.enum;
+ assert.ok(choices.includes('انتظامی'));assert.ok(choices.includes('اجتماعی'));assert.ok(!choices.includes('رفاه'));
+ const text='او گفت رفاه خانواده مهم است';
+ const raw={done:false,question:'یک پرسش؟',domain:'رفاه',facts:[{label:'گفته',value:text}]};
+ const result=cleanInterview(raw,{mode:'detail',text,turns:[]});
+ assert.equal(result.domain,'اجتماعی');assert.equal(result.facts[0].value,text);
+ assert.equal(cleanInterview({...raw,domain:'انتظامی'},{mode:'detail',text,turns:[]}).domain,'انتظامی');
+ const ai=newInterview('intake');applyStep(ai,{done:false,stage:'source',question:GUIDE_STEPS[0].title,domain:'رفاه'});assert.equal(ai.domain,'اجتماعی');
 });

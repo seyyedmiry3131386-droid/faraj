@@ -9,13 +9,13 @@ const technical=new Set(['eventRef','personRef','placeRef','role','basis','subty
 const page=(id,title,fields,hint='هر موردی را که می‌دانید بنویسید؛ بقیه می‌تواند خالی بماند.')=>({id,title,fields,hint});
 const groups={
  person:[
-  page('observation','این فرد چه کار کرد؟',['notes','movement'],'فقط آنچه از این فرد دیدید یا درباره‌اش شنیدید بنویسید.'),
+  page('observation','این فرد چه اقدامی انجام داد؟',['notes','movement'],'فقط آنچه از این فرد دیدید یا درباره‌اش شنیدید بنویسید.'),
   page('appearance','سن و ظاهر این فرد را به یاد دارید؟',['age','height','build']),
   page('recognition','چه ویژگی ظاهری دیگری به یاد دارید؟',['clothes','hair','marks']),
-  page('count','اگر چند نفر بودند، تعدادشان را می‌دانید؟',['count'])
+  page('count','اگر چند نفر حضور داشتند، تعداد آن‌ها را می‌دانید؟',['count'])
  ],
  place:[
-  page('area','این مکان در کدام محدوده است؟',['province','city','district']),
+  page('area','این مکان در کدام محدوده قرار دارد؟',['province','city','district']),
   page('address','خیابان یا نشانهٔ نزدیک را می‌دانید؟',['street','landmark']),
   page('building','نام محل یا پلاک ساختمان را می‌دانید؟',['building','number']),
   page('inside','از جزئیات نشانی چیزی می‌دانید؟',['floor','unit','postal']),
@@ -23,7 +23,7 @@ const groups={
  ],
  vehicle:[
   page('description','چه وسیلهٔ نقلیه‌ای بود؟',['kind','model','color']),
-  page('plate','چقدر از پلاک را دیدید؟',['plateStatus'],'اگر پلاک را ندیدید، همان گزینه را انتخاب کنید.'),
+  page('plate','چه بخش‌هایی از پلاک را مشاهده کردید؟',['plateStatus'],'اگر پلاک را ندیدید، همان گزینه را انتخاب کنید.'),
   {...page('plate-entry','بخش‌هایی از پلاک را که دیده‌اید وارد کنید.',[],'قالب پلاک را انتخاب کنید و فقط قسمت‌های معلوم را بنویسید.'),plate:true},
   page('observation','دربارهٔ این وسیله چه چیزی مشاهده کردید؟',['observation','count']),
   page('movement','نشانهٔ خاص یا جهت حرکت را به یاد دارید؟',['marks','direction']),
@@ -48,7 +48,7 @@ const groups={
  ],
  time:[page('when','تاریخ یا ساعت دقیق‌تری می‌دانید؟',['date','period','clock']),page('duration','این اتفاق چقدر طول کشید؟',['duration'])],
  source:[
-  page('informant','کسی که این را به شما گفت را می‌شناسید؟',['informantKnown'],'اگر نمی‌شناسید هم اشکالی ندارد؛ فقط یک راه تماس با او کافی است.'),
+  page('informant','آیا فردی را که این موضوع را به شما اطلاع داد می‌شناسید؟',['informantKnown'],'اگر نمی‌شناسید هم اشکالی ندارد؛ فقط یک راه تماس با او کافی است.'),
   page('informant-known','دربارهٔ او چه می‌دانید؟',['informantRelation','informantName','informantWitness'],'فقط آنچه برای پیگیری لازم است.'),
   page('informant-contact','شماره یا راه ارتباطی با او را دارید؟',['informantContact'],'برای پیگیری، حتی یک شماره یا شناسهٔ پیام‌رسان کافی است. اگر ندارید، از آن بگذرید.'),
   page('evidence','چه جزئیاتی از منبع خبر می‌دانید؟',['url','notes','time'])

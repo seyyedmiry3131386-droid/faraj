@@ -12,7 +12,7 @@ export function questionsFor(analysis){
  object:{id:'object',title:'از وسایل یا اموال مرتبط با این اتفاق چیزی می‌دانید؟',hint:'مثلاً مال سرقت‌شده، وسیلهٔ آسیب‌دیده یا مدرک مرتبط. خودرو را جدا می‌پرسیم.',group:true,options:[YES,NO]},
  vehicle:{id:'vehicle',title:'از وسیلهٔ نقلیهٔ مرتبط با این اتفاق چیزی می‌دانید؟',hint:'نوع، ظاهر یا پلاک؛ هر مقدار که به یاد دارید کافی است.',group:true,options:[YES,NO]},
  contact:{id:'contact',title:'شماره، حساب یا نشانی اینترنتیِ مرتبط با این اتفاق را می‌دانید؟',hint:'فقط راه ارتباطی‌ای که در همین اتفاق استفاده شده است.',group:true,options:[YES,NO]},
- source:{id:'source',title:'چطور از این اتفاق مطلع شدید؟',hint:'مشاهدهٔ مستقیم را از شنیده‌ها جدا کنید.',placeholder:'نحوهٔ اطلاع خود را توضیح دهید…',options:['خودم شاهد بودم','برای خودم اتفاق افتاده','از شخص دیگری شنیدم','در فضای مجازی دیدم','اطلاعی ندارم']}
+ source:{id:'source',title:'چگونه از این اتفاق مطلع شدید؟',hint:'مشاهدهٔ مستقیم را از شنیده‌ها جدا کنید.',placeholder:'نحوهٔ اطلاع خود را توضیح دهید…',options:['خودم شاهد بودم','برای خودم اتفاق افتاده','از شخص دیگری شنیدم','در فضای مجازی دیدم','اطلاعی ندارم']}
  };return relevantExtraIds(analysis).filter(id=>sectionRelevant(id,analysis)).map(id=>{if(id.startsWith('details_')){const event=id.slice(8);return {...base.details,id,title:EVENTS[event].detail,hint:EVENTS[event].hint,topic:EVENTS[event].title,source:EVENTS[event].source}}const custom=(analysis.questions||[]).find(q=>q.id===id);if(custom)return {...custom,placeholder:'فقط آنچه می‌دانید…',options:['اطلاعی ندارم'],topic:EVENTS[custom.event]?.title};return {...base[id]}}).map(q=>({...q,category:categoryForSection(q.id),required:sectionRequired(q.id,analysis)}));
 }
 export function validateFiles(files,current=[]){

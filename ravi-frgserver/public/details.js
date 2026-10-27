@@ -15,10 +15,10 @@ export const DETAILS={
  // When someone else told the reporter, that person is the one who saw it.
  // Knowing them opens more; not knowing them still leaves one thing worth
  // having: any way to reach them.
- select('informantKnown','کسی که این را به شما گفت را می‌شناسید؟',['بله، می‌شناسمش','نه، نمی‌شناسمش']),
+ select('informantKnown','آیا فردی را که این موضوع را به شما اطلاع داد می‌شناسید؟',['بله، می‌شناسمش','نه، نمی‌شناسمش']),
  field('informantRelation','نسبت یا آشنایی شما با او',{placeholder:'مثلاً همسایه، همکار، یکی از اقوام',show:r=>r.informantKnown==='بله، می‌شناسمش'}),
  field('informantName','نام یا عنوانی که او را با آن می‌شناسید',{placeholder:'فقط اگر لازم می‌دانید',show:r=>r.informantKnown==='بله، می‌شناسمش'}),
- select('informantWitness','او خودش شاهد بود؟',['خودش دید','خودش هم از کسی شنیده بود','نمی‌دانم'],{show:r=>r.informantKnown==='بله، می‌شناسمش'}),
+ select('informantWitness','آیا آن فرد خود شاهد این اتفاق بود؟',['خودش دید','خودش هم از کسی شنیده بود','نمی‌دانم'],{show:r=>r.informantKnown==='بله، می‌شناسمش'}),
  field('informantContact','شماره یا راه ارتباطی با او',{ltr:true,max:120,placeholder:'شمارهٔ تلفن یا شناسهٔ پیام‌رسان'}),
  field('time','زمان مطلع شدن از رخداد'),field('type','نوع منبع',{placeholder:'مثلاً مشاهدهٔ مستقیم یا آگهی اینترنتی'}),field('url','پیوند مطلب مرتبط، در صورت وجود',{validate:'url',ltr:true,placeholder:'https://…'}),field('notes','توضیح نحوهٔ اطلاع',{wide:true})]},
  time:{title:'جزئیات زمان',toggle:'تاریخ، ساعت یا بازهٔ دقیق‌تری می‌دانم',fields:[field('date','تاریخ رخداد',{placeholder:'مثلاً ۱۴۰۵/۰۶/۲۹'}),select('period','حدود چه ساعتی',['صبح زود','صبح','ظهر','بعدازظهر','عصر','شب','نیمه‌شب','نمی‌دانم']),field('clock','ساعت دقیق، اگر می‌دانید',{placeholder:'مثلاً ۲۱:۳۰ یا بین ۱۸ تا ۱۹'}),field('duration','مدت رخداد',{placeholder:'مثلاً حدود ده دقیقه'}),select('certainty','دقت زمان',['دقیق','تقریبی'])]},
