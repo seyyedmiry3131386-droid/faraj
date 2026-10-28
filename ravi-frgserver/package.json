@@ -1,0 +1,34 @@
+{
+  "name": "ravi-report-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev.mjs",
+    "check": "node scripts/check-syntax.mjs",
+    "build": "npm run check && node build.mjs",
+    "test": "node --test reporter-identity-tests.mjs suggestions-tests.mjs ordered-tests.mjs grouped-tests.mjs llm-tests.mjs facts-tests.mjs provider-tests.mjs http-tests.mjs device-tests.mjs tests.mjs flow-tests.mjs review-tests.mjs numbered-tests.mjs mixed-incident-tests.mjs composition-tests.mjs colloquial-tests.mjs voice-tests.mjs guidance-tests.mjs central-tests.mjs staff-tests.mjs backup-tests.mjs",
+    "test:stt": "cd stt && python -m unittest test_stt",
+    "eval:load": "node evaluation/load-test.mjs",
+    "evaluate:million": "node evaluation/run-million.mjs",
+    "evaluate:holdout": "node evaluation/run-holdout.mjs && node evaluation/run-holdout-c.mjs && node evaluation/run-holdout-d.mjs",
+    "test:ui": "node ui-tests.mjs",
+    "test:miniapp": "node miniapp-tests.mjs",
+    "bank": "node scripts/export-question-bank.mjs",
+    "test:ui:ai": "node ui-ai-tests.mjs",
+    "test:ui:order": "node ui-order-tests.mjs",
+    "test:ui:suggestions": "node ui-suggestions-tests.mjs",
+    "test:ui:reliability": "node ui-reliability-tests.mjs",
+    "test:ui:central": "node ui-central-tests.mjs",
+    "test:central:limits": "node --test central-limits-tests.mjs",
+    "eval:llm": "node evaluation/llm-eval.mjs",
+    "mock:llm": "node mock-llm.mjs 11999"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "busboy": "1.6.0"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  }
+}

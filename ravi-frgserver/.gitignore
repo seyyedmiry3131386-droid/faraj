@@ -1,0 +1,16 @@
+node_modules/
+.env*
+.dev.vars
+.wrangler/
+*.tar.gz
+dist/
+evaluation-output/
+
+__pycache__/
+*.pyc
+.env
+
+!.env.example
+
+# Local hosting metadata, not a deployable project credential/configuration.
+.openai/

@@ -1,0 +1,4 @@
+-r requirements-text.txt
+numpy==2.5.3
+# Install the CPU or CUDA build appropriate to your machine; this version was smoke-tested.
+torch==2.8.0
