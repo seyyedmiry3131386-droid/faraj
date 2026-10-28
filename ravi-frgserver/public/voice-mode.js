@@ -5,10 +5,20 @@
 // vehicle, and the question quietly asks them to pretend they did. So once we
 // know how the reporter knows — from their answer, or from their own words —
 // questions written for an eyewitness are re-worded for the reporter's actual
-// position. Only wording changes; the fields, their stored values and the
-// order of questions stay exactly the same.
+// position. IDs and existing saved answers never change. A newly selected
+// relayed option must not record that the reporter personally saw something.
 
 import { normalize } from './persian-normalize.js';
+
+/** Whether the reporter says a person told them, including free-form answers. */
+export function personalHearsay(value = '') {
+ const text=normalize(value);
+ if (/(?:نشنیدم|نگفت|خبر\s*نداد|اطلاع\s*نداد)/u.test(text)) return false;
+ if (!/(?:شنیدم|به\s*من\s*(?:گفت|اطلاع\s*داد)|بهم\s*(?:گفت|اطلاع\s*داد)|تعریف\s*کرد|خبر\s*داد|(?:همسایه|دوست|همکار|برادر|خواهر|پدر|مادر)\s*گفت)/u.test(text)) return false;
+ const media=/(?:فضای\s*مجازی|اینترنت|تلگرام|واتساپ|رادیو|تلویزیون|کانال|سایت)/u.test(text);
+ const person=/(?:فرد|شخص|همسایه|دوست|اشنا|همکار|خانواده|برادر|خواهر|پدر|مادر|فامیل|اقوام|به\s*من\s*گفت|بهم\s*گفت)/u.test(text);
+ return !media || person;
+}
 
 /**
  * How the reporter knows: 'witness' (saw it), 'victim' (it happened to them),
@@ -17,13 +27,13 @@ import { normalize } from './persian-normalize.js';
  */
 export function reportMode(answers = {}, text = '') {
  const a = String(answers.source || '');
- if (/از\s*(?:شخص|فرد)\s*دیگری\s*شنیدم|از\s*فرد\s*دیگری\s*شنیدم/u.test(a)) return 'hearsay';
+ if (personalHearsay(a)) return 'hearsay';
  if (/فضای\s*مجازی/u.test(a)) return 'online';
  if (/برای\s*خودم/u.test(a)) return 'victim';
  if (/خودم\s*(?:شاهد|این\s*را\s*دیدم)|خودم\s*دیدم/u.test(a)) return 'witness';
  const t = normalize(text);
- if (/به\s*من\s*گفت|بهم\s*گفت|تعریف\s*کرد|خبر\s*داد|شنیدم/u.test(t)) return 'hearsay';
- if (/(?:اینستاگرام|تلگرام|کانال|فضای\s*مجازی)\S*\s+(?:\S+\s+){0,2}دیدم/u.test(t)) return 'online';
+ if (personalHearsay(t)) return 'hearsay';
+ if (/(?:اینستاگرام|تلگرام|واتساپ|کانال|سایت|فضای\s*مجازی)\S*\s+(?:\S+\s+){0,2}(?:دیدم|شنیدم|خواندم)/u.test(t)) return 'online';
  return '';
 }
 
@@ -52,6 +62,7 @@ const RELAYED = {
  'فقط آنچه خودتان دیدید.': 'فقط آنچه به شما گفته شد.',
  'یا آنچه دیدید را بنویسید': 'یا آنچه گفته شد را بنویسید',
  'چیزی ندیدم': 'چیزی گفته نشد',
+ 'چیزی در دست آن‌ها ندیدم': 'درباره وسیله‌ای در دست آن‌ها چیزی به من گفته نشد',
 };
 const ONLINE = {
  ...RELAYED,
@@ -76,6 +87,6 @@ export function adapt(item, mode) {
  const out = { ...item };
  for (const key of ['title', 'hint', 'freeTextLabel', 'label']) if (typeof out[key] === 'string') out[key] = phrase(out[key], mode);
  if (Array.isArray(item.fields)) out.fields = item.fields.map(f => (typeof f === 'object' && f ? { ...f, label: phrase(f.label, mode) } : f));
- if (Array.isArray(item.options)) out.options = item.options.map(o => (typeof o === 'object' && o ? { ...o, label: phrase(o.label, mode) } : o));
+ if (Array.isArray(item.options)) out.options = item.options.map(o => (typeof o === 'object' && o ? { ...o, label: phrase(o.label, mode), phrase: phrase(o.phrase, mode) } : o));
  return out;
 }

@@ -2,7 +2,7 @@
 // AI responses below are deliberate mocks, not a model-quality evaluation.
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
-import {GUIDE_STEPS,LEGACY_STAGE_TITLES,stepsFor} from './public/guidance.js';
+import {GUIDE_STEPS,GUIDE_ORDER_VERSION,FOLLOW_UPS,LEGACY_STAGE_TITLES,guideQuestionAliases,stepsFor} from './public/guidance.js';
 import {localAnalysis} from './public/scenarios.js';
 import {prepareAnalysis} from './public/extraction.js';
 import {questionsFor} from './public/domain.js';
@@ -23,6 +23,7 @@ async function bar(p,next,skip,filled){
  assert.equal(await p.locator(`[data-action="${skip}"]`).isEnabled(),!filled);
 }
 async function nextGuide(p,action){const before=(await p.textContent('#guide-title')).trim();await p.click(`[data-action="${action}"]`);await p.waitForFunction(t=>!document.querySelector('#guide-title')||document.querySelector('#guide-title').textContent.trim()!==t,before,{timeout:12000})}
+async function atGuide(p,id){await p.waitForFunction(titles=>titles.includes(document.querySelector('#guide-title')?.textContent.trim()),guideQuestionAliases(id),{timeout:12000})}
 async function writeDraft(p,draft){
  await p.goto(base);
  await p.evaluate(d=>new Promise((resolve,reject)=>{const r=indexedDB.open('ravi-v1',1);r.onerror=()=>reject(r.error);r.onupgradeneeded=()=>{r.result.createObjectStore('reports',{keyPath:'id'});r.result.createObjectStore('drafts')};r.onsuccess=()=>{const db=r.result,t=db.transaction('drafts','readwrite');t.objectStore('drafts').put({...d,revision:1},'current');t.oncomplete=()=>{db.close();resolve()};t.onerror=()=>reject(t.error)}}),draft);
@@ -63,6 +64,43 @@ try{
    assert.ok(!follow.some(t=>/چند نفر در این اتفاق|ظاهر یا نشانه‌های این افراد/.test(t)),follow.join('|'));
    assert.ok(!follow.some(t=>/مشخصات این وسیله نقلیه/.test(t)),'vehicle details asked after skipping its parent');
    assert.ok(!follow.some(t=>/از کِی این مشکل شروع شده است/.test(t)),follow.join('|'));
+  }finally{await c.close()}
+ });
+ await test('offline groups source, informant and contact before actor; back and reload preserve input',async()=>{
+  const {c,p}=await context(320);
+  try{
+   await start(p);await p.fill('#description','نمیدونم چی بگم');await p.click('#analyze-btn');await atGuide(p,'source');
+   await p.locator('[data-guide-option]',{hasText:'از فرد دیگری شنیدم'}).click();await atGuide(p,'informantKnown');
+   await bar(p,'guide-next','guide-skip',false);
+   await p.locator('[data-guide-option]',{hasText:'بله، می‌شناسمش'}).click();await atGuide(p,'informantRelation');
+   await p.fill('#guide-input','همسایه است و خودش دید');await bar(p,'guide-next','guide-skip',true);
+   await p.waitForTimeout(1000);await p.reload();await p.click('[data-action="draft"]');await atGuide(p,'informantRelation');
+   assert.equal(await p.inputValue('#guide-input'),'همسایه است و خودش دید');
+   await nextGuide(p,'guide-next');await atGuide(p,'informantContact');await bar(p,'guide-next','guide-skip',false);
+   await nextGuide(p,'guide-skip');await atGuide(p,'who');
+   await p.click('[data-action="guide-back"]');await atGuide(p,'informantContact');
+   await p.click('[data-action="guide-back"]');await atGuide(p,'informantRelation');assert.equal(await p.inputValue('#guide-input'),'همسایه است و خودش دید');
+   await p.click('[data-action="guide-back"]');await atGuide(p,'informantKnown');
+   await p.click('[data-action="guide-back"]');await atGuide(p,'source');
+   await p.fill('#guide-input','من خودم دیدم');await nextGuide(p,'guide-next');await atGuide(p,'who');
+  }finally{await c.close()}
+ });
+ await test('version 4 draft visits moved branches once and restores the unsent later answer after reload',async()=>{
+  const {c,p}=await context(320);
+  try{
+   const answers={source:'از همسایه شنیدم',who:'دو نفر',when:'دیروز',where:'تهران',result:'سرقت رخ داد'};
+   const old=stepsFor(answers,'',[],{legacyOrder:true}),index=old.findIndex(s=>s.id==='reason');assert.ok(index>=0);
+   await writeDraft(p,{text:'نمیدونم چی بگم',step:0,files:[],guide:{orderVersion:4,mode:'intake',index,base:'',answers,skipped:[],draft:{step:'reason',value:'دلیل هنوز در حال نوشتن است'}}});
+   await atGuide(p,'informantKnown');await p.waitForTimeout(1000);await p.reload();await p.click('[data-action="draft"]');await atGuide(p,'informantKnown');
+   await nextGuide(p,'guide-skip');await atGuide(p,'peopleDescription');
+   await nextGuide(p,'guide-skip');await atGuide(p,'vehicleInvolved');
+   await nextGuide(p,'guide-skip');await atGuide(p,'witness');
+   await nextGuide(p,'guide-skip');await atGuide(p,'reason');
+   assert.equal(await p.inputValue('#guide-input'),'دلیل هنوز در حال نوشتن است');await bar(p,'guide-next','guide-skip',true);
+   await p.click('[data-action="guide-back"]');await atGuide(p,'witness');
+   await p.click('[data-action="guide-back"]');await atGuide(p,'vehicleInvolved');
+   await p.click('[data-action="guide-back"]');await atGuide(p,'result');
+   assert.equal(await p.inputValue('#guide-input'),'سرقت رخ داد');
   }finally{await c.close()}
  });
  await test('detailed fields update all three buttons and preserve text on back and reload',async()=>{
@@ -131,11 +169,12 @@ try{
    await start(p);await p.fill('#description','نمیدونم چی بگم');await p.click('#analyze-btn');await p.waitForSelector('#ai-question');
    assert.equal((await p.textContent('#ai-question')).trim(),GUIDE_STEPS[0].title);await bar(p,'ai-send','ai-unknown',false);
    await p.fill('#ai-answer','از یک آشنا شنیدم');await bar(p,'ai-send','ai-unknown',true);await p.click('[data-action="ai-send"]');
-   await p.waitForFunction(t=>document.querySelector('#ai-question')?.textContent.trim()===t,GUIDE_STEPS[1].title);
-   await p.fill('#ai-answer','یک نفر با کلاه');await p.click('[data-action="ai-back"]');
+   const follow=FOLLOW_UPS.find(s=>s.id==='informantKnown').title;
+   await p.waitForFunction(t=>document.querySelector('#ai-question')?.textContent.trim()===t,follow);
+   await p.fill('#ai-answer','نامش را می‌دانم');await p.click('[data-action="ai-back"]');
    assert.equal(await p.inputValue('#ai-answer'),'از یک آشنا شنیدم');await bar(p,'ai-send','ai-unknown',true);
-   await p.click('[data-action="ai-send"]');await p.waitForFunction(t=>document.querySelector('#ai-question')?.textContent.trim()===t,GUIDE_STEPS[1].title);
-   assert.equal(await p.inputValue('#ai-answer'),'یک نفر با کلاه');await bar(p,'ai-send','ai-unknown',true);
+   await p.click('[data-action="ai-send"]');await p.waitForFunction(t=>document.querySelector('#ai-question')?.textContent.trim()===t,follow);
+   assert.equal(await p.inputValue('#ai-answer'),'نامش را می‌دانم');await bar(p,'ai-send','ai-unknown',true);
   }finally{await c.close()}
  });
  await test('witness wording is formal and self-harm observation is clear without a topic caption',async()=>{
@@ -143,7 +182,7 @@ try{
    const {c,p}=await context(390);
    try{
     const answers={result:'یک خودرو کیفم را برد',source:'من خودم این را دیدم'},steps=stepsFor(answers),index=steps.findIndex(s=>s.id==='witness');assert.ok(index>=0);
-    await writeDraft(p,{text:'نمیدونم چی بگم',step:0,files:[],guide:{orderVersion:4,mode:'intake',index,answers,skipped:[],base:''}});await p.waitForSelector('#guide-title');
+    await writeDraft(p,{text:'نمیدونم چی بگم',step:0,files:[],guide:{orderVersion:GUIDE_ORDER_VERSION,mode:'intake',index,answers,skipped:[],base:''}});await p.waitForSelector('#guide-title');
     assert.equal((await p.textContent('#guide-title')).trim(),'آیا فرد دیگری هم این اتفاق را مشاهده کرد؟');await bar(p,'guide-next','guide-skip',false);
    }finally{await c.close()}
   }

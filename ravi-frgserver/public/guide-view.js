@@ -35,6 +35,10 @@ export function renderGuide(guide, { escape, fa, icon, stepper, miniApp = false 
  if(!steps.length)return `<div class="content flow-content">${stepper()}<section class="panel focused-question"><h2 class="question-title">پرسش دیگری باقی نمانده است.</h2><div class="actions"><button class="secondary" data-action="guide-back">بازگشت</button><button class="primary" data-action="guide-finish">ادامه</button></div></section></div>`;
  const index = Math.min(Math.max(0, guide.index || 0), steps.length - 1);
  const step = steps[index];
+ if(!guide.draft&&Object.hasOwn(guide.pendingDrafts||{},step.id)){
+  guide.draft={step:step.id,value:guide.pendingDrafts[step.id]};
+  delete guide.pendingDrafts[step.id];
+ }
  const value = String(guide.answers?.[step.id] ?? '');
  // An option that records nothing is still the option the reporter picked, so
  // it stays selected and its prompt stays visible until they describe the fault.

@@ -7,6 +7,7 @@ import { local, stripThinking, sameQuestion, cleanInterview, interviewStep, inte
 import { start } from './mock-llm.mjs';
 import { newInterview, interviewRequest, answerCurrent, applyStep, stepBack, answersNarrative, guideFallback, interviewRecord, MAX_TURNS as CLIENT_MAX_TURNS } from './public/ai-interview.js';
 import { GUIDE_STEPS, coreStepsFor, stepsFor } from './public/guidance.js';
+import {orderedClientStep} from './public/interview-order.js';
 import { modelScores } from './evaluation/llm-metrics.mjs';
 
 const server = await start(0);
@@ -269,7 +270,8 @@ test('a maximum-length legacy draft still has room for every ordered stage', asy
     assert.equal(next.stage,expected.id);
     turns.push({q:next.question,stage:next.stage,a:''});
   }
-  assert.equal(turns.length, MAX_TURNS);
+  assert.equal(turns.length, 20 + GUIDE_STEPS.length);
+  assert.ok(MAX_TURNS > turns.length, 'the grouped protocol has room for follow-ups too');
   const end=await interviewStep(ask,interviewInput({mode:'intake',text:'',turns}));
   assert.equal(end.done,true);
   assert.match(end.narrative,/شرح قبلی/);
@@ -277,22 +279,23 @@ test('a maximum-length legacy draft still has room for every ordered stage', asy
 
 test('stage ids survive answer, back, retry, and fallback to the offline guide', () => {
   const ai = newInterview('intake');
-  const values = ['از فرد دیگری شنیدم', '', 'دیروز', 'خیابان بهار', 'کیفم را بردند'];
-  for (const [i, step] of GUIDE_STEPS.slice(0,5).entries()) {
-    applyStep(ai, {done:false, stage:step.id, question:step.title, hint:step.hint, options:(step.options||[]).map(o=>o.label)});
-    assert.ok(answerCurrent(ai, values[i]));
+  const values = {source:'از فرد دیگری شنیدم',informantKnown:'',who:'',when:'دیروز',where:'خیابان بهار',result:'کیفم را بردند'};
+  const expected=['source','informantKnown','who','when','where','result'];
+  for (const id of expected) {
+    const step=orderedClientStep(ai,{},'');assert.equal(step.stage,id);
+    applyStep(ai,step);assert.ok(answerCurrent(ai,values[id]));
   }
-  assert.deepEqual(interviewRequest(ai, '').turns.map(t=>t.stage), ['source','who','when','where','result']);
+  assert.deepEqual(interviewRequest(ai, '').turns.map(t=>t.stage), expected);
   assert.ok(stepBack(ai));
   assert.equal(ai.current.stage, 'result');
-  assert.equal(ai.current.hint, GUIDE_STEPS[4].hint);
+  assert.ok(ai.current.hint);
   assert.equal(ai.draft, 'کیفم را بردند');
   answerCurrent(ai, ai.draft);
   const fallback = guideFallback(ai);
   assert.equal(fallback.answers.source, 'این را از فرد دیگری شنیدم');
   assert.equal(fallback.answers.result, 'کیفم را بردند');
   assert.ok(fallback.skipped.includes('who'));
-  assert.equal(stepsFor(fallback.answers, fallback.base)[fallback.index].id, 'reason');
+  assert.equal(stepsFor(fallback.answers, fallback.base, fallback.skipped)[fallback.index].id, 'vehicleInvolved');
   assert.match(answersNarrative(ai), /کیفم را بردند/);
 });
 

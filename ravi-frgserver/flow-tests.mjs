@@ -237,11 +237,12 @@ test('someone who was told is asked what was said, not what they saw',()=>{
  assert.equal(labels(heard).some(l=>/را دیدید|مشاهده کردید|به یاد دارید/.test(l)),false);
 });
 
-test('re-wording never changes what is stored',()=>{
+test('re-wording does not mutate definitions and relayed choices do not assert direct observation',()=>{
  const step={id:'x',title:'چه بخش‌هایی از پلاک را مشاهده کردید؟',options:[{label:'چیزی ندیدم',phrase:'چیزی در دست آن‌ها ندیدم'}],fields:[{id:'observedAt',label:'زمانی که این وسیله را دیدید'}]};
  const out=adapt(step,'hearsay');
  assert.equal(out.title,'چه بخش‌هایی از پلاک مشاهده شده بود؟');
- assert.equal(out.options[0].phrase,'چیزی در دست آن‌ها ندیدم');   // the recorded sentence is untouched
+ assert.equal(out.options[0].phrase,'درباره وسیله‌ای در دست آن‌ها چیزی به من گفته نشد');
+ assert.equal(step.options[0].phrase,'چیزی در دست آن‌ها ندیدم'); // original schema remains untouched
  assert.equal(out.options[0].label,'چیزی گفته نشد');
  assert.equal(out.fields[0].id,'observedAt');
  assert.equal(step.title,'چه بخش‌هایی از پلاک را مشاهده کردید؟');   // the shared schema is not mutated

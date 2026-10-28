@@ -25,26 +25,22 @@ test('the interview has seven core stages and a separate evidence checklist',()=
  assert.deepEqual(GUIDE_STEPS.filter(s=>s.required).map(s=>s.id),[]);
 });
 
-test('all base stages precede situational follow-ups, even as answers open branches',()=>{
+test('dependent questions stay with their topic and core stages retain their relative order',()=>{
  const order=['source','who','when','where','result','reason','method'];
  const answers={};
  const values={source:'این را از فرد دیگری شنیدم',who:'یک نفر این کار را انجام داد',when:'دیروز',
-  where:'خیابان بهار',result:'دو نفر با موتور آمدند و شیشهٔ ماشین را شکستند',reason:'',method:'از پنجره وارد شدند',evidence:'فیلم دارم'};
- for(let i=0;i<order.length;i++){
-  const before=stepsFor(answers).map(s=>s.id);
-  assert.deepEqual(before.slice(0,7),order);
-  assert.equal(before[i],order[i]);
-  if(values[order[i]])answers[order[i]]=values[order[i]];
-  const after=stepsFor(answers).map(s=>s.id);
-  assert.deepEqual(after.slice(0,7),order);
-  if(i<6)assert.equal(after[i+1],order[i+1]);
+  where:'خیابان بهار',result:'دو نفر با موتور آمدند و شیشهٔ ماشین را شکستند',reason:'',method:'از پنجره وارد شدند'};
+ for(const id of order){
+  answers[id]=values[id];
+  const live=stepsFor(answers).map(s=>s.id);
+  assert.deepEqual(live.filter(id=>order.includes(id)),order);
  }
  const live=stepsFor(answers).map(s=>s.id);
- assert.ok(live.includes('informantKnown'));
+ assert.equal(live.indexOf('informantKnown'),live.indexOf('source')+1);
+ assert.equal(live.indexOf('peopleDescription'),live.indexOf('who')+1);
+ assert.ok(live.indexOf('peopleKnown')<live.indexOf('when'));
+ assert.ok(live.indexOf('vehicleInvolved')>live.indexOf('result')&&live.indexOf('vehicleInvolved')<live.indexOf('reason'));
  assert.ok(!live.includes('peopleCount'));
- assert.ok(live.includes('peopleDescription'));
- assert.ok(live.indexOf('informantKnown')>live.indexOf('method'));
- assert.ok(live.indexOf('peopleDescription')>live.indexOf('method'));
 });
 
 test('early finish cannot bypass a core stage, but can omit later follow-ups',async()=>{
@@ -53,13 +49,14 @@ test('early finish cannot bypass a core stage, but can omit later follow-ups',as
   method:'شیشه ماشین را شکستند',evidence:'عکس دارم'};
  const live=stepsFor(answers);
  assert.ok(interviewProgress(answers).enough);
- for(let i=0;i<GUIDE_STEPS.length;i++)assert.equal(canFinishGuide(live,i),false,live[i].id);
+ const lastCore=live.findIndex(s=>s.id==='method');
+ for(let i=0;i<=lastCore;i++)assert.equal(canFinishGuide(live,i),false,live[i].id);
  assert.ok(live.length>GUIDE_STEPS.length);
- assert.equal(canFinishGuide(live,GUIDE_STEPS.length),true);
+ assert.equal(canFinishGuide(live,lastCore+1),true);
  const {renderGuide}=await import('./public/guide-view.js');
  const helpers={escape:s=>s,fa:n=>String(n),icon:()=>'',stepper:()=>''};
  assert.doesNotMatch(renderGuide({index:1,answers,base:''},helpers),/data-action="guide-finish"/);
- const html=renderGuide({index:GUIDE_STEPS.length,answers,base:''},helpers);
+ const html=renderGuide({index:lastCore,answers,base:''},helpers);
  assert.doesNotMatch(html,/data-action="guide-finish"/);
  for(const action of ['guide-back','guide-next','guide-skip'])assert.match(html,new RegExp(`data-action="${action}"`));
 });
@@ -71,7 +68,7 @@ test('only the original description suppresses base stages, in their fixed order
  const order=GUIDE_STEPS.map(s=>s.id);
  assert.deepEqual(missing,order.filter(id=>missing.includes(id)));
  const live=stepsFor({},base).map(s=>s.id);
- assert.deepEqual(live.slice(0,missing.length),missing);
+ assert.deepEqual(live.filter(id=>order.includes(id)),missing);
  // A vague initial text must not suddenly hide the «what» question merely
  // because a later source answer happens to mention a classified incident.
  assert.ok(coreStepsFor({source:'دو نفر کیف را بردند'},'لطفاً راهنمایی کنید').some(s=>s.id==='result'));
@@ -377,7 +374,8 @@ test('answering who opens actor details; an unknown actor closes the dependent b
  assert.equal(before.includes('peopleDescription'),false,'not asked before the actor is known');
  const after=ids({result:'سرقت رخ داد',who:'دو نفر این کار را انجام دادند'});
  assert.ok(after.includes('peopleDescription'));assert.ok(after.includes('peopleKnown'));
- assert.ok(after.indexOf('peopleDescription')>after.indexOf('method'));
+ assert.equal(after.indexOf('peopleDescription'),after.indexOf('who')+1);
+ assert.ok(after.indexOf('peopleKnown')<after.indexOf('when'));
  assert.equal(after.indexOf('peopleKnown'),after.indexOf('peopleDescription')+1);
  assert.equal(ids({result:'سرقت رخ داد'},['who']).includes('peopleDescription'),false);
  assert.equal(ids({result:'سرقت رخ داد',who:'نمی‌دانم'}).includes('peopleDescription'),false);

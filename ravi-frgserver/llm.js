@@ -10,8 +10,8 @@
 // Model output is untrusted: facts must come from the reporter's words, and
 // neither the model's question nor its done flag can bypass the ordered path.
 
-import { GUIDE_STEPS, guideAnswersFromTurns, composeNarrative, displayNewsDomain, interviewOptionLabels } from './public/guidance.js';
-import { orderedInterviewPath as interviewPath } from './public/interview-order.js';
+import { GUIDE_STEPS, GUIDE_ORDER_VERSION, guideAnswersFromTurns, composeNarrative, displayNewsDomain, interviewOptionLabels } from './public/guidance.js';
+import { orderedInterviewPath as interviewPath, MAX_INTERVIEW_TURNS } from './public/interview-order.js';
 
 const LLM_DEFAULT_URL = 'http://127.0.0.1:11434';
 
@@ -119,8 +119,8 @@ export async function local(env, body, fetcher = globalThis.fetch) {
 // The interview
 
 export const URGENT_NUMBERS = ['', '110', '115', '125', '123'];
-// Preserve up to 20 old answers and still allow all seven new stages.
-export const MAX_TURNS = 27;
+// Old answers plus every active core stage and dependent question.
+export const MAX_TURNS = MAX_INTERVIEW_TURNS;
 
 const str = { type: 'string' };
 const obj = properties => ({ type: 'object', properties, required: Object.keys(properties), additionalProperties: false });
@@ -141,10 +141,10 @@ const ORDERED_STAGES = GUIDE_STEPS.map((step, index) => `${index + 1}. ${step.id
 
 export const INTERVIEW_SYSTEM = `You are a Persian incident-reporting interviewer for فراجا. Read the report and answers, extract only the reporter's actual words as facts, and classify the report. Never invent or infer a motive, method, identity, or other fact.
 
-The interview follows this exact order:
+The core stages follow this relative order:
 ${ORDERED_STAGES}
 
-The application determines next_guide_step after accounting for the original description and previous answers. If next_guide_step is present, set done=false and return its question exactly. Do not change stages, insert a follow-up, repeat a completed stage, or end early. If next_guide_step is null, set done=true and question="". Accept an unknown or skipped answer without guessing. Never ask for something the reporter already said.
+The application may place related dependent questions immediately after their parent and determines next_guide_step from the description and answers. If next_guide_step is present, set done=false and return its question exactly. Do not change stages, invent additional follow-ups, repeat a completed stage, or end early. If next_guide_step is null, set done=true and question="". Accept an unknown or skipped answer without guessing. Never ask for something the reporter already said.
 
 Return short Persian options only for the supplied question, or an empty list. The application controls the final question and options. Facts must be verbatim excerpts from the description or answers. For the reason and method, distinguish observed or reported information from speculation.
 
@@ -192,6 +192,8 @@ export function interviewInput(body) {
   if (text.length > 6000) return 'متن بیش از حد طولانی است.';
   if (mode === 'detail' && text.length < 3) return 'شرح گزارش خالی است.';
   if (!Array.isArray(body.turns) || body.turns.length > MAX_TURNS) return 'پرسش و پاسخ‌ها نامعتبرند.';
+  // No version is the original seven-stage protocol, for already-open clients.
+  if(body.orderVersion!==undefined&&body.orderVersion!==4&&body.orderVersion!==GUIDE_ORDER_VERSION)return 'نسخهٔ ترتیب مصاحبه نامعتبر است.';
   const turns = [];
   for (const t of body.turns) {
     if (!t || typeof t.q !== 'string' || typeof t.a !== 'string' || t.q.length > 400 || t.a.length > 1500 ||
@@ -199,7 +201,7 @@ export function interviewInput(body) {
     turns.push({ q: t.q.trim(), a: t.a.trim(), ...(t.stage === undefined ? {} : { stage: t.stage }) });
   }
   const topics = (Array.isArray(body.topics) ? body.topics : []).filter(t => typeof t === 'string').slice(0, 8).map(t => t.slice(0, 80));
-  const input = { mode, text, turns, topics };
+  const input = { mode, text, turns, topics, ...(body.orderVersion===undefined?{}:{orderVersion:body.orderVersion}) };
   return interviewPath(input).error || input;
 }
 
@@ -278,7 +280,7 @@ export async function interviewStep(ask, input) {
       narrative: '',
     };
   }
-  const { answers, legacy } = guideAnswersFromTurns(path.turns);
+  const { answers, legacy } = guideAnswersFromTurns(path.turns,input.mode==='detail'?input.text:'');
   const narrative = input.mode === 'intake'
     ? [...legacy, composeNarrative(answers)].filter(Boolean).join('\n').slice(0, 6000)
     : '';

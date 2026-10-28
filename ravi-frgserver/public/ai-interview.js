@@ -1,22 +1,37 @@
-// The AI interview screen: the server enforces the same ordered base stages as
+// The AI interview screen: the server enforces the same grouped questions as
 // the offline guide while the model reads the report and extracts facts.
 // This module holds state and draws it; app.js does the network call.
 
-import { GUIDE_STEPS, GUIDE_ORDER_VERSION, guideQuestionAliases, guideStageForQuestion, guideStageWithContext, interviewOptionLabels, displayGuideQuestion, displayNewsDomain, stepsFor, guideAnswersFromTurns, composeNarrative } from './guidance.js';
-import {orderedInterviewPath} from './interview-order.js';
+import { GUIDE_ORDER_VERSION, guideQuestionAliases, guideStageForQuestion, guideStageWithContext, interviewOptionLabels, displayGuideQuestion, displayNewsDomain, stepsFor, guideAnswersFromTurns, composeNarrative } from './guidance.js';
+import {orderedInterviewPath,MAX_INTERVIEW_TURNS} from './interview-order.js';
 import {uiLabel} from './ui-label.js';
 
 export const UNKNOWN_ANSWER = 'نمی‌دانم';
-// The server also permits older draft answers plus seven ordered stages.
-export const MAX_TURNS = 27;
+// Shared with the server: old history plus every active grouped question.
+export const MAX_TURNS = MAX_INTERVIEW_TURNS;
 
 export function newInterview(mode = 'detail') {
-  return { mode: mode === 'intake' ? 'intake' : 'detail', turns: [], current: null, facts: [], urgent: '', narrative: '', done: false, draft: '', domain: 'سایر', quality_grade: 'ضعیف', quantity_note: 'متوسط', reporter_role: 'nashel' };
+  return { orderVersion:GUIDE_ORDER_VERSION, mode: mode === 'intake' ? 'intake' : 'detail', turns: [], current: null, facts: [], urgent: '', narrative: '', done: false, draft: '', domain: 'سایر', quality_grade: 'ضعیف', quantity_note: 'متوسط', reporter_role: 'nashel' };
 }
 
 /** What the server needs: the report and the questions and answers so far. */
 export function interviewRequest(ai, text, topics = []) {
-  return { mode: ai.mode, text: String(text || ''), turns: ai.turns.map(t => ({ q: t.q, a: t.a, ...(t.stage ? { stage: t.stage } : {}) })), topics };
+  return { mode: ai.mode, text: String(text || ''), turns: ai.turns.map(t => ({ q: t.q, a: t.a, ...(t.stage ? { stage: t.stage } : {}) })), topics,
+    ...(ai.orderVersion === undefined ? {} : { orderVersion:ai.orderVersion }) };
+}
+
+/** Reuse earlier intake answers as they become the next valid grouped step. */
+export function consumePriorGuide(ai, text = '') {
+  if(!ai?.priorPending)return;
+  for(let n=0;n<MAX_TURNS;n++){
+    const path=orderedInterviewPath({mode:ai.mode,text,turns:ai.turns,orderVersion:ai.orderVersion});
+    const step=path.next;
+    if(path.error||!step||!Object.hasOwn(ai.priorPending,step.id))break;
+    // A later question the reporter was already editing wins over intake data.
+    if([step.title,...guideQuestionAliases(step.id)].some(title=>String(ai.pendingDrafts?.[title]||'').trim()))break;
+    const answer=String(ai.priorPending[step.id]||'');delete ai.priorPending[step.id];
+    ai.turns.push({stage:step.id,q:step.title,a:answer,options:interviewOptionLabels(step),hint:step.hint});
+  }
 }
 
 /** Records the reporter's answer to the question on screen. '' means «I don't know». */
@@ -24,6 +39,7 @@ export function answerCurrent(ai, answer) {
   if (!ai?.current) return false;
   ai.turns.push({ q: ai.current.question, a: String(answer || '').trim(), options: ai.current.options || [],
     ...(ai.current.stage ? { stage: ai.current.stage } : {}), ...(ai.current.hint ? { hint: ai.current.hint } : {}) });
+  if(ai.priorPending&&ai.current.stage)delete ai.priorPending[ai.current.stage];
   if(ai.pendingDrafts){
     delete ai.pendingDrafts[ai.current.question];
     // Old victim questions sometimes carry stage:'who' too; they are not the
@@ -64,7 +80,8 @@ export function stepBack(ai, text = null) {
   // from the description and answers preceding this question, while keeping
   // the user's old answer in the editable draft exactly as it was.
   const context = text === null ? null : [text,...ai.turns.map(t=>t.a)].filter(Boolean).join('\n');
-  const presented = step && context !== null ? guideStageWithContext(step,context) : step;
+  const replay = context === null ? null : orderedInterviewPath({mode:ai.mode,text,turns:ai.turns,orderVersion:ai.orderVersion});
+  const presented = step && replay?.next?.id===step.id ? replay.next : step && context !== null ? guideStageWithContext(step,context) : step;
   const options = step && context !== null ? interviewOptionLabels(presented) : (last.options || []);
   ai.current = { question: presented?.title || last.q, options,
     ...(last.stage ? { stage: last.stage } : {}), ...((presented?.hint||last.hint) ? { hint: presented?.hint||last.hint } : {}) };
@@ -74,15 +91,15 @@ export function stepBack(ai, text = null) {
 
 /** Build the account from the reporter's own answers if no narrative is supplied. */
 export function answersNarrative(ai, text = '') {
-  const path = orderedInterviewPath({mode:ai.mode,text,turns:ai.turns});
-  const { answers, legacy } = guideAnswersFromTurns(path.turns || ai.turns);
+  const path = orderedInterviewPath({mode:ai.mode,text,turns:ai.turns,orderVersion:ai.orderVersion});
+  const { answers, legacy } = guideAnswersFromTurns(path.turns || ai.turns,ai.mode==='detail'?text:'');
   return [...legacy, composeNarrative(answers)].filter(Boolean).join('\n');
 }
 
 /** Continue an interrupted intake with the offline guide, keeping all answers. */
 export function guideFallback(ai, text = '', prior = null) {
-  const path = orderedInterviewPath({mode:ai.mode,text,turns:ai.turns});
-  const fromTurns = guideAnswersFromTurns(path.turns || ai.turns);
+  const path = orderedInterviewPath({mode:ai.mode,text,turns:ai.turns,orderVersion:ai.orderVersion});
+  const fromTurns = guideAnswersFromTurns(path.turns || ai.turns,ai.mode==='detail'?text:'');
   const answers = {...(prior?.answers||{}),...fromTurns.answers};
   // A more recent explicit answer/skip supersedes the intake's older value.
   for(const id of fromTurns.skipped)if(!Object.hasOwn(fromTurns.answers,id))delete answers[id];
@@ -91,12 +108,19 @@ export function guideFallback(ai, text = '', prior = null) {
   const {completed,legacy}=fromTurns;
   const base = [ai.mode === 'detail' ? String(text || '').trim() : '', ...legacy].filter(Boolean).join('\n');
   const steps = stepsFor(answers, base, skipped);
-  const coreIds = new Set(GUIDE_STEPS.map(s => s.id));
   const done = new Set([...completed,...Object.keys(prior?.answers||{}),...(prior?.skipped||[])]);
-  let index = steps.findIndex(s => coreIds.has(s.id) && !done.has(s.id));
-  if (index < 0) index = steps.findIndex(s => !coreIds.has(s.id) && !done.has(s.id));
-  if (index < 0) index = steps.length;
-  return { orderVersion:GUIDE_ORDER_VERSION,index,answers,skipped,base };
+  // A new detail interview copied prior drafts into ai.pendingDrafts already.
+  // Do not resurrect a prior draft that the reporter has since answered.
+  const pendingDrafts=ai.pendingDrafts===undefined?{...(prior?.pendingDrafts||{})}:{};
+  for(const [question,value] of Object.entries(ai.pendingDrafts||{})){
+    const step=guideStageForQuestion(question);
+    if(step&&String(value||'').trim())pendingDrafts[step.id]=value;
+  }
+  const current=ai.current&&guideStageForQuestion(ai.current.question,ai.current.stage||null);
+  if(current&&String(ai.draft||'').trim())pendingDrafts[current.id]=ai.draft;
+  let index=steps.findIndex(s=>!done.has(s.id)||Object.hasOwn(pendingDrafts,s.id));
+  if(index<0)index=steps.length;
+  return { orderVersion:GUIDE_ORDER_VERSION,index,answers,skipped,base,pendingDrafts,resumeCompleted:[...done] };
 }
 
 /** Question-and-answer lines for the review page and the saved report. */

@@ -1,7 +1,10 @@
 // Limits for the Node HTTP adapters. Worker deployments still enforce their own
 // validation; these limits stop the adapter buffering an unlimited request
 // before the Worker has a chance to see it.
-export const apiBodyLimit = pathname => pathname === '/api/transcribe' ? 26 * 1024 * 1024 : 128 * 1024;
+import {INTERVIEW_BODY_LIMIT} from './public/api-limits.js';
+// Interview history may contain 20 legacy answers plus every grouped stage.
+// 640 KiB also fits valid JSON with all allowed characters Unicode-escaped.
+export const apiBodyLimit = pathname => pathname === '/api/transcribe' ? 26 * 1024 * 1024 : pathname === '/api/interview' ? INTERVIEW_BODY_LIMIT : 128 * 1024;
 
 function reply(req, res, status, payload, headers = {}) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'Connection': 'close', ...headers });

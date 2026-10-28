@@ -9,7 +9,7 @@
 //
 // The speech engine is stubbed in the page, because a headless browser has no
 // microphone. Everything else is the real application code and the real server.
-import { GUIDE_STEPS } from './public/guidance.js';
+import { GUIDE_STEPS, guideQuestionAliases } from './public/guidance.js';
 
 const BASE = process.env.RAVI_UI_BASE || 'http://localhost:4173/';
 const CHROME = process.env.RAVI_UI_CHROME || process.env.PLAYWRIGHT_CHROMIUM;
@@ -61,26 +61,26 @@ await step('dictation writes the recognised sentence into the description',async
  const text=await page.locator('#description').inputValue();
  console.log('     dictated:',text);
 });
-await step('the offline guide asks all seven stages in order before follow-ups',async()=>{
+await step('the offline guide groups follow-ups while preserving the seven-stage order',async()=>{
  await page.locator('[data-action="text-tab"]').first().click();
  await page.fill('#description','نمیدونم چی بگم');
  await page.click('#analyze-btn');
  await page.waitForSelector('#guide-title');
  const fill=async text=>{await page.fill('#guide-input',text);await advanceGuide(page,'guide-next')};
- for(const guideStep of GUIDE_STEPS){
+ for(const id of ['source','who','when','where','result','vehicleInvolved','injury','witness','reason','method']){
   const title=(await page.textContent('#guide-title')).trim();
-  if(title!==guideStep.title)throw new Error(`expected ${guideStep.id}, got ${title}`);
+  if(!guideQuestionAliases(id).includes(title))throw new Error(`expected ${id}, got ${title}`);
   if(await page.locator('[data-action="guide-finish"]').count())throw new Error('early finish bypasses a core stage');
-  if(guideStep.id==='source'){
+  if(id==='source'){
    await page.locator('.guide-chip',{hasText:'خودم دیدم'}).first().click();
    // Wait out the double-click guard before submitting a later typed answer.
    await page.waitForTimeout(1300);
-  }else if(guideStep.id==='when')await fill('دیروز حدود ظهر');
-  else if(guideStep.id==='where')await fill('خیابان بهار، نزدیک نانوایی');
-  else if(guideStep.id==='result')await fill('شیشهٔ سمت راننده شکسته بود و کیف و گوشی را از داخل ماشین بردند');
+  }else if(id==='when')await fill('دیروز حدود ظهر');
+  else if(id==='where')await fill('خیابان بهار، نزدیک نانوایی');
+  else if(id==='result')await fill('شیشهٔ سمت راننده شکسته بود و کیف و گوشی را از داخل ماشین بردند');
   else await advanceGuide(page,'guide-skip');
  }
- // Relevant optional branches only start after the core stages.
+ // Finish any remaining optional branches.
  for(let i=0;i<25 && await page.locator('#guide-title').count();i++)await advanceGuide(page,'guide-skip');
  await page.waitForSelector('#description',{timeout:6000});
  const text=await page.locator('#description').inputValue();

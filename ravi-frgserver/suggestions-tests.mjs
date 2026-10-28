@@ -132,6 +132,8 @@ test('Back refreshes old choices but preserves selected and unsent answers verba
  assert.equal(ai.draft, 'یک نفر این کار را انجام داد');
  assert.equal(ai.pendingDrafts[GUIDE_STEPS[2].title], 'حدود ظهر دیروز');
  assert.ok(answerCurrent(ai,ai.draft));
+ const branch=orderedClientStep(ai,{},text);
+ assert.equal(branch.stage,'peopleDescription');applyStep(ai,branch);answerCurrent(ai,'');
  const next=orderedClientStep(ai,{},text);
  assert.equal(next.stage,'when'); applyStep(ai,next);
  assert.equal(ai.draft,'حدود ظهر دیروز');
@@ -146,7 +148,7 @@ test('old guide drafts keep their answer, position and editable text when choice
  const draft={orderVersion:2, mode:'detail', index, base, answers:{...answers}, skipped:[],
   draft:{step:'who', value:'آن فرد را از قبل می‌شناختم'}};
  migrateGuideOrder(draft);
- assert.equal(draft.orderVersion,4);
+ assert.equal(draft.orderVersion,5);
  assert.equal(stepsFor(draft.answers,base,draft.skipped)[draft.index].id,'who');
  assert.equal(draft.answers.who,answers.who);
  assert.equal(draft.draft.value,'آن فرد را از قبل می‌شناختم');

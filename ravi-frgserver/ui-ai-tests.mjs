@@ -20,7 +20,7 @@ const { default: worker } = await import('./worker.js');
 const { start } = await import('./mock-llm.mjs');
 const { localAnalysis } = await import('./public/scenarios.js');
 const { prepareAnalysis } = await import('./public/extraction.js');
-const { GUIDE_STEPS, coreStepsFor, interviewOptionLabels } = await import('./public/guidance.js');
+const { GUIDE_STEPS, FOLLOW_UPS, stepsFor, guideQuestionAliases, interviewOptionLabels } = await import('./public/guidance.js');
 const mock = await start(0);
 const env = { LLM_URL: `http://127.0.0.1:${mock.address().port}`, LLM_MODEL: 'qwen3:8b' };
 
@@ -35,10 +35,11 @@ await page.addInitScript(()=>{
  }}});
 });
 const errors = []; page.on('pageerror', e => errors.push(String(e)));
-let interviewDown = false, malicious = false;
+let interviewDown = false, malicious = false, capturedRequests = [];
 await page.route('**/api/config', r => r.fulfill({ json: { ai: true, interview: true, provider: 'local', model: 'qwen3:8b', transcription: false, sttLocal: false } }));
 await page.route('**/api/analyze', async r => { const { text } = r.request().postDataJSON(); r.fulfill({ json: { ...prepareAnalysis(localAnalysis(text), text), mode: 'ai' } }); });
 await page.route('**/api/interview', async r => {
+  capturedRequests.push(r.request().postDataJSON());
   if (malicious) return r.fulfill({json:{done:true,stage:'evidence',question:'پرسش خارج از ترتیب',hint:'',options:['ساختگی'],facts:[],urgent:'',narrative:'روایت ساختگی'}});
   if (interviewDown) return r.fulfill({ status: 502, json: { error: 'مدل هوش مصنوعی روی سرور در دسترس نیست؛ برنامهٔ مدل (Ollama) را روشن کنید.' } });
   const res = await worker.fetch(new Request('http://localhost/api/interview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: r.request().postData() }), env);
@@ -46,7 +47,7 @@ await page.route('**/api/interview', async r => {
 });
 
 let failed = 0;
-async function step(name, fn) { try { await fn(); console.log('ok  ', name); } catch (e) { failed++; console.log('FAIL', name, '\n     ', e.stack); } }
+async function step(name, fn) { try { await fn(); console.log('ok  ', name); } catch (e) { failed++; console.log('FAIL', name, '\n     ', e.stack); } finally { interviewDown=false; } }
 const assert = (c, m) => { if (!c) throw new Error(m); };
 const TEXT = 'دیشب حدود ساعت ۱۱ در خیابان بهار دو نفر با موتور آمدند، شیشهٔ ماشینم را شکستند و کیف و گوشی‌ام را از داخل ماشین بردند. همسایه‌مان دید و به من گفت.';
 
@@ -79,6 +80,11 @@ const acceptReview=async()=>{
 };
 const finishDetails=async()=>{
  for(let i=0;i<80&&!await page.locator('#dropzone').count();i++){
+  if(await page.locator('#ai-question').count()){
+   const before=(await page.textContent('#ai-question')).trim();await page.click('[data-action="ai-unknown"]');
+   await page.waitForFunction(old=>{const q=document.querySelector('#ai-question');return q?q.textContent.trim()!==old:!document.querySelector('.ai-interview')},before,{timeout:15000});
+   continue;
+  }
   if(await page.locator('#guide-title').count()){await advanceGuide('guide-skip');continue}
   let clicked=false;
   for(const sel of ['[data-action="analysis-review-next"]','[data-action="flow-skip"]','[data-action="flow-unknown"]','[data-action="question-next"]','[data-action="flow-finish"]']){
@@ -96,10 +102,10 @@ await step('the model-assisted detail path starts at the first missing ordered s
   await page.click('[data-action="detail-yes"]');
   await acceptReview();
   const q1 = await question();
-  assert(q1 === coreStepsFor({}, TEXT)[0].title, q1);
+  assert(q1 === stepsFor({}, TEXT)[0].title, q1);
   assert(await page.locator('.flow-content textarea#ai-answer').count() === 1, 'answer box');
   const actual=(await page.locator('[data-ai-option]').allInnerTexts()).map(s=>s.trim());
-  const expected=interviewOptionLabels(coreStepsFor({}, TEXT)[0]);
+  const expected=interviewOptionLabels(stepsFor({}, TEXT)[0]);
   assert(JSON.stringify(actual)===JSON.stringify(expected), 'contextual stage choices');
 });
 
@@ -111,20 +117,19 @@ await step('facts the model invented are not shown; facts from the description a
 });
 
 await step('back restores a typed answer and an unknown completes the next stage', async () => {
-  const [first, second] = coreStepsFor({}, TEXT);
-  await page.fill('#ai-answer', 'شنیدم سر اختلاف قبلی بوده است');
+  const first=stepsFor({},TEXT)[0],second=FOLLOW_UPS.find(s=>s.id==='informantRelation');
+  const answer='فردی که به من اطلاع داد را می‌شناسم';
+  await page.fill('#ai-answer', answer);
   await page.click('[data-action="ai-send"]');
   const q2 = await question(first.title);
-  assert(q2 === second.title, q2);
+  assert(guideQuestionAliases(second.id).includes(q2), q2);
   const chips = await page.locator('[data-ai-option]').allInnerTexts();
   assert(!chips.includes('نمی‌دانم'), 'unknown is a separate button');
   await page.click('[data-action="ai-back"]');
   assert((await question(q2)) === first.title, 'back');
-  assert((await page.inputValue('#ai-answer')) === 'شنیدم سر اختلاف قبلی بوده است', 'answer restored');
+  assert((await page.inputValue('#ai-answer')) === answer, 'answer restored');
   await page.click('[data-action="ai-send"]');
   await question(first.title);
-  await page.click('[data-action="ai-unknown"]');
-  await page.waitForSelector('#guide-title', { timeout: 15000 });
   await finishDetails();
 });
 
@@ -132,28 +137,68 @@ await step('the questions and answers are in the final review, «نمی‌دان
   const next = page.locator('.content .primary').last(); await next.click();
   await page.waitForSelector('.ai-summary', { timeout: 10000 });
   const t = await page.locator('.ai-summary').innerText();
-  assert(t.includes('شنیدم سر اختلاف قبلی بوده است') && t.includes('نمی‌دانم'), t);
+  assert(t.includes('فردی که به من اطلاع داد را می‌شناسم') && t.includes('نمی‌دانم'), t);
+});
+
+await step('detail AI carries earlier intake answers across a newly inserted branch',async()=>{
+  await fresh();
+  const text='از همسایه شنیدم کیف به سرقت رفت';
+  const prior={forText:text,answers:{source:'از همسایه شنیدم',who:'دو نفر',when:'دیروز',where:'تهران',result:'کیف به سرقت رفت'},skipped:[]};
+  await page.evaluate(d=>new Promise((resolve,reject)=>{const r=indexedDB.open('ravi-v1',1);r.onerror=()=>reject(r.error);r.onsuccess=()=>{
+    const db=r.result,t=db.transaction('drafts','readwrite');t.objectStore('drafts').put(d,'current');t.oncomplete=()=>{db.close();resolve()};t.onerror=()=>reject(t.error);
+  }}),{text,step:0,files:[],intakeGuide:prior,revision:1});
+  await page.reload();await page.click('[data-action="draft"]');await page.waitForSelector('#description');capturedRequests=[];
+  await page.click('#analyze-btn');await page.click('[data-action="detail-yes"]');await acceptReview();
+  const informant=await question();assert(guideQuestionAliases('informantKnown').includes(informant),informant);
+  await page.click('[data-action="ai-unknown"]');const person=await question(informant);
+  assert(guideQuestionAliases('peopleDescription').includes(person),person);
+  await page.click('[data-action="ai-unknown"]');const next=await question(person);
+  assert(guideQuestionAliases('vehicleInvolved').includes(next),next);
+  const turns=capturedRequests.at(-1).turns;
+  assert(turns.map(t=>t.stage).join(',')==='informantKnown,who,peopleDescription,when,where',JSON.stringify(turns));
+  assert(turns.find(t=>t.stage==='who').a==='دو نفر'&&turns.find(t=>t.stage==='when').a==='دیروز','prior answers lost');
+});
+
+await step('AI asks the whole informant group together and preserves drafts across reload and Back',async()=>{
+  await fresh();await page.fill('#description','نمیدونم چی بگم');await page.click('#analyze-btn');
+  assert((await question())===GUIDE_STEPS[0].title,'source');
+  await page.locator('[data-ai-option]',{hasText:'از فرد دیگری شنیدم'}).click();
+  const known=await question(GUIDE_STEPS[0].title);assert(guideQuestionAliases('informantKnown').includes(known),known);
+  await page.locator('[data-ai-option]',{hasText:'بله، می‌شناسمش'}).click();
+  const relation=await question(known);assert(guideQuestionAliases('informantRelation').includes(relation),relation);
+  await page.fill('#ai-answer','همسایه است و خودش شاهد بود');await page.waitForTimeout(1000);
+  await page.reload();await page.click('[data-action="draft"]');await question();
+  assert((await page.inputValue('#ai-answer'))==='همسایه است و خودش شاهد بود','reload lost relation');
+  await page.click('[data-action="ai-send"]');const contact=await question(relation);
+  assert(guideQuestionAliases('informantContact').includes(contact),contact);
+  await page.click('[data-action="ai-unknown"]');assert((await question(contact))===GUIDE_STEPS[1].title,'actor follows informant');
+  await page.click('[data-action="ai-back"]');await question(GUIDE_STEPS[1].title);
+  await page.click('[data-action="ai-back"]');await question(contact);
+  assert((await page.inputValue('#ai-answer'))==='همسایه است و خودش شاهد بود','Back lost relation');
+  await page.click('[data-action="ai-back"]');await question(relation);
+  await page.locator('[data-ai-option]',{hasText:'نه، نمی‌شناسمش'}).click();
+  assert((await question(known))===GUIDE_STEPS[1].title,'unknown person closes both children');
 });
 
 await step('intake follows all seven stages even when the model wants to stop early', async () => {
   await fresh();
   await page.fill('#description', 'نمیدونم چی بگم'); await page.click('#analyze-btn');
   let previous = null;
-  for (const expected of GUIDE_STEPS) {
+  for (const id of ['source','who','when','where','result','vehicleInvolved','injury','witness','reason','method']) {
     const current = await question(previous);
-    assert(current === expected.title, `expected ${expected.id}, got ${current}`);
+    assert(guideQuestionAliases(id).includes(current), `expected ${id}, got ${current}`);
     assert(await page.locator('[data-action="ai-finish"]').count() === 0, 'early finish cannot bypass the stages');
-    if(expected.id==='source'){
+    if(id==='source'){
       // Even a stale/custom early-finish button must not jump to the end.
       await page.evaluate(()=>{const b=document.createElement('button');b.dataset.action='ai-finish';document.body.append(b);b.click();b.remove()});
       await page.waitForTimeout(100);
       assert((await page.textContent('#ai-question')).trim()===current, 'early finish action bypassed source');
     }
-    if (expected.id === 'source') await page.locator('[data-ai-option]', {hasText: 'خودم دیدم'}).click();
-    else if (expected.id === 'when' || expected.id === 'where' || expected.id === 'result') {
-      const answer = {when:'دیروز',where:'ایستگاه مترو',result:'گوشی‌ام را در مترو زدند'}[expected.id];
+    if (id === 'source') await page.locator('[data-ai-option]', {hasText: 'خودم دیدم'}).click();
+    else if (id === 'when' || id === 'where' || id === 'result') {
+      const answer = {when:'دیروز',where:'ایستگاه مترو',result:'گوشی‌ام را در مترو زدند'}[id];
       await page.fill('#ai-answer', answer);
-      if(expected.id==='where'){
+      if(id==='where'){
         assert((await page.evaluate(()=>window.__geoCalls.length))===0,'location was requested before a tap');
         await page.click('[data-action="location"]');
         assert((await page.inputValue('#ai-answer')).includes('35.12346, 51.65432'),'location was not appended to the AI answer');
@@ -176,9 +221,9 @@ await step('the browser ignores a premature or out-of-order server response',asy
   try{
     await page.fill('#description','نمیدونم چی بگم');await page.click('#analyze-btn');
     let previous=null;
-    for(const expected of GUIDE_STEPS){
-      const current=await question(previous);assert(current===expected.title,`expected ${expected.id}: ${current}`);
-      if(expected.id==='result'){await page.fill('#ai-answer','کیفم را بردند');await page.click('[data-action="ai-send"]')}
+    for(const id of ['source','who','when','where','result','vehicleInvolved','witness','reason','method']){
+      const current=await question(previous);assert(guideQuestionAliases(id).includes(current),`expected ${id}: ${current}`);
+      if(id==='result'){await page.fill('#ai-answer','کیفم را بردند');await page.click('[data-action="ai-send"]')}
       else await page.click('[data-action="ai-unknown"]');
       previous=current;
     }
@@ -193,9 +238,12 @@ await step('an interrupted intake continues offline at the next stage without lo
   await page.fill('#description', 'نمیدونم چی بگم'); await page.click('#analyze-btn');
   assert((await question()) === GUIDE_STEPS[0].title, 'source first');
   await page.locator('[data-ai-option]', {hasText:'از فرد دیگری شنیدم'}).click();
-  assert((await question(GUIDE_STEPS[0].title)) === GUIDE_STEPS[1].title, 'who second');
+  const informant=FOLLOW_UPS.find(s=>s.id==='informantKnown');
+  assert((await question(GUIDE_STEPS[0].title)) === informant.title, 'informant follows source');
   await page.click('[data-action="ai-unknown"]');
-  assert((await question(GUIDE_STEPS[1].title)) === GUIDE_STEPS[2].title, 'when third');
+  assert((await question(informant.title)) === GUIDE_STEPS[1].title, 'who follows skipped informant');
+  await page.click('[data-action="ai-unknown"]');
+  assert((await question(GUIDE_STEPS[1].title)) === GUIDE_STEPS[2].title, 'when follows unknown actor');
   await page.fill('#ai-answer', 'دیروز');
   interviewDown = true;
   await page.click('[data-action="ai-send"]');
@@ -227,7 +275,7 @@ await step('if the model stops answering, the fixed questions take over and noth
   await page.click('[data-action="ai-fallback"]');
   await page.waitForSelector('.question-title', { timeout: 10000 });
   assert(await page.locator('#ai-question').count() === 0, 'offline guide');
-  assert((await page.textContent('#guide-title')).trim()===coreStepsFor({},TEXT)[1].title,'fallback must continue at the next ordered stage');
+  assert((await page.textContent('#guide-title')).trim()===GUIDE_STEPS[1].title,'fallback must continue at the next ordered stage');
   interviewDown = false;
 });
 

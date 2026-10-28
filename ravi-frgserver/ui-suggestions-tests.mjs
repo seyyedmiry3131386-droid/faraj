@@ -2,7 +2,7 @@
 // mocked; they do not measure a real model or the Bale mobile application.
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
-import {GUIDE_STEPS} from './public/guidance.js';
+import {GUIDE_STEPS,guideQuestionAliases} from './public/guidance.js';
 
 const base=process.env.RAVI_UI_BASE||'http://127.0.0.1:4173/';
 const chrome=process.env.RAVI_UI_CHROME||process.env.PLAYWRIGHT_CHROMIUM;
@@ -12,8 +12,8 @@ const expected=['فرد یا افراد مورد اشاره را می‌شناس
 async function test(name,fn){try{await fn();console.log('ok - '+name)}catch(e){failures.push(name);console.error('not ok - '+name+'\n'+e.stack)}}
 async function context(){const c=await browser.newContext({viewport:{width:320,height:750}}),p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));return {c,p}}
 async function start(p){await p.goto(base);await p.click('[data-action="new"]');await p.waitForSelector('#description')}
-async function waitGuide(p,id){await p.waitForFunction(title=>document.querySelector('#guide-title')?.textContent.trim()===title,GUIDE_STEPS.find(s=>s.id===id).title,{timeout:15000})}
-async function waitAi(p,id){await p.waitForFunction(title=>document.querySelector('#ai-question')?.textContent.trim()===title,GUIDE_STEPS.find(s=>s.id===id).title,{timeout:15000})}
+async function waitGuide(p,id){await p.waitForFunction(titles=>titles.includes(document.querySelector('#guide-title')?.textContent.trim()),guideQuestionAliases(id),{timeout:15000})}
+async function waitAi(p,id){await p.waitForFunction(titles=>titles.includes(document.querySelector('#ai-question')?.textContent.trim()),guideQuestionAliases(id),{timeout:15000})}
 async function chips(p,selector){return (await p.locator(selector).allInnerTexts()).map(x=>x.trim())}
 async function bar(p,next,skip,filled){
  const parent=p.locator('.three-step-actions');assert.equal(await parent.count(),1);
@@ -49,8 +49,10 @@ try{
    await bar(p,'guide-next','guide-skip',false);
    await p.locator('[data-guide-option]',{hasText:'خودم دیدم'}).click();await waitGuide(p,'who');
    assert.deepEqual(await chips(p,'[data-guide-option]'),expected);await bar(p,'guide-next','guide-skip',false);
-   await p.locator('[data-guide-option]',{hasText:expected[0]}).click();await waitGuide(p,'when');
+   await p.locator('[data-guide-option]',{hasText:expected[0]}).click();await waitGuide(p,'peopleDescription');
+   await p.click('[data-action="guide-skip"]');await waitGuide(p,'when');
    await p.fill('#guide-input','نزدیک ظهر');await bar(p,'guide-next','guide-skip',true);
+   await p.click('[data-action="guide-back"]');await waitGuide(p,'peopleDescription');
    await p.click('[data-action="guide-back"]');await waitGuide(p,'who');
    assert.deepEqual(await chips(p,'[data-guide-option]'),expected);
    assert.equal(await p.locator('[data-guide-option][aria-pressed="true"]').innerText(),expected[0]);
@@ -58,23 +60,27 @@ try{
    await p.waitForTimeout(1100);await p.reload();await p.click('[data-action="draft"]');await waitGuide(p,'who');
    assert.deepEqual(await chips(p,'[data-guide-option]'),expected);
    assert.equal(await p.locator('[data-guide-option][aria-pressed="true"]').innerText(),expected[0]);
-   await p.click('[data-action="guide-next"]');await waitGuide(p,'when');assert.equal(await p.inputValue('#guide-input'),'نزدیک ظهر');
+   await p.click('[data-action="guide-next"]');await waitGuide(p,'peopleDescription');
+   await p.click('[data-action="guide-skip"]');await waitGuide(p,'when');assert.equal(await p.inputValue('#guide-input'),'نزدیک ظهر');
   }finally{await c.close()}
  });
  await test('earlier answers change choices without erasing the old selection',async()=>{
   const {c,p}=await context();try{
    await start(p);await p.fill('#description','نمیدونم چی بگم');await p.click('#analyze-btn');await waitGuide(p,'source');
-   await p.fill('#guide-input','از همسایه شنیدم یک نفر خودکشی کرد');await p.click('[data-action="guide-next"]');await waitGuide(p,'who');
+   await p.fill('#guide-input','از همسایه شنیدم یک نفر خودکشی کرد');await p.click('[data-action="guide-next"]');await waitGuide(p,'informantKnown');
+   await p.click('[data-action="guide-skip"]');await waitGuide(p,'who');
    assert.deepEqual(await chips(p,'[data-guide-option]'),expected);
+   await p.click('[data-action="guide-back"]');await waitGuide(p,'informantKnown');
    await p.click('[data-action="guide-back"]');await waitGuide(p,'source');
    await p.fill('#guide-input','خودم دیدم کیف سرقت شد');await p.click('[data-action="guide-next"]');await waitGuide(p,'who');
    assert.deepEqual(await chips(p,'[data-guide-option]'),['یک نفر','چند نفر','فرد ناشناس','فرد آشنا']);
-   await p.locator('[data-guide-option]',{hasText:'چند نفر'}).click();await waitGuide(p,'when');
+   await p.locator('[data-guide-option]',{hasText:'چند نفر'}).click();await waitGuide(p,'peopleDescription');
    await p.click('[data-action="guide-back"]');await waitGuide(p,'who');
    assert.deepEqual(await chips(p,'[data-guide-option]'),['یک نفر','چند نفر','فرد ناشناس','فرد آشنا']);
    assert.equal(await p.locator('[data-guide-option][aria-pressed="true"]').innerText(),'چند نفر');
    await p.click('[data-action="guide-back"]');await waitGuide(p,'source');
-   await p.fill('#guide-input','از همسایه شنیدم یک نفر خودکشی کرد');await p.click('[data-action="guide-next"]');await waitGuide(p,'who');
+   await p.fill('#guide-input','از همسایه شنیدم یک نفر خودکشی کرد');await p.click('[data-action="guide-next"]');await waitGuide(p,'informantKnown');
+   await p.click('[data-action="guide-skip"]');await waitGuide(p,'who');
    assert.deepEqual(await chips(p,'[data-guide-option]'),expected);
    assert.equal(await p.inputValue('#guide-input'),'چند نفر این کار را انجام دادند');await bar(p,'guide-next','guide-skip',true);
    await p.waitForTimeout(1100);await p.reload();await p.click('[data-action="draft"]');await waitGuide(p,'who');
@@ -101,9 +107,10 @@ try{
  await test('mocked AI uses earlier context and ignores conflicting model choices',async()=>{
   const {c,p}=await context();try{
    await mockAi(p);await start(p);await p.fill('#description','نمیدونم چی بگم');await p.click('#analyze-btn');await waitAi(p,'source');
-   await p.fill('#ai-answer','از فرد دیگری شنیدم یک نفر خودکشی کرد');await p.click('[data-action="ai-send"]');await waitAi(p,'who');
+   await p.fill('#ai-answer','از فرد دیگری شنیدم یک نفر خودکشی کرد');await p.click('[data-action="ai-send"]');await waitAi(p,'informantKnown');
+   await p.click('[data-action="ai-unknown"]');await waitAi(p,'who');
    assert.deepEqual(await chips(p,'[data-ai-option]'),expected);await bar(p,'ai-send','ai-unknown',false);
-   await p.locator('[data-ai-option]',{hasText:expected[1]}).click();await waitAi(p,'when');
+   await p.locator('[data-ai-option]',{hasText:expected[1]}).click();await waitAi(p,'peopleDescription');
    await p.click('[data-action="ai-back"]');await waitAi(p,'who');
    assert.deepEqual(await chips(p,'[data-ai-option]'),expected);assert.equal(await p.inputValue('#ai-answer'),expected[1]);
   }finally{await c.close()}

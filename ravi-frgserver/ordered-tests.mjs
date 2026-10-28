@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GUIDE_STEPS,LEGACY_STAGE_TITLES,FOLLOW_UPS,guideStageForQuestion,displayGuideQuestion,guideAnswersFromTurns,migrateGuideOrder,coreStepsFor,stepsFor,unknownStagesInText,carryGuideAnswers,composeNarrative,isNonAnswer,newsDomain,displayNewsDomain} from './public/guidance.js';
+import {GUIDE_STEPS,GUIDE_ORDER_VERSION,LEGACY_STAGE_TITLES,FOLLOW_UPS,guideStageForQuestion,displayGuideQuestion,guideAnswersFromTurns,migrateGuideOrder,coreStepsFor,stepsFor,unknownStagesInText,carryGuideAnswers,composeNarrative,isNonAnswer,newsDomain,displayNewsDomain} from './public/guidance.js';
 import {orderedInterviewPath,orderedClientStep} from './public/interview-order.js';
 import {guideFallback,newInterview,applyStep,answerCurrent,stepBack} from './public/ai-interview.js';
 import {vehicleCharacteristics} from './public/narrative-facts.js';
@@ -48,11 +48,11 @@ test('explicit unknown in the original description closes only that stage and it
 
 test('client also ignores premature, reordered and invented model output',()=>{
  const ai=newInterview('intake');
- for(const expected of GUIDE_STEPS){
+ for(const expected of ['source','who','when','where','result','vehicleInvolved','witness','reason','method']){
   const next=orderedClientStep(ai,{done:true,stage:'evidence',question:'سؤال جعلی',options:['جعلی'],narrative:'ساختگی'},'');
-  assert.equal(next.done,false);assert.equal(next.stage,expected.id);assert.equal(next.question,expected.title);
+  assert.equal(next.done,false);assert.equal(next.stage,expected);assert.equal(guideStageForQuestion(next.question,next.stage)?.id,expected);
   assert.ok(!next.options.includes('جعلی'));assert.equal(next.narrative,'');
-  applyStep(ai,next);answerCurrent(ai,expected.id==='result'?'کیفم را بردند':'');
+  applyStep(ai,next);answerCurrent(ai,expected==='result'?'کیفم را بردند':'');
  }
  assert.equal(orderedClientStep(ai,{done:false,stage:'source',question:'تکراری'},'').done,true);
 });
@@ -182,7 +182,7 @@ test('version 2 and 3 count drafts migrate without losing words or changing the 
   const index=old.findIndex(s=>s.id==='peopleCount');assert.ok(index>=0);
   const g={orderVersion:version,index,base:'',answers:{...answers},skipped:[],draft:{step:'peopleCount',value:'حدود سه نفر'}};
   migrateGuideOrder(g);const live=stepsFor(g.answers,'',g.skipped);
-  assert.equal(g.orderVersion,4);assert.equal(g.answers.peopleCount,'حدود سه نفر');assert.equal(g.draft,null);
+  assert.equal(g.orderVersion,GUIDE_ORDER_VERSION);assert.equal(g.answers.peopleCount,'حدود سه نفر');assert.equal(g.draft,null);
   assert.equal(live[g.index]?.id,'peopleDescription');assert.ok(!live.some(s=>s.id==='peopleCount'));
   assert.match(composeNarrative(g.answers),/حدود سه نفر/);
   const unknown={orderVersion:version,index,base:'',answers:{...answers},skipped:[],draft:{step:'peopleCount',value:'نمی‌دانم'}};
@@ -204,7 +204,7 @@ test('migrating a duration draft preserves the user answer and cursor, and compl
   result:'مشکل قطع آب ادامه دارد',reason:'نامعلوم',method:'نامعلوم',ongoing:'این وضعیت در لحظهٔ ثبت گزارش ادامه داشت'};
  const before=stepsFor(answers,'',[],{includeDeprecated:true});const at=before.findIndex(s=>s.id==='duration');assert.ok(at>=0);
  const g={orderVersion:2,index:at,base:'',answers:{...answers},skipped:[],draft:{step:'duration',value:'از دو هفته پیش'}};
- migrateGuideOrder(g);assert.equal(g.orderVersion,4);assert.equal(g.answers.duration,'از دو هفته پیش');assert.equal(g.draft,null);
+ migrateGuideOrder(g);assert.equal(g.orderVersion,GUIDE_ORDER_VERSION);assert.equal(g.answers.duration,'از دو هفته پیش');assert.equal(g.draft,null);
  assert.equal(stepsFor(g.answers,g.base,g.skipped)[g.index].id,before[at+1].id);
  const narrative=composeNarrative({...g.answers,injury:'یک نفر آسیب دید',injuryCare:'اورژانس آمد',repeated:'این اتفاق تکرار شد'});
  for(const expected of ['از دو هفته پیش','یک نفر آسیب دید','اورژانس آمد','این وضعیت در لحظهٔ ثبت گزارش ادامه داشت','این اتفاق تکرار شد'])assert.ok(narrative.includes(expected),expected);

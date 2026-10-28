@@ -2,6 +2,7 @@ import {prepareAnalysis,extractionCatalog} from './public/extraction.js';
 import {BANK_AI_RULES,CATEGORIES} from './public/question-bank.js';
 import {EVENTS as CATALOG} from './public/scenarios.js';
 import {local,interviewInput,interviewStep} from './llm.js';
+import {INTERVIEW_BODY_LIMIT} from './public/api-limits.js';
 const EVENTS=Object.keys(CATALOG);
 const json=(body,status=200,headers={})=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
 
@@ -209,7 +210,11 @@ const model=env.OPENAI_TRANSCRIBE_MODEL||'gpt-transcribe';
 let usedModel=model;let r=await fetch('https://api.openai.com/v1/audio/transcriptions',{method:'POST',headers:{Authorization:`Bearer ${env.OPENAI_API_KEY}`},body:transcriptionForm(f,usedModel),signal:AbortSignal.timeout(55000)});
 if(!r.ok){const error=await upstreamError(r);if(model==='gpt-transcribe'&&(error.apiCode==='model_not_found'||error.httpStatus===404)){usedModel='gpt-4o-transcribe';r=await fetch('https://api.openai.com/v1/audio/transcriptions',{method:'POST',headers:{Authorization:`Bearer ${env.OPENAI_API_KEY}`},body:transcriptionForm(f,usedModel),signal:AbortSignal.timeout(55000)});if(!r.ok)throw await upstreamError(r)}else throw error}
 const result=await r.json();if(typeof result.text!=='string'||!result.text.trim())return json({error:'گفتار قابل تشخیصی دریافت نشد؛ دوباره ضبط کنید.'},422);return json({text:result.text,model:usedModel})}
-const raw=await request.text();if(raw.length>40000)return json({error:'متن بیش از حد طولانی است.'},413);let body;try{body=JSON.parse(raw)}catch{return json({error:'درخواست نامعتبر است.'},400)}
+const raw=await request.text();
+// Interview histories have a separately bounded, larger JSON envelope: up to
+// 20 legacy turns plus all grouped questions. Other routes retain the old cap.
+const tooLong=url.pathname==='/api/interview'?new TextEncoder().encode(raw).byteLength>INTERVIEW_BODY_LIMIT:raw.length>40000;
+if(tooLong)return json({error:'متن بیش از حد طولانی است.'},413);let body;try{body=JSON.parse(raw)}catch{return json({error:'درخواست نامعتبر است.'},400)}
 if(url.pathname==='/api/check'){await model(env,{instructions:'This is a connection check. Reply with OK only.',input:'Connection check',max_output_tokens:512});return json({ok:true,text:'ready',transcription:'not_tested'})}
 if(url.pathname==='/api/analyze'){if(typeof body.text!=='string'||body.text.trim().length<10||body.text.length>6000)return json({error:'شرح باید بین ۱۰ تا ۶۰۰۰ نویسه باشد.'},400);
 const self=provider(env)==='local';const out=await model(env,{instructions:self?LOCAL_SYSTEM:SYSTEM,input:JSON.stringify({description:body.text,region:String(body.region||'').slice(0,80)}),text:{format:{type:'json_schema',name:'incident',strict:true,schema:self?localSchema:schema}},max_output_tokens:self?4096:10000});const parsed=validateModelAnalysis(JSON.parse(out));if(self)Object.assign(parsed,{episodes:[],topicAssignments:[],prompts:[],...parsed});return json({...prepareAnalysis(parsed,body.text),mode:'ai'})}

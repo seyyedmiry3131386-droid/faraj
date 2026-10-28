@@ -6,14 +6,14 @@ import {requestLocation} from './device-permissions.js';
 import {screenKey,screenOrder,markEntrance,tick} from './motion.js';
 import {createFieldVoice} from './field-voice.js';
 import {createDictation,speechSupported,appendSpeech} from './speech.js';
-import {guidanceNeed,GUIDE_STEPS,GUIDE_ORDER_VERSION,FOLLOW_UPS,coreStepsFor,guideStageForQuestion,interviewOptionLabels,displayGuideQuestion,migrateGuideOrder,finalNarrative,stepsFor,canFinishGuide,missingFacts,readAnswer,triage,interviewProgress,carryGuideAnswers,unknownStagesInText,newsDomain,reportMeta,displayNewsDomain} from './guidance.js';
+import {guidanceNeed,GUIDE_STEPS,GUIDE_ORDER_VERSION,FOLLOW_UPS,guideDefinitionsInOrder,guideQuestionAliases,guideStageForQuestion,interviewOptionLabels,displayGuideQuestion,migrateGuideOrder,finalNarrative,stepsFor,canFinishGuide,missingFacts,readAnswer,triage,interviewProgress,carryGuideAnswers,unknownStagesInText,newsDomain,reportMeta,displayNewsDomain} from './guidance.js';
 import {orderedClientStep,orderedInterviewPath} from './interview-order.js';
 import {uiLabel} from './ui-label.js';
 import {renderGuide,triageBanner,triageKey} from './guide-view.js';
 import {requestApi} from './api-client.js';
 import {newSubmissionKey,sendCentral,centralStatus} from './central-client.js';
 import {privacySummary} from './privacy.js';
-import {newInterview,interviewRequest,answerCurrent,applyStep,stepBack,answersNarrative,guideFallback,interviewRecord,renderInterview} from './ai-interview.js';
+import {newInterview,interviewRequest,consumePriorGuide,answerCurrent,applyStep,stepBack,answersNarrative,guideFallback,interviewRecord,renderInterview} from './ai-interview.js';
 import {enhanceSelects} from './legacy-select.js';
 import {legacyShell,legacyWelcome} from './legacy-layout.js';
 import {topicChoices,topicMatches,topicEntries} from './topic-view.js';
@@ -437,7 +437,7 @@ function currentInterviewRecord(){
  const ai=interviewRecord(state.ai),g=state.completedGuide;
  if(!g||g.forText!==state.text)return ai;
  const skipped=new Set(g.skipped||[]),answers=g.answers||{};
- const turns=[...GUIDE_STEPS,...FOLLOW_UPS].filter(s=>Object.hasOwn(answers,s.id)||skipped.has(s.id))
+ const turns=guideDefinitionsInOrder().filter(s=>Object.hasOwn(answers,s.id)||skipped.has(s.id))
   .map(s=>({q:s.title,a:String(answers[s.id]||'').trim()||'نمی‌دانم'}));
  // Preserve pre-migration/free-form answers from old AI drafts, but don't
  // duplicate the new fixed questions which are represented by the guide.
@@ -562,7 +562,7 @@ function aiCovers(){return Boolean(state.ai&&state.ai.mode==='detail'&&!state.ai
 function focusAi(){requestAnimationFrame(()=>(document.querySelector('#ai-question')||document.querySelector('.ai-thinking'))?.focus?.())}
 function migrateGuideDraft(g){
  if(!g||g.orderVersion===GUIDE_ORDER_VERSION)return g;
- if(g.orderVersion===2||g.orderVersion===3)return migrateGuideOrder(g);
+ if(g.orderVersion===2||g.orderVersion===3||g.orderVersion===4)return migrateGuideOrder(g);
  g.answers??={};g.skipped??=[];g.mode??='intake';g.legacyTurns??=[];
  // In older drafts «who» asked about the victim, not the actor. Preserve that
  // answer as legacy text rather than relabelling it as the new actor answer.
@@ -601,7 +601,7 @@ function migrateCompletedGuide(g){
 }
 function migrateAiDraft(ai){
  if(!ai?.current)return;
- const path=orderedInterviewPath({mode:ai.mode,text:state.text,turns:ai.turns||[]});
+ const path=orderedInterviewPath({mode:ai.mode,text:state.text,turns:ai.turns||[],orderVersion:ai.orderVersion});
  const current=guideStageForQuestion(ai.current.question,ai.current.stage||null);
  if(path.error)return;
  if(path.next&&current&&path.next.id===current.id){
@@ -616,7 +616,9 @@ function migrateAiDraft(ai){
  ai.current=null;ai.draft='';ai.done=false;
 }
 async function askNext(){
- const ai=state.ai;if(!ai)return;const seq=++aiSeq;aiLoading=true;aiError='';render();
+ const ai=state.ai;if(!ai)return;
+ consumePriorGuide(ai,state.text);
+ const seq=++aiSeq;aiLoading=true;aiError='';render();
  const topics=state.analysis?eventIds(state.analysis).map(id=>EVENTS[id]?.title).filter(Boolean):[];
  try{const raw=await api('interview',interviewRequest(ai,state.text,topics),{timeout:250000});if(seq!==aiSeq||state.ai!==ai)return;
   const step=orderedClientStep(ai,raw,state.text);
@@ -681,8 +683,12 @@ function captureGuideInput(){
 }
 function advanceGuide(){
  if(!state.guide)return;
- // Answering can add or remove a branch, so the end is recomputed here.
- if(state.guide.index+1<stepsFor(state.guide.answers,state.guide.base,state.guide.skipped).length){state.guide.index++;persist();render();focusGuide();return}
+ // Migrated drafts may have completed later stages before an older branch was
+ // moved forward. Don't force those stages again, but allow Back to review them.
+ const g=state.guide,steps=stepsFor(g.answers,g.base,g.skipped),completed=new Set(g.resumeCompleted||[]);
+ let next=g.index+1;
+ while(next<steps.length&&completed.has(steps[next].id)&&!Object.hasOwn(g.pendingDrafts||{},steps[next].id))next++;
+ if(next<steps.length){g.index=next;persist();render();focusGuide();return}
  finishGuide();
 }
 async function finishGuide(){
@@ -693,7 +699,8 @@ async function finishGuide(){
  if(guide.mode==='detail'){
   // Keep the original description and every answer separately, just like an
   // AI interview. No truncation, silent rewrite, or loss of confirmed fields.
-  state.completedGuide={...guide,skipped,pendingAdvance:null,autoAdvancedAt:0,forText:state.text};
+  const finalSteps=stepsFor(answers,guide.base||'',skipped);
+  state.completedGuide={...guide,index:Math.max(0,finalSteps.length-1),skipped,pendingAdvance:null,autoAdvancedAt:0,forText:state.text};
   const old=state.carried?.forText===state.text?state.carried:null;
   for(const [id,value] of Object.entries(old?.answers||{}))if(state.answers[id]===value&&carried.answers[id]!==value){
    delete state.answers[id];if(answerIsUnknown(value)&&state.extra[id]?.rows?.length)state.extra[id].enabled=true;
@@ -708,7 +715,7 @@ async function finishGuide(){
  if(!text){guideError='هنوز هیچ پاسخی ثبت نشده است. دست‌کم به یک پرسش پاسخ دهید.';render();return}
  if(text.length>6000){guideError='پاسخ‌ها از ظرفیت ۶۰۰۰ نویسه بیشترند؛ با بازگشت، برخی پاسخ‌ها را کوتاه‌تر کنید.';render();return}
  state.text=text;state.guide=null;state.pausedGuide=null;transcriptReviewed=true;errors='';guideError='';
- state.intakeGuide={answers:{...answers},skipped,forText:state.text};
+ state.intakeGuide={answers:{...answers},skipped,pendingDrafts:{...(guide.pendingDrafts||{})},forText:state.text};
  state.carried={...carried,forText:state.text};
  await persist();render();
  toast('شرح گزارش از پاسخ‌های شما ساخته شد. می‌توانید آن را ویرایش کنید.');
@@ -881,22 +888,28 @@ async function startDetailedInterview(){
   const prior=state.intakeGuide?.forText===state.text?state.intakeGuide:null;
   if(config.interview){
    state.ai=newInterview('detail');
-   // Preserve already answered or explicitly unknown intake stages when a
-   // second, detail-mode interview starts on that exact unchanged narrative.
-   if(prior)for(const s of coreStepsFor({},state.text)){
-    if(!Object.hasOwn(prior.answers||{},s.id)&&!(prior.skipped||[]).includes(s.id))break;
-    state.ai.turns.push({stage:s.id,q:s.title,a:prior.answers?.[s.id]||'',options:(s.options||[]).filter(o=>o.phrase).map(o=>o.label).slice(0,4),hint:s.hint});
+   // Reuse prior answers in order as each becomes reachable, even when an old
+   // draft had not yet visited a newly moved branch between completed stages.
+   if(prior){
+    state.ai.priorPending={...(prior.answers||{})};
+    for(const id of prior.skipped||[])state.ai.priorPending[id]='';
+    state.ai.pendingDrafts={};
+    for(const [id,value] of Object.entries(prior.pendingDrafts||{})){
+     const title=guideQuestionAliases(id)[0];if(title)state.ai.pendingDrafts[title]=value;
+    }
+    consumePriorGuide(state.ai,state.text);
    }
    await persist();askNext();return
   }
-  state.guide={orderVersion:GUIDE_ORDER_VERSION,mode:'detail',index:0,answers:{...(prior?.answers||{})},skipped:[...(prior?.skipped||[])],base:state.text};
+  state.guide={orderVersion:GUIDE_ORDER_VERSION,mode:'detail',index:0,answers:{...(prior?.answers||{})},skipped:[...(prior?.skipped||[])],pendingDrafts:{...(prior?.pendingDrafts||{})},base:state.text};
   if(prior){const completed=new Set([...Object.keys(prior.answers||{}),...(prior.skipped||[])]);
    const steps=stepsFor(state.guide.answers,state.guide.base,state.guide.skipped);
-   const next=steps.findIndex(s=>!completed.has(s.id));state.guide.index=next<0?steps.length:next}
+   state.guide.resumeCompleted=[...completed];
+   const next=steps.findIndex(s=>!completed.has(s.id)||Object.hasOwn(state.guide.pendingDrafts,s.id));state.guide.index=next<0?steps.length:next}
   if(state.guide.index>=stepsFor(state.guide.answers,state.guide.base,state.guide.skipped).length){await finishGuide();return}
   await persist();render();focusGuide()
 }
-const actions={'download-unsaved':()=>{const snapshot={شرح:state.text,راهنما:state.guide||null,پرسشهای_هوشمند:state.ai||null,پاسخها:state.answers,جزئیات:state.extra,نام_مستندات:state.files.map(f=>f.name),توجه:'این نسخه فقط متن است؛ خود فایل‌های پیوست در آن نیستند.'};download(new Blob([JSON.stringify(snapshot,null,2)],{type:'text/plain;charset=utf-8'}),'ravi-unsaved.txt')},'retry-central':retryCentral,'edit-pending':editPending,'confirm-edit-pending':()=>{state.pendingSubmission=null;state.confirmed=false;errors='';closeModal();persist();render()},'detail-yes':async()=>{state.askDetail=false;errors='';state.startInterviewAfterReview=true;
+const actions={'download-unsaved':()=>{const snapshot={شرح:state.text,راهنما:state.guide||null,راهنمای_پیشین:state.intakeGuide||null,پرسشهای_هوشمند:state.ai||null,پاسخها:state.answers,جزئیات:state.extra,نام_مستندات:state.files.map(f=>f.name),توجه:'این نسخه فقط متن است؛ خود فایل‌های پیوست در آن نیستند.'};download(new Blob([JSON.stringify(snapshot,null,2)],{type:'text/plain;charset=utf-8'}),'ravi-unsaved.txt')},'retry-central':retryCentral,'edit-pending':editPending,'confirm-edit-pending':()=>{state.pendingSubmission=null;state.confirmed=false;errors='';closeModal();persist();render()},'detail-yes':async()=>{state.askDetail=false;errors='';state.startInterviewAfterReview=true;
   if(needsAnalysisReview(state)){await persist();render();focusQuestion();return}
   await startDetailedInterview()},
  'detail-no':async()=>{state.askDetail=false;state.startInterviewAfterReview=false;state.ai=null;completeAnalysisReview(state,{brief:true});errors='';await persist();render()},

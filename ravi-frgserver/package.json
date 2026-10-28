@@ -7,7 +7,7 @@
     "dev": "node dev.mjs",
     "check": "node scripts/check-syntax.mjs",
     "build": "npm run check && node build.mjs",
-    "test": "node --test reporter-identity-tests.mjs suggestions-tests.mjs ordered-tests.mjs llm-tests.mjs facts-tests.mjs provider-tests.mjs http-tests.mjs device-tests.mjs tests.mjs flow-tests.mjs review-tests.mjs numbered-tests.mjs mixed-incident-tests.mjs composition-tests.mjs colloquial-tests.mjs voice-tests.mjs guidance-tests.mjs central-tests.mjs staff-tests.mjs backup-tests.mjs",
+    "test": "node --test reporter-identity-tests.mjs suggestions-tests.mjs ordered-tests.mjs grouped-tests.mjs llm-tests.mjs facts-tests.mjs provider-tests.mjs http-tests.mjs device-tests.mjs tests.mjs flow-tests.mjs review-tests.mjs numbered-tests.mjs mixed-incident-tests.mjs composition-tests.mjs colloquial-tests.mjs voice-tests.mjs guidance-tests.mjs central-tests.mjs staff-tests.mjs backup-tests.mjs",
     "test:stt": "cd stt && python -m unittest test_stt",
     "eval:load": "node evaluation/load-test.mjs",
     "evaluate:million": "node evaluation/run-million.mjs",
