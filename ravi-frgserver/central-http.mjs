@@ -12,6 +12,7 @@ import {isIP} from 'node:net';
 import {CentralStore} from './central-store.mjs';
 import {dataKey,verifyBaleInitData,userKey} from './central-crypto.mjs';
 import {readApiBody} from './http-body.mjs';
+import {validateReporterIdentity} from './public/reporter-identity.js';
 
 const FILE_LIMIT=100*1024*1024,REQUEST_LIMIT=FILE_LIMIT+1024*1024,REPORT_LIMIT=512*1024,MAX_FILES=10;
 const ID=/^RV-[A-F0-9]{32}$/,KEY=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -43,7 +44,7 @@ async function readJson(req,res,limit=16*1024){
  try{const v=JSON.parse(body.toString('utf8'));return v&&typeof v==='object'&&!Array.isArray(v)?v:null}catch{return null}
 }
 
-async function receiveUpload(req,store,id){
+async function receiveUpload(req,store,id,{existingSubmission=false}={}){
  const announced=Number(req.headers['content-length']||0);
  if(announced>REQUEST_LIMIT)throw new HttpError(413,'too_large','حجم کل گزارش بیش از حد مجاز است.');
  // Browser multipart filenames are UTF-8. Busboy otherwise defaults these
@@ -92,6 +93,11 @@ async function receiveUpload(req,store,id){
   if(problem)throw problem;
   if(reportText===null)throw new HttpError(400,'invalid_report','اطلاعات گزارش ارسال نشده است.');
   const report=reportShape(reportText);
+  const identity=validateReporterIdentity(report.reporter);
+  // A report accepted before this rule can still be retried with the same
+  // key and exact fingerprint. commit() refuses altered or new content.
+  if(!identity.valid&&!existingSubmission)throw new HttpError(400,'invalid_identity',Object.values(identity.errors)[0]);
+  if(identity.valid)report.reporter={...report.reporter,...identity.value};
   const h=createHash('sha256').update(Buffer.from(reportText)).update('\0');
   for(const f of files)h.update(JSON.stringify({name:f.name,size:f.size,digest:f.digest})).update('\0');
   return {tempDir,report,files,fingerprint:h.digest('hex')};
@@ -157,7 +163,7 @@ export function createCentral(env,{publicRoot}={}){
     uploads++;active.add(activeKey);
     try{
      const id='RV-'+randomBytes(16).toString('hex').toUpperCase();
-     const upload=await receiveUpload(req,store,id);
+     const upload=await receiveUpload(req,store,id,{existingSubmission:Boolean(store.status(owner,submissionKey))});
      let result;
      try{result=store.commit({id,owner,key:submissionKey,...upload,verifiedBaleId:identity.id})}catch(error){await rm(upload.tempDir,{recursive:true,force:true});throw error}
      if(result.conflict)return fail(res,409,'submission_conflict','این شناسه قبلاً برای محتوای دیگری ثبت شده است؛ پیش از ارسال تازه با مسئول سامانه بررسی کنید.');

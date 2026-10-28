@@ -41,9 +41,10 @@ test('all base stages precede situational follow-ups, even as answers open branc
  }
  const live=stepsFor(answers).map(s=>s.id);
  assert.ok(live.includes('informantKnown'));
- assert.ok(live.includes('peopleCount'));
+ assert.ok(!live.includes('peopleCount'));
+ assert.ok(live.includes('peopleDescription'));
  assert.ok(live.indexOf('informantKnown')>live.indexOf('method'));
- assert.ok(live.indexOf('peopleCount')>live.indexOf('method'));
+ assert.ok(live.indexOf('peopleDescription')>live.indexOf('method'));
 });
 
 test('early finish cannot bypass a core stage, but can omit later follow-ups',async()=>{
@@ -360,32 +361,31 @@ test('the report is never filed without the reporter confirming it',async()=>{
 });
 
 // ------------------------------------------------- situational follow-ups
-test('the guide asks about people only when people are part of the account',async()=>{
- const {stepsFor}=await import('./public/guidance.js');
- const ids=a=>stepsFor(a).map(s=>s.id);
- // A theft involves someone doing it, so the count question appears.
- assert.ok(ids({result:'سرقت رخ داد'}).includes('peopleCount'));
- assert.ok(ids({result:'نزاع و درگیری رخ داد'}).includes('peopleCount'));
- // A street light and a fire do not, so the reporter is never asked.
- for(const what of ['چراغ کوچه چند شب است خاموش است','آتش‌سوزی رخ داد'])
-  assert.equal(ids({result: what}).includes('peopleCount'),false,what);
+test('actor and count are one question rather than a distant duplicate',async()=>{
+ const {stepsFor,GUIDE_STEPS}=await import('./public/guidance.js');
+ const who=GUIDE_STEPS.find(s=>s.id==='who');
+ assert.match(who.title,/چه کسی یا چه کسانی/);assert.match(who.hint,/تعداد/);
+ for(const result of ['سرقت رخ داد','نزاع و درگیری رخ داد','چراغ کوچه خاموش است','آتش‌سوزی رخ داد']){
+  const ids=stepsFor({result}).map(s=>s.id);assert.ok(ids.includes('who'));assert.ok(!ids.includes('peopleCount'),result);
+ }
 });
 
-test('answering how many people opens their details; skipping closes the branch',async()=>{
+test('answering who opens actor details; an unknown actor closes the dependent branch',async()=>{
  const {stepsFor}=await import('./public/guidance.js');
- const ids=a=>stepsFor(a).map(s=>s.id);
+ const ids=(a,skip=[])=>stepsFor(a,'',skip).map(s=>s.id);
  const before=ids({result:'سرقت رخ داد'});
- assert.equal(before.includes('peopleDescription'),false,'not asked before the count is known');
- const after=ids({result:'سرقت رخ داد',peopleCount:'دو نفر در این اتفاق دخیل بودند'});
- assert.ok(after.includes('peopleDescription'));
- assert.ok(after.includes('peopleKnown'));
- // They come straight after the count, in that order.
- assert.ok(after.indexOf('peopleDescription')===after.indexOf('peopleCount')+1);
- assert.ok(after.indexOf('peopleKnown')===after.indexOf('peopleDescription')+1);
- // «نمی‌دانم چند نفر» records nothing, so the branch closes again.
- const unknown=stepsFor({result:'سرقت رخ داد'}).find(s=>s.id==='peopleCount').options.find(o=>/نمی‌دانم/.test(o.label));
- assert.equal(unknown.phrase,'');
- assert.equal(ids({result:'سرقت رخ داد',peopleCount:unknown.phrase}).includes('peopleDescription'),false);
+ assert.equal(before.includes('peopleDescription'),false,'not asked before the actor is known');
+ const after=ids({result:'سرقت رخ داد',who:'دو نفر این کار را انجام دادند'});
+ assert.ok(after.includes('peopleDescription'));assert.ok(after.includes('peopleKnown'));
+ assert.ok(after.indexOf('peopleDescription')>after.indexOf('method'));
+ assert.equal(after.indexOf('peopleKnown'),after.indexOf('peopleDescription')+1);
+ assert.equal(ids({result:'سرقت رخ داد'},['who']).includes('peopleDescription'),false);
+ assert.equal(ids({result:'سرقت رخ داد',who:'نمی‌دانم'}).includes('peopleDescription'),false);
+ // An older answer is still useful, while an explicitly skipped old count
+ // must not be followed by more questions about the unknown person.
+ assert.ok(ids({result:'سرقت رخ داد',peopleCount:'دو نفر در این اتفاق دخیل بودند'}).includes('peopleDescription'));
+ assert.ok(!ids({result:'سرقت رخ داد',who:'یک نفر'},['peopleCount']).includes('peopleDescription'));
+ assert.ok(!ids({result:'سرقت رخ داد',who:'فرد انجام‌دهنده برای من آشنا بود'}).includes('peopleKnown'));
 });
 
 test('vehicle, money and platform questions follow the account, not every report',async()=>{
@@ -534,11 +534,9 @@ test('a full account leaves almost nothing to ask',()=>{
  assert.ok(asked.length<=3,`asked ${asked.join(',')}`);
 });
 
-test('«دو نفر» in the narrative closes the how-many question',()=>{
- for(const said of ['دو نفر آمدند و کیفم را بردند','یه نفر موتورمو برد','سه تا مرد ریختند داخل مغازه','چند نفر به من حمله کردند'])
+test('the retired how-many question never repeats, whether a count was supplied or not',()=>{
+ for(const said of ['دو نفر آمدند و کیفم را بردند','یه نفر موتورمو برد','سه تا مرد ریختند داخل مغازه','چند نفر به من حمله کردند','کسی وارد مغازه شد و جنس‌ها را برد'])
   assert.equal(ids({},said).includes('peopleCount'),false,said);
- // And it is still asked when they only said someone did it.
- assert.ok(ids({},'کسی وارد مغازه شد و جنس‌ها را برد').includes('peopleCount'));
 });
 
 test('each kind of detail closes its own question and no other',()=>{
@@ -556,11 +554,12 @@ test('each kind of detail closes its own question and no other',()=>{
  check('قبلاً به کلانتری شکایت کردم','reportedBefore');
 });
 
-test('an answer given in the interview keeps its question visible for correction',()=>{
- const base='دو نفر آمدند و کیفم را بردند';
- assert.equal(ids({},base).includes('peopleCount'),false);
- // Once answered, the reporter can still see and change it.
- assert.ok(ids({peopleCount:'سه تا پنج نفر در این اتفاق دخیل بودند'},base).includes('peopleCount'));
+test('a legacy count answer remains in the narrative without reviving the duplicate question',()=>{
+ const base='دو نفر آمدند و کیفم را بردند',answer='سه تا پنج نفر در این اتفاق دخیل بودند';
+ assert.equal(ids({peopleCount:answer},base).includes('peopleCount'),false);
+ assert.ok(composeNarrative({peopleCount:answer}).includes(answer));
+ // Old draft migration can reconstruct the historical question list.
+ assert.ok(stepsFor({peopleCount:answer},base,[],{legacyPeople:true}).some(s=>s.id==='peopleCount'));
 });
 
 // ---------------------------------------------------------------------------

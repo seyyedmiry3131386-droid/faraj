@@ -143,7 +143,7 @@ try{
    const {c,p}=await context(390);
    try{
     const answers={result:'یک خودرو کیفم را برد',source:'من خودم این را دیدم'},steps=stepsFor(answers),index=steps.findIndex(s=>s.id==='witness');assert.ok(index>=0);
-    await writeDraft(p,{text:'نمیدونم چی بگم',step:0,files:[],guide:{orderVersion:3,mode:'intake',index,answers,skipped:[],base:''}});await p.waitForSelector('#guide-title');
+    await writeDraft(p,{text:'نمیدونم چی بگم',step:0,files:[],guide:{orderVersion:4,mode:'intake',index,answers,skipped:[],base:''}});await p.waitForSelector('#guide-title');
     assert.equal((await p.textContent('#guide-title')).trim(),'آیا فرد دیگری هم این اتفاق را مشاهده کرد؟');await bar(p,'guide-next','guide-skip',false);
    }finally{await c.close()}
   }
@@ -183,6 +183,20 @@ try{
    const index=stepsFor(answers,'',[],{includeDeprecated:true}).length;
    await writeDraft(p,{text:'نمیدونم چی بگم',step:0,files:[],guide:{orderVersion:2,mode:'intake',index,base:'',answers,skipped:[]}});
    await p.waitForSelector('#description');assert.ok((await p.inputValue('#description')).includes('از سه هفته پیش'));
+  }finally{await c.close()}
+ });
+ await test('old separate count draft is retained while its repeated question disappears',async()=>{
+  const {c,p}=await context(390);
+  try{
+   const answers={source:'من خودم این را دیدم',who:'یک نفر این کار را انجام داد',when:'دیروز',where:'تهران',result:'سرقت و درگیری رخ داد',reason:'نامعلوم',method:'نامعلوم'};
+   const old=stepsFor(answers,'',[],{legacyPeople:true}),index=old.findIndex(s=>s.id==='peopleCount');assert.ok(index>=0);
+   await writeDraft(p,{text:'نمیدونم چی بگم',step:0,files:[],guide:{orderVersion:3,mode:'intake',index,base:'',answers,skipped:[],draft:{step:'peopleCount',value:'حدود سه نفر'}}});
+   await p.waitForSelector('#guide-title');assert.match(await p.textContent('#guide-title'),/ظاهر یا نشانه/);
+   for(let i=0;i<30&&await p.locator('#guide-title').count();i++){
+    assert.doesNotMatch(await p.textContent('#guide-title'),/چند نفر در این اتفاق نقش داشتند/);
+    await nextGuide(p,'guide-skip');
+   }
+   await p.waitForSelector('#description');assert.match(await p.inputValue('#description'),/حدود سه نفر/);
   }finally{await c.close()}
  });
  await test('old AI question titles and unsent draft survive reload and Back',async()=>{

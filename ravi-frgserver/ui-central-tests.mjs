@@ -44,7 +44,8 @@ try{
  await p.goto(app+'/?via=bale');await p.waitForFunction(()=>window.Bale?.WebApp?.initData);await p.click('[data-action="new"]');await p.waitForSelector('#description');
  await p.fill('#description','دیروز ظهر در خیابان بهار موتورم را از جلوی مغازه بردند');await p.click('#analyze-btn');await p.waitForSelector('[data-action="detail-no"]');await p.click('[data-action="detail-no"]');await p.waitForSelector('#file-input',{state:'attached'});
  await p.locator('#file-input').setInputFiles({name:'مدرک-آزمایشی.pdf',mimeType:'application/pdf',buffer:Buffer.from('confidential test evidence')});await p.waitForFunction(()=>document.body.innerText.includes('مدرک-آزمایشی.pdf'));
- await p.click('[data-action="review"]');assert.match(await p.locator('.storage-note').last().innerText(),/کارتابل مرکزی/);await p.check('#confirm');await p.click('#submit-report');await p.waitForSelector('#reporter-identity-form');await p.fill('#rep-name','کاربر آزمایشی');
+ await p.click('[data-action="review"]');assert.match(await p.locator('.storage-note').last().innerText(),/کارتابل مرکزی/);await p.check('#confirm');await p.click('#submit-report');await p.waitForSelector('#reporter-identity-form');
+ for(const [id,value] of Object.entries({name:'کاربر آزمایشی',province:'تهران',mobile:'۹۱۲۳۴۵۶۷۸۹',rank:'رده آزمایشی',post:'سمت آزمایشی'}))await p.fill(`#rep-${id}`,value);
  let posts=0;
  const drop=async route=>{
   posts++;const request=route.request(),headers=await request.allHeaders();

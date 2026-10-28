@@ -2,7 +2,7 @@
 // the offline guide while the model reads the report and extracts facts.
 // This module holds state and draws it; app.js does the network call.
 
-import { GUIDE_STEPS, LEGACY_STAGE_TITLES, guideStageForQuestion, guideStageWithContext, interviewOptionLabels, displayGuideQuestion, displayNewsDomain, stepsFor, guideAnswersFromTurns, composeNarrative } from './guidance.js';
+import { GUIDE_STEPS, GUIDE_ORDER_VERSION, guideQuestionAliases, guideStageForQuestion, guideStageWithContext, interviewOptionLabels, displayGuideQuestion, displayNewsDomain, stepsFor, guideAnswersFromTurns, composeNarrative } from './guidance.js';
 import {orderedInterviewPath} from './interview-order.js';
 import {uiLabel} from './ui-label.js';
 
@@ -24,7 +24,13 @@ export function answerCurrent(ai, answer) {
   if (!ai?.current) return false;
   ai.turns.push({ q: ai.current.question, a: String(answer || '').trim(), options: ai.current.options || [],
     ...(ai.current.stage ? { stage: ai.current.stage } : {}), ...(ai.current.hint ? { hint: ai.current.hint } : {}) });
-  if(ai.pendingDrafts){delete ai.pendingDrafts[ai.current.question];if(ai.current.stage)delete ai.pendingDrafts[LEGACY_STAGE_TITLES[ai.current.stage]]}
+  if(ai.pendingDrafts){
+    delete ai.pendingDrafts[ai.current.question];
+    // Old victim questions sometimes carry stage:'who' too; they are not the
+    // actor stage and must not erase its separate pending answer.
+    const canonical=guideStageForQuestion(ai.current.question,ai.current.stage||null);
+    if(canonical)for(const title of guideQuestionAliases(canonical.id))delete ai.pendingDrafts[title];
+  }
   ai.current = null; ai.draft = '';
   return true;
 }
@@ -44,7 +50,8 @@ export function applyStep(ai, step) {
   }
   ai.current = { question: step.question, options: Array.isArray(step.options) ? step.options.slice(0, 4) : [],
     ...(step.stage ? { stage: step.stage } : {}), ...(step.hint ? { hint: step.hint } : {}) };
-  ai.draft=String(ai.pendingDrafts?.[step.question]||ai.pendingDrafts?.[LEGACY_STAGE_TITLES[step.stage]]||'');
+  const titles=[step.question,...guideQuestionAliases(step.stage)];
+  ai.draft=String(titles.map(title=>ai.pendingDrafts?.[title]).find(value=>typeof value==='string'&&value.trim())||'');
 }
 
 /** Back: the last question comes back on screen with its answer in the box. */
@@ -89,7 +96,7 @@ export function guideFallback(ai, text = '', prior = null) {
   let index = steps.findIndex(s => coreIds.has(s.id) && !done.has(s.id));
   if (index < 0) index = steps.findIndex(s => !coreIds.has(s.id) && !done.has(s.id));
   if (index < 0) index = steps.length;
-  return { orderVersion:3,index,answers,skipped,base };
+  return { orderVersion:GUIDE_ORDER_VERSION,index,answers,skipped,base };
 }
 
 /** Question-and-answer lines for the review page and the saved report. */

@@ -146,7 +146,7 @@ test('old guide drafts keep their answer, position and editable text when choice
  const draft={orderVersion:2, mode:'detail', index, base, answers:{...answers}, skipped:[],
   draft:{step:'who', value:'آن فرد را از قبل می‌شناختم'}};
  migrateGuideOrder(draft);
- assert.equal(draft.orderVersion,3);
+ assert.equal(draft.orderVersion,4);
  assert.equal(stepsFor(draft.answers,base,draft.skipped)[draft.index].id,'who');
  assert.equal(draft.answers.who,answers.who);
  assert.equal(draft.draft.value,'آن فرد را از قبل می‌شناختم');

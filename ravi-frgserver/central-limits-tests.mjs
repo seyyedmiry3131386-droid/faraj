@@ -22,7 +22,7 @@ test('central streaming accepts exactly 100 MiB and rejects 100 MiB plus one byt
  t.after(async()=>{child.kill('SIGTERM');if(child.exitCode===null)await Promise.race([once(child,'exit'),new Promise(r=>setTimeout(r,3000))]);await rm(root,{recursive:true,force:true})});
  const port=await new Promise((resolve,reject)=>{let output='';const timer=setTimeout(()=>reject(new Error('startup timeout')),10000);child.stdout.on('data',x=>{output+=x;const m=output.match(/loopback:(\d+)/);if(m){clearTimeout(timer);resolve(+m[1])}});child.stderr.on('data',x=>output+=x);child.once('exit',code=>{clearTimeout(timer);reject(new Error(`server exited ${code}: ${output}`))})});
  async function upload(size){
-  const boundary='synthetic-ravi-boundary',report=JSON.stringify({title:'آزمون',text:'گزارش ساختگی برای بررسی محدودیت'});
+  const boundary='synthetic-ravi-boundary',report=JSON.stringify({title:'آزمون',text:'گزارش ساختگی برای بررسی محدودیت',reporter:{name:'آزمایشی',province:'تهران',mobile:'9123456789',rank:'رده',post:'سمت'}});
   const head=Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="report"\r\n\r\n${report}\r\n--${boundary}\r\nContent-Disposition: form-data; name="files"; filename="synthetic.pdf"\r\nContent-Type: application/pdf\r\n\r\n`);
   const tail=Buffer.from(`\r\n--${boundary}--\r\n`),chunk=Buffer.alloc(1024*1024,65);
   const req=http.request({host:'127.0.0.1',port,path:'/api/central/reports',method:'POST',headers:{Host:'report.localhost',Origin:'http://report.localhost','X-Bale-Init-Data':signed(),'X-Submission-Key':randomUUID(),'Content-Type':`multipart/form-data; boundary=${boundary}`,'Content-Length':String(head.length+size+tail.length)}});

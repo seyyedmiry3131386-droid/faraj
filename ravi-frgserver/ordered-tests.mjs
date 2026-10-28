@@ -13,7 +13,7 @@ import {uiLabel} from './public/ui-label.js';
 const order=['source','who','when','where','result','reason','method'];
 test('seven stages ask for the actor; witness, victim and driver alone do not answer who',()=>{
  assert.deepEqual(GUIDE_STEPS.map(s=>s.id),order);
- assert.match(GUIDE_STEPS.find(s=>s.id==='who').title,/چه کسی این کار را انجام داد/);
+ assert.match(GUIDE_STEPS.find(s=>s.id==='who').title,/چه کسی یا چه کسانی این کار را انجام دادند/);
  for(const text of ['مادر من قربانی سرقت شد','دو نفر شاهد آمدند','یک راننده در تصادف مجروح شد','شاهدی کیف سرقت شده را دید'])
   assert.ok(coreStepsFor({},text).some(s=>s.id==='who'),text);
  assert.ok(!coreStepsFor({},'یک دزد کیف را برد').some(s=>s.id==='who'));
@@ -127,7 +127,7 @@ test('label cleanup is presentation-only, current page determines button state a
 });
 
 test('questions have no category prefix, witness is clear, and duration is never asked',()=>{
- const labels=['این را خودتان دیدید یا از کسی شنیدید؟','چه کسی این کار را انجام داد؟',
+ const labels=['این را خودتان دیدید یا از کسی شنیدید؟','چه کسی یا چه کسانی این کار را انجام دادند؟',
   'این اتفاق چه زمانی رخ داد؟','این اتفاق در کدام محل رخ داد؟',
   'چه اتفاقی رخ داد و چه چیزی در آن دخیل بود؟','آیا درباره دلیل یا انگیزه این اتفاق اطلاعاتی دارید؟','این اتفاق چگونه رخ داد؟'];
  assert.deepEqual(GUIDE_STEPS.map(s=>s.title),labels);
@@ -153,12 +153,58 @@ test('old seven-stage labels replay exactly, preserve answers and do not turn vi
  assert.equal(guideStageForQuestion(LEGACY_STAGE_TITLES.source,'who'),null);
 });
 
+test('former actor wordings replay, display, restore pending AI drafts and Back without relabelling victim',()=>{
+ const oldActor='چه کسی این کار را انجام داد؟',current=GUIDE_STEPS.find(s=>s.id==='who');
+ for(const label of [oldActor,LEGACY_STAGE_TITLES.who]){
+  assert.equal(guideStageForQuestion(label)?.id,'who');
+  assert.equal(displayGuideQuestion(label,'who'),current.title);
+  const turns=[{stage:'source',q:GUIDE_STEPS[0].title,a:'خودم دیدم'},{stage:'who',q:label,a:'دو نفر'}];
+  const path=orderedInterviewPath({mode:'intake',turns});assert.equal(path.error,undefined);assert.equal(path.next.id,'when');
+  assert.equal(guideAnswersFromTurns(path.turns).answers.who,'دو نفر');
+  const ai=newInterview('intake');ai.pendingDrafts={[label]:'نام شخص در پیش‌نویس'};
+  applyStep(ai,{stage:'who',question:current.title,options:[]});assert.equal(ai.draft,'نام شخص در پیش‌نویس');
+  answerCurrent(ai,ai.draft);assert.equal(ai.pendingDrafts[label],undefined);assert.ok(stepBack(ai));
+  assert.equal(ai.draft,'نام شخص در پیش‌نویس');assert.equal(ai.current.question,current.title);
+ }
+ const victim='چه کسی: این اتفاق برای چه کسی افتاد؟';
+ assert.equal(guideStageForQuestion(victim,'who'),null);
+ const ai=newInterview('intake');ai.turns=[{stage:'who',q:victim,a:'برای مادرم بود'}];
+ ai.current={stage:'who',question:current.title,options:[]};ai.draft='فاعل ناشناس بود';
+ assert.ok(stepBack(ai));answerCurrent(ai,'برای مادرم بود');
+ applyStep(ai,{stage:'who',question:current.title,options:[]});assert.equal(ai.draft,'فاعل ناشناس بود');
+});
+
+test('version 2 and 3 count drafts migrate without losing words or changing the logical cursor',()=>{
+ const answers={source:'من خودم این را دیدم',who:'یک نفر این کار را انجام داد',when:'دیروز',where:'تهران',
+  result:'سرقت و درگیری رخ داد',reason:'نامعلوم',method:'نامعلوم'};
+ for(const version of [2,3]){
+  const old=stepsFor(answers,'',[],version===2?{includeDeprecated:true}:{legacyPeople:true});
+  const index=old.findIndex(s=>s.id==='peopleCount');assert.ok(index>=0);
+  const g={orderVersion:version,index,base:'',answers:{...answers},skipped:[],draft:{step:'peopleCount',value:'حدود سه نفر'}};
+  migrateGuideOrder(g);const live=stepsFor(g.answers,'',g.skipped);
+  assert.equal(g.orderVersion,4);assert.equal(g.answers.peopleCount,'حدود سه نفر');assert.equal(g.draft,null);
+  assert.equal(live[g.index]?.id,'peopleDescription');assert.ok(!live.some(s=>s.id==='peopleCount'));
+  assert.match(composeNarrative(g.answers),/حدود سه نفر/);
+  const unknown={orderVersion:version,index,base:'',answers:{...answers},skipped:[],draft:{step:'peopleCount',value:'نمی‌دانم'}};
+  migrateGuideOrder(unknown);assert.ok(unknown.skipped.includes('peopleCount'));
+  assert.ok(!stepsFor(unknown.answers,'',unknown.skipped).some(s=>['peopleDescription','peopleKnown'].includes(s.id)));
+  const laterIndex=old.findIndex(s=>s.id==='witness');assert.ok(laterIndex>index);
+  const later={orderVersion:version,index:laterIndex,base:'',answers:{...answers,peopleCount:'دو نفر'},skipped:[],draft:{step:'witness',value:'یک شاهد دیگر'}};
+  // Its old list depends on the count answer, so recompute its cursor.
+  later.index=stepsFor(later.answers,'',[],version===2?{includeDeprecated:true}:{legacyPeople:true}).findIndex(s=>s.id==='witness');
+  migrateGuideOrder(later);assert.equal(stepsFor(later.answers,'',later.skipped)[later.index]?.id,'witness');
+  assert.equal(later.draft.value,'یک شاهد دیگر');assert.equal(later.answers.peopleCount,'دو نفر');
+  const completed={orderVersion:version,index:old.length,base:'',answers:{...answers},skipped:[]};
+  migrateGuideOrder(completed);assert.equal(completed.index,stepsFor(completed.answers,'',completed.skipped).length);
+ }
+});
+
 test('migrating a duration draft preserves the user answer and cursor, and completion keeps observations',()=>{
  const answers={source:'من خودم این را دیدم',who:'یک نفر',when:'دیروز',where:'تهران',
   result:'مشکل قطع آب ادامه دارد',reason:'نامعلوم',method:'نامعلوم',ongoing:'این وضعیت در لحظهٔ ثبت گزارش ادامه داشت'};
  const before=stepsFor(answers,'',[],{includeDeprecated:true});const at=before.findIndex(s=>s.id==='duration');assert.ok(at>=0);
  const g={orderVersion:2,index:at,base:'',answers:{...answers},skipped:[],draft:{step:'duration',value:'از دو هفته پیش'}};
- migrateGuideOrder(g);assert.equal(g.orderVersion,3);assert.equal(g.answers.duration,'از دو هفته پیش');assert.equal(g.draft,null);
+ migrateGuideOrder(g);assert.equal(g.orderVersion,4);assert.equal(g.answers.duration,'از دو هفته پیش');assert.equal(g.draft,null);
  assert.equal(stepsFor(g.answers,g.base,g.skipped)[g.index].id,before[at+1].id);
  const narrative=composeNarrative({...g.answers,injury:'یک نفر آسیب دید',injuryCare:'اورژانس آمد',repeated:'این اتفاق تکرار شد'});
  for(const expected of ['از دو هفته پیش','یک نفر آسیب دید','اورژانس آمد','این وضعیت در لحظهٔ ثبت گزارش ادامه داشت','این اتفاق تکرار شد'])assert.ok(narrative.includes(expected),expected);

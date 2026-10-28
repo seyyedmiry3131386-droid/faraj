@@ -143,8 +143,8 @@ export const GUIDE_STEPS = [
  {
   id: 'who',
   fact: 'actor',
-  title: 'چه کسی این کار را انجام داد؟',
-  hint: 'فقط آنچه از فرد یا افراد انجام‌دهنده می‌دانید؛ هویت یا تقصیر را حدس نزنید.',
+  title: 'چه کسی یا چه کسانی این کار را انجام دادند؟',
+  hint: 'در صورت اطلاع، تعداد و نام یا مشخصات فرد یا افراد را بنویسید؛ هویت یا تقصیر را حدس نزنید.',
   options: [opt('یک نفر', 'یک نفر این کار را انجام داد'), opt('چند نفر', 'چند نفر این کار را انجام دادند'), opt('فرد ناشناس', 'فرد انجام‌دهنده برای من ناشناس بود'), opt('فرد آشنا', 'فرد انجام‌دهنده برای من آشنا بود')],
   allowFreeText: true,
   freeTextLabel: 'یا آنچه درباره انجام‌دهنده می‌دانید بنویسید',
@@ -211,9 +211,15 @@ export const LEGACY_STAGE_TITLES = Object.freeze({
  reason:'چرا: دلیل یا انگیزه‌ای مطرح شد؟',
  method:'چگونه: این کار چطور انجام شد؟',
 });
+// The unprefixed actor wording used by version 3 must also replay as the
+// same stage; the much older victim question remains a different question.
+const ADDITIONAL_STAGE_TITLES = Object.freeze({who:['چه کسی این کار را انجام داد؟']});
+export function guideQuestionAliases(id) {
+ const step=GUIDE_STEPS.find(s=>s.id===id);
+ return [...new Set([step?.title, LEGACY_STAGE_TITLES[id], ...(ADDITIONAL_STAGE_TITLES[id]||[])].filter(Boolean))];
+}
 export function guideStageForQuestion(question, stage = null) {
- return GUIDE_STEPS.find(step => (!stage || step.id === stage) &&
-  (question === step.title || question === LEGACY_STAGE_TITLES[step.id])) || null;
+ return GUIDE_STEPS.find(step => (!stage || step.id === stage) && guideQuestionAliases(step.id).includes(question)) || null;
 }
 // Presentation only: retain the old question internally for replay. In
 // particular the old victim question must never become the new actor stage.
@@ -272,6 +278,7 @@ export const FOLLOW_UPS = [
  {
   after: 'who',
   id: 'peopleCount',
+  legacyOnly: true, // retain old answers/drafts; count is now part of who
   title: 'چند نفر در این اتفاق نقش داشتند؟',
   hint: 'تقریبی هم کافی است.',
   options: [opt('یک نفر', 'یک نفر در این اتفاق دخیل بود'), opt('دو نفر', 'دو نفر در این اتفاق دخیل بودند'),
@@ -281,15 +288,16 @@ export const FOLLOW_UPS = [
   when: ctx => has(ctx, ...PEOPLE_TOPICS) || mentions(ctx, /یک\s+نفر|چند\s+نفر|افراد|فرد|مرد|زن|پسر|دختر|راننده|همسایه|ناشناس/u),
  },
  {
-  after: 'peopleCount',
+  after: 'who',
   id: 'peopleDescription',
   title: 'آیا از ظاهر یا نشانه‌های این افراد اطلاعاتی دارید؟',
   hint: 'قد، لباس، سن، لهجه — هر چه یادتان هست.',
   placeholder: 'مثلاً: یکی قد بلند با کاپشن مشکی، دیگری جوان‌تر و با کلاه',
   allowFreeText: true,
   skippable: true,
-  // Only worth asking once the reporter has said someone was there.
-  when: ctx => answered(ctx, 'peopleCount'),
+  // Actor details are relevant only after the reporter actually answered who,
+  // or an older draft retained an answer to the former count question.
+  when: ctx => answered(ctx, 'who') || answered(ctx, 'peopleCount'),
  },
  {
   after: 'peopleDescription',
@@ -299,7 +307,7 @@ export const FOLLOW_UPS = [
   options: [opt('ناشناس بودند', 'افراد برای من ناشناس بودند'), opt('قبلاً دیده بودمشان', 'قبلاً آن‌ها را در محل دیده بودم'),
    opt('آشنا بودند', 'با آن‌ها آشنایی قبلی داشتم'), opt('نمی‌دانم', '')],
   skippable: true,
-  when: ctx => answered(ctx, 'peopleCount'),
+  when: ctx => answered(ctx, 'who') || answered(ctx, 'peopleCount'),
  },
  {
   after: 'result',
@@ -574,7 +582,7 @@ export function coreStepsFor(answers = {}, base = '', {contextual = true} = {}) 
  * The live question list: all missing base steps first, then relevant optional
  * follow-ups in parent/child order. Recomputed from the answers each time.
  */
-export function stepsFor(answers = {}, base = '', skipped = [], { includeDeprecated = false } = {}) {
+export function stepsFor(answers = {}, base = '', skipped = [], { includeDeprecated = false, legacyPeople = includeDeprecated } = {}) {
  const ctx = situation(answers, base, includeDeprecated);
  const covered = coverageInBase(answers, base);
  const byAnchor = new Map();
@@ -583,11 +591,17 @@ export function stepsFor(answers = {}, base = '', skipped = [], { includeDepreca
  const present = new Set(GUIDE_STEPS.map(s => s.id));
  // FOLLOW_UPS is ordered parent before child, so one pass is enough: a
  // follow-up of a follow-up is only kept when its own anchor was kept.
- for (const followUp of FOLLOW_UPS) {
-  if (followUp.deprecated && !includeDeprecated) continue;
+ for (const definition of FOLLOW_UPS) {
+  if (definition.deprecated && !includeDeprecated) continue;
+  if (definition.legacyOnly && !legacyPeople) continue;
+  // Recreate the old count-dependent branches only while rebasing drafts.
+  const followUp = legacyPeople && definition.id === 'peopleDescription'
+   ? {...definition,after:'peopleCount',when:ctx=>answered(ctx,'peopleCount')}
+   : legacyPeople && definition.id === 'peopleKnown'
+    ? {...definition,when:ctx=>answered(ctx,'peopleCount')} : definition;
   // A skipped/unknown parent closes its dependent branch even if a topic
   // classifier happens to think that branch would otherwise be relevant.
-  if (blocked.has(followUp.after)) { blocked.add(followUp.id); continue; }
+  if (blocked.has(followUp.after) || (followUp.id==='peopleDescription'&&blocked.has('peopleCount'))) { blocked.add(followUp.id); continue; }
   if (!present.has(followUp.after) || !followUp.when(ctx)) continue;
   byAnchor.set(followUp.after, [...(byAnchor.get(followUp.after) ?? []), followUp]);
   present.add(followUp.id);
@@ -595,7 +609,11 @@ export function stepsFor(answers = {}, base = '', skipped = [], { includeDepreca
  const out = GUIDE_STEPS.filter(step => !covered(step));
  const pushFollowUps = anchor => {
   for (const followUp of byAnchor.get(anchor) ?? []) {
-   if (!covered(followUp)) out.push(followUp);
+   // If who already says whether the person is known, do not ask again.
+   // Still traverse the branch for other details that remain relevant.
+   const knownInWho = !legacyPeople && followUp.id==='peopleKnown' &&
+    /(?:ناشناس|اشنا|نمی\s*شناسم|می\s*شناسم)/u.test(normalize(String(answers.who||'')));
+   if (!covered(followUp) && !knownInWho) out.push(followUp);
    pushFollowUps(followUp.id);
   }
  };
@@ -607,36 +625,59 @@ export function stepsFor(answers = {}, base = '', skipped = [], { includeDepreca
  const mode = reportMode({ source: SOURCE_FROM_GUIDE_ANSWER[String(answers.source || '')] || '' }, ctx.text);
  return out.map(step => adapt(suggestionsFor(step, ctx), mode));
 }
-// Rebase a seven-stage draft made before the deprecated duration question was
-// removed. Keep its unsent answer, and continue from the same logical step.
+export const GUIDE_ORDER_VERSION = 4;
+
+/** Rebase older guides without discarding old or unsent answers. */
 export function migrateGuideOrder(g) {
- if (!g || g.orderVersion !== 2) return g;
+ if (!g) return g;
  g.answers ??= {}; g.skipped ??= [];
- const oldSteps = stepsFor(g.answers, g.base || '', g.skipped, {includeDeprecated:true});
- const oldIndex = Math.max(0, Math.min(Number(g.index) || 0, oldSteps.length));
- const currentId = g.draft?.step || oldSteps[oldIndex]?.id;
- if (currentId === 'duration' && g.draft?.step === 'duration') {
-  const value = String(g.draft.value || '').trim();
-  if (value && !isNonAnswer(value)) g.answers.duration = value;
-  else if (value && !g.skipped.includes('duration')) g.skipped.push('duration');
-  g.draft = null;
+ if (g.orderVersion === 2) {
+  // Version 2 still had duration. First recreate the version 3 list exactly,
+  // including the old count question, before migrating that list below.
+  const oldSteps = stepsFor(g.answers, g.base || '', g.skipped, {includeDeprecated:true});
+  const oldIndex = Math.max(0, Math.min(Number(g.index) || 0, oldSteps.length));
+  const currentId = g.draft?.step || oldSteps[oldIndex]?.id;
+  if (currentId === 'duration' && g.draft?.step === 'duration') {
+   const value = String(g.draft.value || '').trim();
+   if (value && !isNonAnswer(value)) g.answers.duration = value;
+   else if (value && !g.skipped.includes('duration')) g.skipped.push('duration');
+   g.draft = null;
+  }
+  let nextSteps = stepsFor(g.answers, g.base || '', g.skipped, {legacyPeople:true});
+  if (g.draft?.step && !nextSteps.some(s => s.id === g.draft.step)) {
+   const {step,value} = g.draft, text=String(value || '').trim();
+   if (text && !isNonAnswer(text)) g.answers[step]=text;
+   else if (text && !g.skipped.includes(step)) g.skipped.push(step);
+   g.draft=null;
+   nextSteps=stepsFor(g.answers,g.base||'',g.skipped,{legacyPeople:true});
+  }
+  let target = currentId && currentId !== 'duration' ? nextSteps.findIndex(s => s.id === currentId) : -1;
+  if (target < 0) {
+   const nextId = oldSteps.slice(oldIndex + (currentId === 'duration' ? 1 : 0)).find(s => nextSteps.some(n => n.id === s.id))?.id;
+   target = nextId ? nextSteps.findIndex(s => s.id === nextId) : nextSteps.length;
+  }
+  g.index=target;g.orderVersion=3;
  }
- let nextSteps = stepsFor(g.answers, g.base || '', g.skipped);
- // If a previously visible conditional step no longer exists, preserve its
- // unsent text as an answer rather than dropping it when the guide completes.
- if (g.draft?.step && !nextSteps.some(s => s.id === g.draft.step)) {
-  const {step,value} = g.draft, text=String(value || '').trim();
-  if (text && !isNonAnswer(text)) g.answers[step]=text;
-  else if (text && !g.skipped.includes(step)) g.skipped.push(step);
-  g.draft=null;
-  nextSteps=stepsFor(g.answers,g.base||'',g.skipped);
+ if (g.orderVersion !== 3) return g;
+ // Version 3 had a second count question after the base stages. Keep the
+ // original answer or an unsent draft, then anchor the cursor by stage id.
+ const oldSteps=stepsFor(g.answers,g.base||'',g.skipped,{legacyPeople:true});
+ const oldIndex=Math.max(0,Math.min(Number(g.index)||0,oldSteps.length));
+ const currentId=g.draft?.step||oldSteps[oldIndex]?.id;
+ let nextSteps=stepsFor(g.answers,g.base||'',g.skipped);
+ if(g.draft?.step&&!nextSteps.some(s=>s.id===g.draft.step)){
+  const {step,value}=g.draft,text=String(value||'').trim();
+  if(text&&!isNonAnswer(text))g.answers[step]=text;
+  else if(text&&!g.skipped.includes(step))g.skipped.push(step);
+  g.draft=null;nextSteps=stepsFor(g.answers,g.base||'',g.skipped);
  }
- let target = currentId && currentId !== 'duration' ? nextSteps.findIndex(s => s.id === currentId) : -1;
- if (target < 0) {
-  const nextId = oldSteps.slice(oldIndex + (currentId === 'duration' ? 1 : 0)).find(s => nextSteps.some(n => n.id === s.id))?.id;
-  target = nextId ? nextSteps.findIndex(s => s.id === nextId) : nextSteps.length;
+ let target=currentId&&currentId!=='peopleCount'?nextSteps.findIndex(s=>s.id===currentId):-1;
+ if(target<0&&currentId==='peopleCount')target=nextSteps.findIndex(s=>s.id==='peopleDescription');
+ if(target<0){
+  const nextId=oldSteps.slice(oldIndex+(currentId==='peopleCount'?1:0)).find(s=>nextSteps.some(n=>n.id===s.id))?.id;
+  target=nextId?nextSteps.findIndex(s=>s.id===nextId):nextSteps.length;
  }
- g.index = target; g.pendingAdvance = null; g.autoAdvancedAt = 0; g.orderVersion = 3;
+ g.index=target;g.pendingAdvance=null;g.autoAdvancedAt=0;g.orderVersion=GUIDE_ORDER_VERSION;
  return g;
 }
 

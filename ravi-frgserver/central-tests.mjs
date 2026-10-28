@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createHmac,randomBytes,randomUUID} from 'node:crypto';
+import {createHash,createHmac,randomBytes,randomUUID} from 'node:crypto';
 import {mkdtemp,readFile,writeFile,rm,mkdir,symlink,stat,realpath,readdir} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -9,9 +9,10 @@ import http from 'node:http';
 import Database from 'better-sqlite3';
 import {CentralStore} from './central-store.mjs';
 import {createCentral} from './central-http.mjs';
-import {dataKey,fromBase32,totpAt,verifyBaleInitData,verifyTotp} from './central-crypto.mjs';
+import {dataKey,fromBase32,totpAt,verifyBaleInitData,verifyTotp,userKey} from './central-crypto.mjs';
 
 const BOT='123456789:local-test-token-only';
+const REPORTER={name:'کاربر آزمایشی',province:'تهران',mobile:'۹۱۲۳۴۵۶۷۸۹',rank:'رده آزمایشی',post:'سمت آزمایشی'};
 function signed({id=12345,userJSON,when=Math.floor(Date.now()/1000),token=BOT}={}){
  const p=new URLSearchParams({auth_date:String(when),query_id:'test',user:userJSON??JSON.stringify({id,first_name:'Test'})});
  const check=[...p.entries()].sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>`${k}=${v}`).join('\n');
@@ -52,7 +53,16 @@ test('central storage rejects a symlink into public assets without changing perm
 test('central intake, idempotency, isolated staff authentication, audit and encrypted files',async t=>{
  const dir=await mkdtemp(path.join(os.tmpdir(),'ravi-central-test-'));t.after(()=>rm(dir,{recursive:true,force:true}));
  const rawKey=randomBytes(32),key=rawKey.toString('base64');
- const initial=new CentralStore(dir,rawKey);const seed=await initial.addStaff('reviewer.one','a long test password only','reviewer');const adminSeed=await initial.addStaff('admin.one','another long test password','admin');initial.close();
+ const initial=new CentralStore(dir,rawKey);const seed=await initial.addStaff('reviewer.one','a long test password only','reviewer');const adminSeed=await initial.addStaff('admin.one','another long test password','admin');
+ // Fixture representing a report accepted by the previous release without
+ // reporter details. An identical retry must remain idempotent after upgrade.
+ const legacyKey=randomUUID(),legacyId='RV-'+randomBytes(16).toString('hex').toUpperCase();
+ const legacyText=JSON.stringify({title:'گزارش قدیمی',text:'گزارش پذیرفته‌شده پیش از تغییر'});
+ const legacyDir=await mkdtemp(path.join(initial.incoming,'legacy-'));
+ initial.commit({id:legacyId,owner:userKey(rawKey,'12345'),key:legacyKey,
+  fingerprint:createHash('sha256').update(Buffer.from(legacyText)).update('\0').digest('hex'),
+  report:JSON.parse(legacyText),files:[],tempDir:legacyDir,verifiedBaleId:'12345'});
+ initial.close();
  assert.throws(()=>new CentralStore(dir,randomBytes(32)),/does not match/);
  const child=spawn(process.execPath,['server.mjs'],{cwd:process.cwd(),env:{...process.env,PORT:'0',APP_ORIGIN:'http://report.localhost',ADMIN_ORIGIN:'http://staff.localhost',CENTRAL_ALLOW_INSECURE_DEV:'1',CENTRAL_ENABLED:'1',CENTRAL_DATA_DIR:dir,CENTRAL_DATA_KEY:key,BALE_BOT_TOKEN:BOT},stdio:['ignore','pipe','pipe']});
  t.after(()=>child.kill('SIGTERM'));
@@ -70,15 +80,29 @@ test('central intake, idempotency, isolated staff authentication, audit and encr
  assert.equal((await (await send('/api/config')).json()).central,true);
  assert.equal((await send('/api/check',{method:'POST',headers:{Origin:host,'Content-Type':'application/json'},body:'{}'})).status,401);
  assert.notEqual((await send('/api/check',{method:'POST',headers:{Origin:host,'Content-Type':'application/json','X-Bale-Init-Data':init},body:'{}'})).status,401);
- const upload=(text='شرح گزارش آزمایشی')=>{const form=new FormData();form.append('report',JSON.stringify({title:'سرقت',text,answers:{when:'دیروز'},verifiedBaleId:'999999'}));form.append('files',new Blob(['sensitive attachment contents'],{type:'application/pdf'}),'مدرک-آزمایشی.pdf');return form};
+ const upload=(text='شرح گزارش آزمایشی')=>{const form=new FormData();form.append('report',JSON.stringify({title:'سرقت',text,answers:{when:'دیروز'},reporter:REPORTER,verifiedBaleId:'999999'}));form.append('files',new Blob(['sensitive attachment contents'],{type:'application/pdf'}),'مدرک-آزمایشی.pdf');return form};
  const post=(body,extra={})=>send('/api/central/reports',{method:'POST',headers:{Origin:host,'X-Bale-Init-Data':init,'X-Submission-Key':submission,...extra},body});
  assert.equal((await send('/api/central/reports',{method:'POST',headers:{Origin:host,'X-Bale-Init-Data':'forged','X-Submission-Key':submission},body:upload()})).status,401);
  assert.equal((await post(upload(),{Origin:'http://attacker.invalid'})).status,403);
- const many=count=>{const form=new FormData();form.append('report',JSON.stringify({title:'آزمون',text:'گزارش ساختگی'}));for(let i=0;i<count;i++)form.append('files',new Blob(['x'],{type:'application/pdf'}),`file${i}.pdf`);return form};
+ const many=count=>{const form=new FormData();form.append('report',JSON.stringify({title:'آزمون',text:'گزارش ساختگی',reporter:REPORTER}));for(let i=0;i<count;i++)form.append('files',new Blob(['x'],{type:'application/pdf'}),`file${i}.pdf`);return form};
  const tenKey=randomUUID();const ten=await send('/api/central/reports',{method:'POST',headers:{Origin:host,'X-Bale-Init-Data':init,'X-Submission-Key':tenKey},body:many(10)});assert.equal(ten.status,201,'exactly ten files must be accepted');
  const eleven=await post(many(11));assert.equal(eleven.status,413,'eleven files must be rejected');
  const invalid=new FormData();invalid.append('report',JSON.stringify({title:'آزمون',text:'گزارش ساختگی'}));invalid.append('files',new Blob(['x'],{type:'text/plain'}),'script.sh');
  assert.equal((await post(invalid)).status,400,'unsupported attachments must be rejected');
+ const withReporter=reporter=>{const f=new FormData();f.append('report',JSON.stringify({title:'آزمون',text:'گزارش ساختگی',reporter}));f.append('files',new Blob(['x'],{type:'application/pdf'}),'test.pdf');return f};
+ for(const reporter of [undefined,...Object.keys(REPORTER).map(field=>({...REPORTER,[field]:'  '})),
+  {...REPORTER,mobile:'۹۱۲۳۴۵۶۷۸'}, {...REPORTER,mobile:'09123456789'}, {...REPORTER,mobile:'۹۱۲-۳۴۵۶۷۸۹'}, {...REPORTER,mobile:'۹۱۲۳۴۵۶۷۸a'}]){
+  const rejected=await post(withReporter(reporter));assert.equal(rejected.status,400);assert.equal((await rejected.json()).code,'invalid_identity');
+  assert.deepEqual(await readdir(path.join(dir,'incoming')),[],'invalid identity must remove temporary files');
+ }
+ const legacyForm=text=>{const f=new FormData();f.append('report',text);return f};
+ const legacyRetry=await post(legacyForm(legacyText),{'X-Submission-Key':legacyKey});
+ assert.equal(legacyRetry.status,200);assert.deepEqual(await legacyRetry.json(),{id:legacyId,duplicate:true});
+ const legacyConflict=await post(legacyForm(JSON.stringify({title:'گزارش قدیمی',text:'متن تغییر داده شده'})),{'X-Submission-Key':legacyKey});
+ assert.equal(legacyConflict.status,409);assert.equal((await legacyConflict.json()).code,'submission_conflict');
+ const legacyStatus=await send(`/api/central/status?key=${legacyKey}`,{headers:{'X-Bale-Init-Data':init}});
+ assert.deepEqual(await legacyStatus.json(),{state:'accepted',id:legacyId});
+ assert.deepEqual(await readdir(path.join(dir,'incoming')),[]);
  // Hold two streaming uploads open to exercise admission and cleanup after a
  // dropped client. No user or production data is involved.
  const holding=[];t.after(()=>holding.forEach(req=>req.destroy()));
@@ -108,7 +132,7 @@ test('central intake, idempotency, isolated staff authentication, audit and encr
  assert.equal(login.status,200);const session=await login.json(),cookie=login.headers.get('set-cookie').split(';')[0];assert.match(login.headers.get('set-cookie'),/HttpOnly; Secure; SameSite=Strict/);
  const authHeaders={Cookie:cookie};
  const list=await send('/api/staff/reports',{admin:true,headers:authHeaders});assert.equal((await list.json()).items[0].id,received.id);
- const detail=await send('/api/staff/reports/'+received.id,{admin:true,headers:authHeaders});const d=await detail.json();assert.equal(d.report.text,'شرح گزارش آزمایشی');assert.equal(d.report.verifiedBaleId,'12345');assert.equal(d.files[0].name,'مدرک-آزمایشی.pdf');
+ const detail=await send('/api/staff/reports/'+received.id,{admin:true,headers:authHeaders});const d=await detail.json();assert.equal(d.report.text,'شرح گزارش آزمایشی');assert.equal(d.report.verifiedBaleId,'12345');assert.equal(d.report.reporter.mobile,'9123456789');assert.equal(d.files[0].name,'مدرک-آزمایشی.pdf');
  assert.equal((await send('/api/staff/audit',{admin:true,headers:authHeaders})).status,403);
  const adminLogin=await send('/api/staff/login',{admin:true,method:'POST',headers:{Origin:staffHost,'Content-Type':'application/json'},body:JSON.stringify({username:'admin.one',password:'another long test password',otp:totpAt(fromBase32(adminSeed),Math.floor(Date.now()/30000))})});
  assert.equal(adminLogin.status,200);const adminCookie=adminLogin.headers.get('set-cookie').split(';')[0];

@@ -181,7 +181,7 @@
 .news-domain-notice strong{margin-inline-start:auto;padding:.28rem .8rem;border:1px solid #cde0d3;border-radius:10px;background:#fff;font-size:14px;font-weight:700;overflow-wrap:anywhere}
 @media(max-width:360px){.news-domain-label,.news-domain-notice strong{font-size:12px}.news-domain-notice{gap:.45rem}}
 
-/* Reporter identity: aligned, readable optional fields in the shared modal. */
+/* Reporter identity: aligned, readable required fields in the shared modal. */
 .legacy-ui .identity-modal{width:min(100%,620px);max-width:620px;padding:28px;background:#fff;border:1px solid #dbe7df;box-shadow:0 24px 70px rgba(20,47,33,.22)}
 .identity-modal .modal-head{margin:0 0 20px;align-items:center}
 .identity-modal .modal-head h2{font-size:20px;color:#18372b}
@@ -199,6 +199,10 @@
 .identity-field input::placeholder{color:#8a9a8f;opacity:1}
 .legacy-ui .identity-field input:focus{outline:0;border-color:#699b7c;background:#fff;box-shadow:0 0 0 4px rgba(61,123,82,.13)}
 .identity-field input[dir="ltr"]{text-align:left;unicode-bidi:plaintext}
+.identity-field label{display:flex;flex-direction:column;gap:7px}
+.identity-field small{font-size:11px;color:#5f7668;line-height:1.6}
+.legacy-ui .identity-field input[aria-invalid="true"]{border-color:#b34337;background:#fffafa}
+.identity-form #identity-error{margin:12px 0 0}
 .identity-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;padding-top:18px;border-top:1px solid #e6eee8}
 .identity-actions button{min-height:48px;justify-content:center}
 .identity-actions .primary{min-width:190px}
