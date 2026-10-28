@@ -6,7 +6,7 @@ import {requestLocation} from './device-permissions.js';
 import {screenKey,screenOrder,markEntrance,tick} from './motion.js';
 import {createFieldVoice} from './field-voice.js';
 import {createDictation,speechSupported,appendSpeech} from './speech.js';
-import {guidanceNeed,GUIDE_STEPS,FOLLOW_UPS,coreStepsFor,guideStageForQuestion,displayGuideQuestion,migrateGuideOrder,finalNarrative,stepsFor,canFinishGuide,missingFacts,readAnswer,triage,interviewProgress,carryGuideAnswers,unknownStagesInText,newsDomain,reportMeta,displayNewsDomain} from './guidance.js';
+import {guidanceNeed,GUIDE_STEPS,FOLLOW_UPS,coreStepsFor,guideStageForQuestion,interviewOptionLabels,displayGuideQuestion,migrateGuideOrder,finalNarrative,stepsFor,canFinishGuide,missingFacts,readAnswer,triage,interviewProgress,carryGuideAnswers,unknownStagesInText,newsDomain,reportMeta,displayNewsDomain} from './guidance.js';
 import {orderedClientStep,orderedInterviewPath} from './interview-order.js';
 import {uiLabel} from './ui-label.js';
 import {renderGuide,triageBanner,triageKey} from './guide-view.js';
@@ -606,6 +606,7 @@ function migrateAiDraft(ai){
  if(path.next&&current&&path.next.id===current.id){
   const old=ai.current.question;
   ai.current.question=path.next.title;ai.current.stage=path.next.id;ai.current.hint=path.next.hint;
+  ai.current.options=interviewOptionLabels(path.next);
   if(ai.pendingDrafts?.[old]&&!ai.pendingDrafts[path.next.title])ai.pendingDrafts[path.next.title]=ai.pendingDrafts[old];
   return;
  }
@@ -874,12 +875,12 @@ const actions={'download-unsaved':()=>{const snapshot={شرح:state.text,راه�
  'ai-unknown':()=>{if(String(document.querySelector('#ai-answer')?.value||'').trim())return;sendAiAnswer('')},
  'ai-retry':()=>askNext(),
  'ai-back':()=>{const ai=state.ai;if(!ai)return;aiSeq++;aiLoading=false;aiError='';
-  if(stepBack(ai)){persist();render();focusAi();return}
+  if(stepBack(ai,state.text)){persist();render();focusAi();return}
   state.pausedAi={...ai,forText:state.text};state.ai=null;if(ai.mode==='detail'){state.askDetail=true;state.step=1}else state.step=0;persist();render()},
  'ai-finish':()=>finishInterview(true),
  'ai-edit':()=>{
   if(state.completedGuide?.forText===state.text){state.guide={...state.completedGuide,pendingAdvance:null,autoAdvancedAt:0};state.step=1;state.askDetail=false;state.confirmed=false;persist();render();focusGuide();return}
-  const ai=state.ai;if(!ai)return;ai.fallback=false;state.step=1;state.askDetail=false;stepBack(ai);state.confirmed=false;persist();render();focusAi()
+  const ai=state.ai;if(!ai)return;ai.fallback=false;state.step=1;state.askDetail=false;stepBack(ai,state.text);state.confirmed=false;persist();render();focusAi()
  },
  'ai-fallback':async()=>{const ai=state.ai;if(!ai)return;aiSeq++;aiLoading=false;aiError='';
   // Failure never jumps over an unfinished core stage in either mode.

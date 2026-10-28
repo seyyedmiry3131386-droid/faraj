@@ -2,7 +2,7 @@
 // the offline guide while the model reads the report and extracts facts.
 // This module holds state and draws it; app.js does the network call.
 
-import { GUIDE_STEPS, LEGACY_STAGE_TITLES, guideStageForQuestion, displayGuideQuestion, displayNewsDomain, stepsFor, guideAnswersFromTurns, composeNarrative } from './guidance.js';
+import { GUIDE_STEPS, LEGACY_STAGE_TITLES, guideStageForQuestion, guideStageWithContext, interviewOptionLabels, displayGuideQuestion, displayNewsDomain, stepsFor, guideAnswersFromTurns, composeNarrative } from './guidance.js';
 import {orderedInterviewPath} from './interview-order.js';
 import {uiLabel} from './ui-label.js';
 
@@ -48,13 +48,19 @@ export function applyStep(ai, step) {
 }
 
 /** Back: the last question comes back on screen with its answer in the box. */
-export function stepBack(ai) {
+export function stepBack(ai, text = null) {
   const last = ai.turns.pop();
   if (!last) return false;
   if(ai.current&&String(ai.draft||'').trim())(ai.pendingDrafts??={})[ai.current.question]=ai.draft;
   const step=guideStageForQuestion(last.q,last.stage||null);
-  ai.current = { question: step?.title || last.q, options: last.options || [],
-    ...(last.stage ? { stage: last.stage } : {}), ...((step?.hint||last.hint) ? { hint: step?.hint||last.hint } : {}) };
+  // Old histories may contain yesterday's static shortcuts. Recompute them
+  // from the description and answers preceding this question, while keeping
+  // the user's old answer in the editable draft exactly as it was.
+  const context = text === null ? null : [text,...ai.turns.map(t=>t.a)].filter(Boolean).join('\n');
+  const presented = step && context !== null ? guideStageWithContext(step,context) : step;
+  const options = step && context !== null ? interviewOptionLabels(presented) : (last.options || []);
+  ai.current = { question: presented?.title || last.q, options,
+    ...(last.stage ? { stage: last.stage } : {}), ...((presented?.hint||last.hint) ? { hint: presented?.hint||last.hint } : {}) };
   ai.draft = last.a; ai.done = false;
   return true;
 }

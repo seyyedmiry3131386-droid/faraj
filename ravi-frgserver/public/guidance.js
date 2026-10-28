@@ -9,6 +9,7 @@
 
 import { normalize } from './persian-normalize.js';
 import { EVENTS, localAnalysis, eventIds } from './scenarios.js';
+import { adaptiveGuideSuggestions } from './guide-suggestions.js';
 import { triageWording, isHappeningNow, knownFacts, isNonAnswer } from './situation.js';
 import { reportMode, adapt } from './voice-mode.js';
 
@@ -540,10 +541,33 @@ function coverageInBase(answers, base) {
  };
 }
 
+// A shortcut selected on the who stage should not hide itself on Back. The
+// topic can still come from that answer, but count suppression uses the base
+// and the other answers, not the answer currently being edited.
+function suggestionsFor(step, ctx) {
+ if (step.id !== 'who' || !ctx.answers?.who) return adaptiveGuideSuggestions(step, ctx);
+ const others = {...ctx.answers, who:''};
+ const actorCountText = [ctx.base, composeNarrative(others)].filter(Boolean).join(' ');
+ return adaptiveGuideSuggestions(step, {...ctx, actorCountText});
+}
+
+/** Context changes suggestions only, never the identity or order of a stage. */
+export function guideStageWithContext(step, base = '', answers = {}) {
+ return step ? suggestionsFor(step, situation(answers, base)) : null;
+}
+
+/** Choices accepted by the AI interview; unknown has its own skip button. */
+export function interviewOptionLabels(step) {
+ return (step?.options || []).filter(o => o.phrase).map(o => o.label).slice(0, 4);
+}
+
 /** The ordered base steps still needed for this description, without branches. */
-export function coreStepsFor(answers = {}, base = '') {
+export function coreStepsFor(answers = {}, base = '', {contextual = true} = {}) {
  const covered = coverageInBase(answers, base);
- return GUIDE_STEPS.filter(step => !covered(step));
+ const steps = GUIDE_STEPS.filter(step => !covered(step));
+ if (!contextual) return steps;
+ const ctx = situation(answers, base);
+ return steps.map(step => suggestionsFor(step, ctx));
 }
 
 /**
@@ -581,7 +605,7 @@ export function stepsFor(answers = {}, base = '', skipped = [], { includeDepreca
  // An already complete description may leave no questions. Never invent a
  // duplicate first stage just to keep the screen non-empty.
  const mode = reportMode({ source: SOURCE_FROM_GUIDE_ANSWER[String(answers.source || '')] || '' }, ctx.text);
- return out.map(step => adapt(step, mode));
+ return out.map(step => adapt(suggestionsFor(step, ctx), mode));
 }
 // Rebase a seven-stage draft made before the deprecated duration question was
 // removed. Keep its unsent answer, and continue from the same logical step.

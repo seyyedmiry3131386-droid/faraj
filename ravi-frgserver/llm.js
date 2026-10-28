@@ -10,7 +10,7 @@
 // Model output is untrusted: facts must come from the reporter's words, and
 // neither the model's question nor its done flag can bypass the ordered path.
 
-import { GUIDE_STEPS, guideAnswersFromTurns, composeNarrative, displayNewsDomain } from './public/guidance.js';
+import { GUIDE_STEPS, guideAnswersFromTurns, composeNarrative, displayNewsDomain, interviewOptionLabels } from './public/guidance.js';
 import { orderedInterviewPath as interviewPath } from './public/interview-order.js';
 
 const LLM_DEFAULT_URL = 'http://127.0.0.1:11434';
@@ -274,7 +274,7 @@ export async function interviewStep(ask, input) {
       hint: step.hint,
       // An unknown has its own button. Only offer choices with a factual
       // phrase; free text and skipping remain available on every stage.
-      options: (step.options || []).filter(o => o.phrase).map(o => o.label).slice(0, 4),
+      options: interviewOptionLabels(step),
       narrative: '',
     };
   }

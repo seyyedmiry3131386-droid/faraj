@@ -1,6 +1,6 @@
 // The same replayable order is used by the server and the browser. A model's
 // proposed question, cursor or done flag never determines the next stage.
-import {coreStepsFor,guideStageForQuestion} from './guidance.js';
+import {GUIDE_STEPS,coreStepsFor,guideStageForQuestion,guideStageWithContext,interviewOptionLabels} from './guidance.js';
 
 // Drafts made before the seven-stage change may contain the old victim
 // question and a separate evidence question. Preserve their answers as legacy
@@ -9,7 +9,7 @@ const OLD_WHO='چه کسی: این اتفاق برای چه کسی افتاد؟'
 const OLD_EVIDENCE='مدرک یا نشانه‌ای دارید؟';
 
 export function orderedInterviewPath({mode='detail',text='',turns=[]}={}){
- const steps=coreStepsFor({},mode==='detail'?text:'');
+ const steps=coreStepsFor({},mode==='detail'?text:'',{contextual:false});
  const recovered=[];let cursor=0,legacyCount=0,oldDraft=false;
  const keepLegacy=turn=>{legacyCount++;const {stage,...rest}=turn;recovered.push(rest)};
  for(const turn of turns){
@@ -26,7 +26,13 @@ export function orderedInterviewPath({mode='detail',text='',turns=[]}={}){
   keepLegacy(turn);
  }
  if(legacyCount>20)return {error:'پرسش و پاسخ‌ها نامعتبرند.'};
- return {next:steps[cursor]||null,turns:recovered};
+ // Coverage and replay are based only on the original description, as above.
+ // Suggestions, in contrast, also reflect the reporter's previous answers.
+ // Start from the canonical stage so a later answer can both add and remove
+ // shortcuts without inheriting a previously filtered option list.
+ const canonical=GUIDE_STEPS.find(s=>s.id===steps[cursor]?.id);
+ const context=[text,...recovered.map(t=>t.a)].filter(Boolean).join('\n');
+ return {next:guideStageWithContext(canonical,context),turns:recovered};
 }
 
 export function orderedClientStep(ai,raw,text=''){
@@ -35,5 +41,5 @@ export function orderedClientStep(ai,raw,text=''){
  if(!path.next)return {...raw,done:true,stage:null,question:'',hint:'',options:[]};
  const step=path.next;
  return {...raw,done:false,stage:step.id,question:step.title,hint:step.hint,
-  options:(step.options||[]).filter(o=>o.phrase).map(o=>o.label).slice(0,4),narrative:''};
+  options:interviewOptionLabels(step),narrative:''};
 }

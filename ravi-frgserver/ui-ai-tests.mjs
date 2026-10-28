@@ -20,7 +20,7 @@ const { default: worker } = await import('./worker.js');
 const { start } = await import('./mock-llm.mjs');
 const { localAnalysis } = await import('./public/scenarios.js');
 const { prepareAnalysis } = await import('./public/extraction.js');
-const { GUIDE_STEPS, coreStepsFor } = await import('./public/guidance.js');
+const { GUIDE_STEPS, coreStepsFor, interviewOptionLabels } = await import('./public/guidance.js');
 const mock = await start(0);
 const env = { LLM_URL: `http://127.0.0.1:${mock.address().port}`, LLM_MODEL: 'qwen3:8b' };
 
@@ -98,7 +98,9 @@ await step('the model-assisted detail path starts at the first missing ordered s
   const q1 = await question();
   assert(q1 === coreStepsFor({}, TEXT)[0].title, q1);
   assert(await page.locator('.flow-content textarea#ai-answer').count() === 1, 'answer box');
-  assert(await page.locator('[data-ai-option]').count() > 0, 'stage choices');
+  const actual=(await page.locator('[data-ai-option]').allInnerTexts()).map(s=>s.trim());
+  const expected=interviewOptionLabels(coreStepsFor({}, TEXT)[0]);
+  assert(JSON.stringify(actual)===JSON.stringify(expected), 'contextual stage choices');
 });
 
 await step('facts the model invented are not shown; facts from the description are', async () => {
